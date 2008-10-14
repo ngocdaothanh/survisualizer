@@ -33,6 +33,10 @@ class Main
     glutInitWindowPosition(0, 0)
 
     @window = glutCreateWindow('Survisualizer')
+    @angle_y = 0
+    @position_x = 0
+    @position_y = 0
+    @position_z = 0
 
     glutDisplayFunc(method(:draw_scene).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
@@ -83,11 +87,12 @@ class Main
 
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity
 
-    @cameras.each do |c|
-      glLoadIdentity
-      c.visualize
-    end
+    glRotatef(@angle_y, 0, 1, 0)
+    glTranslatef(@position_x, @position_y, @position_z)
+
+    @cameras.each { |c| c.visualize }
 
     # Swap buffers for display
     glutSwapBuffers
@@ -98,10 +103,39 @@ class Main
   end
 
   def keyboard(key, x, y)
+    p key
     case key
-      when ?\q
-      glutDestroyWindow(@window)
-      exit(0)
+      when 114  # R
+        @position_x -= 0.1
+        draw_scene
+      when 108  # L
+        @position_x += 0.1
+        draw_scene
+
+      when 117  # U
+        @position_y -= 0.1
+        draw_scene
+      when 100  # D
+        @position_y += 0.1
+        draw_scene
+
+      when 105  # I
+        @position_z += 0.1
+        draw_scene
+      when 111  # O
+        @position_z -= 0.1
+        draw_scene
+
+      when 122  # Z
+        @angle_y -= 0.2
+        draw_scene
+      when 120  # X
+        @angle_y += 0.2
+        draw_scene
+
+      when 27  # ESC
+        glutDestroyWindow(@window)
+        exit(0)
     end
     glutPostRedisplay
   end
