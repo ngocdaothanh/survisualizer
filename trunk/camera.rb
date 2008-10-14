@@ -36,7 +36,7 @@ class Camera
     normal = assumed.cross_product(@focal_vector)
     angle = assumed.angle(@focal_vector)
     ret.each do |v|
-      v.rotate!(normal, angle) if normal.r != 0 && angle != 0
+      v.rotate!(normal, angle) if normal.r > EPSILON && angle > EPSILON
     end
 
     # Translate
