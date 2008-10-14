@@ -8,6 +8,8 @@ include Gl
 include Glu
 include Glut
 
+EPSILON = 0.00000001  # Very small number
+
 # The order of loading is important
 $:.unshift('./visualizers')
 require 'visualizer'

@@ -53,11 +53,6 @@ Vector.class_eval do
       @elements[2]*vector[0] - @elements[0]*vector[2],
       @elements[0]*vector[1] - @elements[1]*vector[0]
     ]
-#    Vector[
-#      @elements[2]*vector[1] - @elements[1]*vector[2],
-#      @elements[0]*vector[2] - @elements[2]*vector[0],
-#      @elements[1]*vector[0] - @elements[0]*vector[1]
-#    ]
   end
 end
 
