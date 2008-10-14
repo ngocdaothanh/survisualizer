@@ -15,14 +15,18 @@ $:.unshift('./visualizers')
 require 'visualizer'
 Dir.glob('./visualizers/*.rb').each { |f| require f }
 require 'vector'
+require 'model'
 require 'camera'
 require 'config'
+
+$model = nil
 
 class Main
   def initialize
     # Load config
     @window_width  = CONFIG[:window_width]
     @window_height = CONFIG[:window_height]
+    $model = Model.new
     @cameras = CONFIG[:cameras].map do |c|
       camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height])
       camera.visualizer = c[:visualizer]
@@ -94,6 +98,7 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glTranslatef(@position_x, @position_y, @position_z)
 
+    $model.visualize
     @cameras.each { |c| c.visualize }
 
     # Swap buffers for display
