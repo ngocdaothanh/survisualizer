@@ -1,5 +1,5 @@
 class VectorVisualizer < Visualizer
-  def visualize
+  def visualize_field_of_view
     glBegin(GL_LINES)
     $model.triangles.each do |t|
       @camera.rectangle.each do |p|

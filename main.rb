@@ -72,6 +72,32 @@ class Main
 
     glMatrixMode(GL_MODELVIEW)
 
+
+
+
+
+light_ambient = [0.0, 0.0, 0.0, 1.0]
+light_diffuse = [1.0, 1.0, 1.0, 1.0]
+light_specular = [1.0, 1.0, 1.0, 1.0]
+light_position = [10.0, 10.0, 10.0, 0.0]
+
+glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
+glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
+glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+
+glEnable(GL_LIGHTING)
+glEnable(GL_LIGHT0)
+glShadeModel(GL_SMOOTH)
+
+
+
+
+
+
+
+
+
     draw_scene
   end
 
@@ -98,15 +124,22 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glTranslatef(@position_x, @position_y, @position_z)
 
-    $model.visualize
-    @cameras.each { |c| c.visualize }
+    if @list
+      glCallList(@list)
+    else
+      @list = glGenLists(1)
+      glNewList(@list, GL_COMPILE)
+        $model.visualize
+        @cameras.each { |c| c.visualize }
+      glEndList
+    end
 
     # Swap buffers for display
     glutSwapBuffers
   end
 
   def idle
-    glutPostRedisplay
+    #glutPostRedisplay
   end
 
   def keyboard(key, x, y)
@@ -114,31 +147,31 @@ class Main
     case key
       when 114  # R
         @position_x -= 0.1
-        draw_scene
+        #draw_scene
       when 108  # L
         @position_x += 0.1
-        draw_scene
+        #draw_scene
 
       when 117  # U
         @position_y -= 0.1
-        draw_scene
+        #draw_scene
       when 100  # D
         @position_y += 0.1
-        draw_scene
+        #draw_scene
 
       when 105  # I
         @position_z += 0.1
-        draw_scene
+        #draw_scene
       when 111  # O
         @position_z -= 0.1
-        draw_scene
+        #draw_scene
 
       when 122  # Z
         @angle_y -= 0.2
-        draw_scene
+        #draw_scene
       when 120  # X
         @angle_y += 0.2
-        draw_scene
+        #draw_scene
 
       when 27  # ESC
         glutDestroyWindow(@window)

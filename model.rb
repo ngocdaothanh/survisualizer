@@ -1,12 +1,12 @@
 require 'triangle'
+require 'mqo'
 
 class Model
   attr_reader :triangles
 
   def initialize
-    @triangles = [
-      Triangle.new(Vector[100, 0, 0], Vector[0, 0, 100], Vector[-100, 0, -100])
-    ]
+    mqo = Mqo.new("./models/#{CONFIG[:model]}.mqo")
+    @triangles = mqo.load
   end
 
   def visualize
