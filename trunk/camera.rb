@@ -34,9 +34,17 @@ class Camera
       Vector[-@width/2, -@height/2, @focal_vector.r]
     ]
 
-    # Rotate
-    normal = assumed.cross_product(@focal_vector)
-    angle = assumed.angle(@focal_vector)
+    # The projection of focal vector to Oxz
+    oxz_focal_vector = Vector[@focal_vector[0], 0, @focal_vector[2]]
+
+    # Rotate about Oy
+    normal = assumed.cross_product(oxz_focal_vector)
+    angle = assumed.angle(oxz_focal_vector)
+    @rectangle = @rectangle.map { |v| v.rotate!(normal, angle) } if normal.r > EPSILON && angle > EPSILON
+
+    # Rotate about an axis which lies in Oxz
+    normal = oxz_focal_vector.cross_product(@focal_vector)
+    angle = oxz_focal_vector.angle(@focal_vector)
     @rectangle = @rectangle.map { |v| v.rotate!(normal, angle) } if normal.r > EPSILON && angle > EPSILON
 
     # Translate
