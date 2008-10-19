@@ -23,9 +23,11 @@ class Camera
 
   # Returns an array containing 4 position vectors of the lens rectangle.
   def rectangle
+    return @rectangle unless @rectangle.nil?
+
     # Assume that the focal vector is Vector[0, 0, @focal_vector.r]
     assumed = Vector[0, 0, @focal_vector.r]
-    ret = [
+    @rectangle = [
       Vector[-@width/2,  @height/2, @focal_vector.r],
       Vector[ @width/2,  @height/2, @focal_vector.r],
       Vector[ @width/2, -@height/2, @focal_vector.r],
@@ -35,18 +37,12 @@ class Camera
     # Rotate
     normal = assumed.cross_product(@focal_vector)
     angle = assumed.angle(@focal_vector)
-    ret.each do |v|
-      v.rotate!(normal, angle) if normal.r > EPSILON && angle > EPSILON
-    end
+    @rectangle = @rectangle.map { |v| v.rotate!(normal, angle) } if normal.r > EPSILON && angle > EPSILON
 
     # Translate
-    ret.each do |v|
-      (0..2).each do |i|
-        v[i] += @position[i]
-      end
-    end
+    @rectangle = @rectangle.map { |v| v + @position}
 
-    ret
+    @rectangle
   end
 
   def visualizer=(visualizer_class)

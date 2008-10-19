@@ -49,13 +49,35 @@ class Main
     glutIdleFunc(method(:idle).to_proc)
     glutKeyboardFunc(method(:keyboard).to_proc)
 
+    init_light
     init_window
+
     glutMainLoop
   end
 
+  def init_light
+    light_ambient = [0.5, 0.5, 0.5, 1.0]
+    light_diffuse = [0.5, 0.5, 0.5, 0.5]
+    light_specular = [0.5, 0.5, 0.5, 1.0]
+    light_position = [0.0, 10.0, 0.0, 1.0]
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+
+    glEnable(GL_LIGHTING)
+    glEnable(GL_LIGHT0)
+    glShadeModel(GL_SMOOTH)
+
+    # Enable color tracking
+    glEnable(GL_COLOR_MATERIAL)
+    # Set material properties which will be assigned by glColor
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE)
+  end
+
   def init_window
-    # Background color to black
-    glClearColor(0.0, 0.0, 0.0, 0)
+    glClearColor(1.0, 1.0, 1.0, 1.0)
     # Enables clearing of depth buffer
     glClearDepth(1.0)
     # Set type of depth test
@@ -71,33 +93,6 @@ class Main
     gluPerspective(45.0, @window_width/@window_height, 0.1, 100.0)
 
     glMatrixMode(GL_MODELVIEW)
-
-
-
-
-
-light_ambient = [0.0, 0.0, 0.0, 1.0]
-light_diffuse = [1.0, 1.0, 1.0, 1.0]
-light_specular = [1.0, 1.0, 1.0, 1.0]
-light_position = [10.0, 10.0, 10.0, 0.0]
-
-glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
-glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse)
-glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
-glLightfv(GL_LIGHT0, GL_POSITION, light_position)
-
-glEnable(GL_LIGHTING)
-glEnable(GL_LIGHT0)
-glShadeModel(GL_SMOOTH)
-
-
-
-
-
-
-
-
-
     draw_scene
   end
 
