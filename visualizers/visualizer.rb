@@ -8,28 +8,22 @@ class Visualizer
     visualize_field_of_view
   end
 
+  private
+
   def visualize_camera
-    a = @camera.rectangle
+    vertices = @camera.rectangle
 
     glBegin(GL_LINES)
-      glVertex3fv(@camera.position.to_a)
-      glVertex3fv(a[0].to_a)
-
-      glVertex3fv(@camera.position.to_a)
-      glVertex3fv(a[1].to_a)
-
-      glVertex3fv(@camera.position.to_a)
-      glVertex3fv(a[2].to_a)
-
-      glVertex3fv(@camera.position.to_a)
-      glVertex3fv(a[3].to_a)
+      vertices.each do |v|
+        glVertex3fv(@camera.position.to_a)
+        glVertex3fv(v.to_a)
+      end
     glEnd
 
     glBegin(GL_QUADS)
-      glVertex3fv(a[0].to_a)
-      glVertex3fv(a[1].to_a)
-      glVertex3fv(a[2].to_a)
-      glVertex3fv(a[3].to_a)
+      vertices.each do |v|
+        glVertex3fv(v.to_a)
+      end
     glEnd
   end
 

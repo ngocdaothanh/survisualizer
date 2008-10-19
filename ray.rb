@@ -1,11 +1,11 @@
 class Ray
-  attr_reader :root, :point
+  attr_reader :root, :head
 
-  def initialize(root, point)
-    @root, @point = root, point
+  def initialize(root, head)
+    @root, @head = root, head
   end
 
   def direction
-    @direction ||= @point - @root
+    @direction ||= @head - @root
   end
 end

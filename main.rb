@@ -44,7 +44,7 @@ class Main
     @position_y = 0
     @position_z = 0
 
-    glutDisplayFunc(method(:draw_scene).to_proc)
+    glutDisplayFunc(method(:visualize).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
     glutIdleFunc(method(:idle).to_proc)
     glutKeyboardFunc(method(:keyboard).to_proc)
@@ -93,7 +93,7 @@ class Main
     gluPerspective(45.0, @window_width/@window_height, 0.1, 100.0)
 
     glMatrixMode(GL_MODELVIEW)
-    draw_scene
+    visualize
   end
 
   def reshape(width, height)
@@ -108,7 +108,7 @@ class Main
     gluPerspective(45.0, width/height, 0.1, 100.0)
   end
 
-  def draw_scene
+  def visualize
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -119,22 +119,15 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glTranslatef(@position_x, @position_y, @position_z)
 
-    if @list
-      glCallList(@list)
-    else
-      @list = glGenLists(1)
-      glNewList(@list, GL_COMPILE)
-        $model.visualize
-        @cameras.each { |c| c.visualize }
-      glEndList
-    end
+    $model.visualize
+    @cameras.each { |c| c.visualize }
 
     # Swap buffers for display
     glutSwapBuffers
   end
 
   def idle
-    #glutPostRedisplay
+    glutPostRedisplay
   end
 
   def keyboard(key, x, y)
@@ -142,31 +135,23 @@ class Main
     case key
       when 114  # R
         @position_x -= 0.1
-        #draw_scene
       when 108  # L
         @position_x += 0.1
-        #draw_scene
 
       when 117  # U
         @position_y -= 0.1
-        #draw_scene
       when 100  # D
         @position_y += 0.1
-        #draw_scene
 
       when 105  # I
         @position_z += 0.1
-        #draw_scene
       when 111  # O
         @position_z -= 0.1
-        #draw_scene
 
       when 122  # Z
         @angle_y -= 0.2
-        #draw_scene
       when 120  # X
         @angle_y += 0.2
-        #draw_scene
 
       when 27  # ESC
         glutDestroyWindow(@window)
