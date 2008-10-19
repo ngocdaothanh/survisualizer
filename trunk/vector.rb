@@ -13,9 +13,10 @@ Vector.class_eval do
   # Rotate arount a vetor by an angle.
   def rotate!(vector, angle)
     # Normalize
-    vector[0] = vector[0]/vector.r
-    vector[1] = vector[1]/vector.r
-    vector[2] = vector[2]/vector.r
+    r = vector.r
+    vector[0] = 1.0*vector[0]/r
+    vector[1] = 1.0*vector[1]/r
+    vector[2] = 1.0*vector[2]/r
 
     x = @elements[0]
     y = @elements[1]

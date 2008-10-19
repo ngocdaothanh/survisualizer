@@ -9,21 +9,25 @@ class Mqo
     @file_name = file_name
   end
 
-  def load
+  # Returns array of objects.
+  def load_objects
     lines = File.read(@file_name)
     @io = StringIO.new(lines)
 
-    @triangles = []
+    ret = []
     begin
       while true
         line = @io.readline.strip
-        load_object if line =~ /^Object\s*"([^"]+)"\s+\{/
+        ret << load_object if line =~ /^Object\s*"([^"]+)"\s+\{/
       end
     rescue EOFError
     end
-    @triangles
+    ret
   end
 
+  private
+
+  # Returns array of trianalges.
   def load_object
     vertices = nil
     faces = nil
@@ -43,31 +47,35 @@ class Mqo
       end
     end
 
+    ret = []
     faces.each do |indices|
       if indices.size == 3
         triangle = Triangle.new(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]])
-        @triangles << triangle
+        ret << triangle
       else
         triangle = Triangle.new(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]])
-        @triangles << triangle
+        ret << triangle
         triangle = Triangle.new(vertices[indices[2]], vertices[indices[3]], vertices[indices[0]])
-        @triangles << triangle
+        ret << triangle
       end
     end
+    ret
   end
 
+  # Returns array of vectors.
   def load_vertices
     ret = []
     while true
       line = @io.readline.strip
       break if line=='}'
 
-      x, y, z = line.split(' ').map { |e| e.to_f/100}
+      x, y, z = line.split(' ').map { |e| e.to_f/20 }
       ret << Vector[x, y, z]
     end
     ret
   end
 
+  # Return arrays of indices to vectors (only triangles or rectangles).
   def load_faces
     ret = []
     while true
@@ -85,6 +93,6 @@ end
 
 if __FILE__ == $0
   m = Mqo.new('./models/scene.mqo')
-  t = m.load
-  p t.size
+  a = m.load_objects
+  p a.size
 end
