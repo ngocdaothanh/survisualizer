@@ -31,4 +31,19 @@ class Model
       glEndList
     end
   end
+
+  def intersection_with_ray(ray)
+    interections = []
+    @objects.each do |triangles|
+      triangles.each do |t|
+        int = t.intersection_with_ray(ray)
+        interections << int unless int.nil?
+      end
+    end
+    if interections.empty?
+      return nil
+    else
+      return interections.sort[0]
+    end
+  end
 end
