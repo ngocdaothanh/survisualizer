@@ -12,6 +12,7 @@ EPSILON = 0.00000001  # Very small number
 
 # The order of loading is important
 $:.unshift('./visualizers')
+$:.unshift('./camera')
 require 'visualizer'
 Dir.glob('./visualizers/*.rb').each { |f| require f }
 require 'vector'

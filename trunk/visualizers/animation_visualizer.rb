@@ -1,9 +1,9 @@
 class AnimationVisualizer < Visualizer
-  NUM_SEGMENT_PER_EDGE = 2
+  NUM_SEGMENT_PER_EDGE = 10
 
   def initialize(camera)
     super(camera)
-    @mesh = Mesh.new(@camera.position, @camera.rectangle, NUM_SEGMENT_PER_EDGE)
+    @grid = Grid.new(@camera.position, @camera.rectangle, NUM_SEGMENT_PER_EDGE)
   end
 
   def visualize_field_of_view
@@ -12,29 +12,25 @@ class AnimationVisualizer < Visualizer
     else
       @list = glGenLists(1)
       glNewList(@list, GL_COMPILE)
-        glBegin(GL_LINES)
-        $model.objects.each do |triangles|
-          triangles.each do |t|
-            vertices = @camera.rectangle
-            vertices.each do |v|
-              ray = Ray.new(@camera.position, v)
-              int = t.intersection_with_ray(ray)
-              unless int.nil?
-                glVertex3fv(int.to_a)
-                glVertex3fv(v.to_a)
-              end
-            end
+        vertices = @camera.rectangle
+        vertices.each do |v|
+          ray = Ray.new(@camera.position, v)
+          intersection = $model.intersection_with_ray(ray)
+          unless intersection.nil?
+            glBegin(GL_LINES)
+              glVertex3fv(intersection.to_a)
+              glVertex3fv(v.to_a)
+            glEnd
           end
         end
-        glEnd
       glEndList
     end
 
-    @mesh.visualize
+    @grid.visualize
   end
 end
 
-class Mesh
+class Grid
   DELTA = 0.05
 
   def initialize(camera_position, rectangle, num_segments_per_edge)
@@ -50,15 +46,13 @@ class Mesh
     end
 
     @intersection_cache = {}
-#    @points.each do |p|
-#      ray = Ray.new(camera_position, p)
-#      $model.objects.each do |triangles|
-#        triangles.each do |t|
-#          int = t.intersection_with_ray(ray)
-#          @intersection_cache[p] = int unless int.nil?
-#        end
-#      end
-#    end
+    @points.each do |p|
+      ray = Ray.new(camera_position, p)
+      intersection = $model.intersection_with_ray(ray)
+      @intersection_cache[p] = intersection unless intersection.nil?
+    end
+
+    p @intersection_cache
 
     @delta = DELTA
   end
@@ -99,14 +93,14 @@ class Mesh
     @delta += DELTA
     num_ended = 0
     ret = @points.map do |p|
-      p = p + (p - @camera_position)*@delta
-      if p[1] < -5  # negative y means below the ground
+      p2 = p + (p - @camera_position)*@delta
+      if p2[1] < -5  # negative y means below the ground
         num_ended += 1
-      elsif !@intersection_cache[p].nil? && ret.r > @intersection_cache[p].r
+      elsif !@intersection_cache[p].nil? && p2.r > @intersection_cache[p].r
         num_ended += 1
-        p = @intersection_cache[p]
+        p2 = @intersection_cache[p]
       end
-      p
+      p2
     end
 
     @delta = DELTA if num_ended == @points.size
