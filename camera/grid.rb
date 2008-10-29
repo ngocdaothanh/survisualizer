@@ -17,10 +17,10 @@ class Grid
       glEnd
     end
 
-    (@segments_per_edge + 1).times do |i|
+    (@camera.segments_per_edge + 1).times do |i|
       glBegin(GL_LINE_STRIP)
-        (@segments_per_edge + 1).times do |j|
-          glVertex3fv(points[i + j*(@segments_per_edge + 1)].to_a)
+        (@camera.segments_per_edge + 1).times do |j|
+          glVertex3fv(points[i + j*(@camera.segments_per_edge + 1)].to_a)
         end
       glEnd
     end
@@ -47,7 +47,7 @@ class Grid
       p2
     end
 
-    @delta = DELTA if num_ended == @points.size
+    @delta = DELTA if num_ended == heads.size
     ret
   end
 end

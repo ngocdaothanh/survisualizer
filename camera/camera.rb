@@ -22,7 +22,7 @@ class Camera
     @height       = height
 
     @segments_per_edge       = segments_per_edge
-    @intersection_calculator = IntersectionCalculator(self, segments_per_edge)
+    @intersection_calculator = IntersectionCalculator.new(self)
   end
 
   # Returns an array containing 4 position vectors of the lens rectangle.

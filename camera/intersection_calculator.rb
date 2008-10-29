@@ -8,7 +8,7 @@ class IntersectionCalculator
 
     ps = "#{camera.position[0]}-#{camera.position[1]}-#{camera.position[2]}"
     fs = "#{camera.focal_vector[0]}-#{camera.focal_vector[1]}-#{camera.focal_vector[2]}"
-    file_name = "#{ps}-#{fs}-#{camera.width}-#{camera.height}-#{segments_per_edge}.dat"
+    file_name = "#{ps}-#{fs}-#{camera.width}-#{camera.height}-#{camera.segments_per_edge}.dat"
     dir_name = File.dirname(__FILE__) + '/../data'
     full_name = "#{dir_name}/#{file_name}"
 
@@ -43,7 +43,7 @@ class IntersectionCalculator
 
     @heads = []
     points03.each_with_index do |p, i|
-      ret.concat(Ray.new(p, points12[i]).cut(segments_per_edge))
+      @heads.concat(Ray.new(p, points12[i]).cut(segments_per_edge))
     end
     @heads
   end

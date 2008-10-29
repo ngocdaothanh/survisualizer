@@ -1,6 +1,3 @@
-require 'vector'
-require 'ray'
-
 class Triangle
   attr_reader :p0, :p1, :p2
 
