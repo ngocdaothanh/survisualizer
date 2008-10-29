@@ -13,12 +13,16 @@
 # +
 class Camera
   attr_reader :position, :focal_vector, :width, :height
+  attr_reader :segments_per_edge, :intersection_calculator
 
-  def initialize(position, focal_vector, width, height)
+  def initialize(position, focal_vector, width, height, segments_per_edge)
     @position     = position
     @focal_vector = focal_vector
     @width        = width
     @height       = height
+
+    @segments_per_edge       = segments_per_edge
+    @intersection_calculator = IntersectionCalculator(self, segments_per_edge)
   end
 
   # Returns an array containing 4 position vectors of the lens rectangle.
