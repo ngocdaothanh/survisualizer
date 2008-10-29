@@ -13,6 +13,7 @@ EPSILON = 0.00000001  # Very small number
 # The order of loading is important
 $:.unshift('./visualizers')
 $:.unshift('./camera')
+$:.unshift('./model')
 require 'visualizer'
 Dir.glob('./visualizers/*.rb').each { |f| require f }
 require 'vector'
@@ -134,25 +135,25 @@ class Main
   def keyboard(key, x, y)
     p key
     case key
-      when 114  # R
+      when ?r
         @position_x -= 0.1
-      when 108  # L
+      when ?l
         @position_x += 0.1
 
-      when 117  # U
+      when ?u
         @position_y -= 0.1
       when 100  # D
         @position_y += 0.1
 
-      when 105  # I
+      when ?i
         @position_z += 0.1
-      when 111  # O
+      when ?o
         @position_z -= 0.1
 
-      when 122  # Z
-        @angle_y -= 0.2
-      when 120  # X
-        @angle_y += 0.2
+      when ?z
+        @angle_y -= 0.5
+      when ?x
+        @angle_y += 0.5
 
       when 27  # ESC
         glutDestroyWindow(@window)

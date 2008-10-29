@@ -1,5 +1,5 @@
 class AnimationVisualizer < Visualizer
-  NUM_SEGMENT_PER_EDGE = 10
+  NUM_SEGMENT_PER_EDGE = 1
 
   def initialize(camera)
     super(camera)
@@ -37,12 +37,12 @@ class Grid
     @camera_position = camera_position
     @num_segments_per_edge = num_segments_per_edge
 
-    points12 = cut(Ray.new(rectangle[1], rectangle[2]), num_segments_per_edge)
-    points03 = cut(Ray.new(rectangle[0], rectangle[3]), num_segments_per_edge)
+    points12 = Ray.new(rectangle[1], rectangle[2]).cut(num_segments_per_edge)
+    points03 = Ray.new(rectangle[0], rectangle[3]).cut(num_segments_per_edge)
 
     @points = []
     points03.each_with_index do |p, i|
-      @points.concat(cut(Ray.new(p, points12[i]), num_segments_per_edge))
+      @points.concat(Ray.new(p, points12[i]).cut(num_segments_per_edge))
     end
 
     @intersection_cache = {}
@@ -51,8 +51,6 @@ class Grid
       intersection = $model.intersection_with_ray(ray)
       @intersection_cache[p] = intersection unless intersection.nil?
     end
-
-    p @intersection_cache
 
     @delta = DELTA
   end
@@ -79,24 +77,17 @@ class Grid
 
   private
 
-  def cut(ray, num_segments)
-    v = ray.direction*(1.0/num_segments)
-    ret = [ray.root]
-    num_segments.times do |i|
-      ret << ray.root + v*(i + 1)
-    end
-    ret
-  end
-
   # Returns array of points moved
   def move_delta
     @delta += DELTA
     num_ended = 0
     ret = @points.map do |p|
       p2 = p + (p - @camera_position)*@delta
-      if p2[1] < -5  # negative y means below the ground
+      if p2[1] < -100  # negative y means far below the ground
         num_ended += 1
       elsif !@intersection_cache[p].nil? && p2.r > @intersection_cache[p].r
+        p num_ended
+        p @points.size
         num_ended += 1
         p2 = @intersection_cache[p]
       end
