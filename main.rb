@@ -30,7 +30,7 @@ class Main
     @window_height = CONFIG[:window_height]
     $model = Model.new
     @cameras = CONFIG[:cameras].map do |c|
-      camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height])
+      camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
       camera.visualizer = c[:visualizer]
       camera
     end
