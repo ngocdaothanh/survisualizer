@@ -1,5 +1,5 @@
 class Grid
-  DELTA = 0.05
+  DELTA = 0.1
 
   def initialize(camera)
     @camera = camera
