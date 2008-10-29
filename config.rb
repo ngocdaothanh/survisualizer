@@ -2,7 +2,7 @@ CONFIG = {
   :window_width  => 640,
   :window_height => 480,
 
-  :model => './data/scene',
+  :model => './data/scene.mqo',
 
   :cameras => [
     {

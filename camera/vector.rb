@@ -55,10 +55,6 @@ Vector.class_eval do
       @elements[0]*vector[1] - @elements[1]*vector[0]
     ]
   end
-
-  def <=>(v)
-    (self.r < v.r)? -1 : 1
-  end
 end
 
 if __FILE__ == $0

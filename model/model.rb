@@ -5,7 +5,7 @@ class Model
   attr_reader :objects
 
   def initialize
-    mqo = Mqo.new("./models/#{CONFIG[:model]}.mqo")
+    mqo = Mqo.new(CONFIG[:model])
     @objects = mqo.load_objects
   end
 
@@ -43,7 +43,8 @@ class Model
     if interections.empty?
       return nil
     else
-      return interections.sort[0]
+      a = interections.sort_by { |i| i.r }
+      return a[0]
     end
   end
 end
