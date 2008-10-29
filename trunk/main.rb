@@ -11,11 +11,15 @@ include Glut
 EPSILON = 0.00000001  # Very small number
 
 # The order of loading is important
-$:.unshift('./visualizers')
+$:.unshift('./visualizer')
 $:.unshift('./camera')
 $:.unshift('./model')
 require 'visualizer'
-Dir.glob('./visualizers/*.rb').each { |f| require f }
+require 'grid'
+require 'vector'
+require 'ray'
+require 'intersection_calculator'
+Dir.glob('./visualizer/*.rb').each { |f| require f }
 require 'vector'
 require 'model'
 require 'camera'
@@ -133,7 +137,6 @@ class Main
   end
 
   def keyboard(key, x, y)
-    p key
     case key
       when ?r
         @position_x -= 0.1

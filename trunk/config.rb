@@ -10,7 +10,7 @@ CONFIG = {
       :focal_vector      => Vector[0.6, -0.4, -0.1],
       :width             => 0.64,
       :height            => 0.48,
-      :segments_per_edge => 2,
+      :segments_per_edge => 10,
       :visualizer        => AnimationVisualizer
     },
     {
@@ -18,7 +18,7 @@ CONFIG = {
       :focal_vector      => Vector[-0.5, -0.4, -0.4],
       :width             => 0.64,
       :height            => 0.48,
-      :segments_per_edge => 2,
+      :segments_per_edge => 10,
       :visualizer        => AnimationVisualizer
     }
   ]
