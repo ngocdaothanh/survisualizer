@@ -3,6 +3,7 @@ require 'gl'
 require 'glu'
 require 'glut'
 require 'mathn'
+require 'matrix'
 
 include Gl
 include Glu
@@ -11,18 +12,25 @@ include Glut
 EPSILON = 0.00000001  # Very small number
 
 # The order of loading is important
-$:.unshift('./visualizer')
 $:.unshift('./camera')
 $:.unshift('./model')
-require 'visualizer'
-require 'grid'
+$:.unshift('./visualizer')
+
 require 'vector'
 require 'ray'
-require 'intersection_calculator'
-Dir.glob('./visualizer/*.rb').each { |f| require f }
-require 'vector'
+require 'triangle'
+
+require 'mqo'
 require 'model'
+
+require 'intersection_calculator'
 require 'camera'
+
+require 'visualizer'
+require 'grid'
+require 'grid_visualizer'
+require 'vector_visualizer'
+
 require 'config'
 
 $model = nil
