@@ -1,6 +1,4 @@
 require 'stringio'
-require 'vector'
-require 'triangle'
 
 # .mqo (Metasequoia) file loader.
 # Based on http://d.hatena.ne.jp/ousttrue/20070429/1177805677

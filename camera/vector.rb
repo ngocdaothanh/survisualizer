@@ -1,5 +1,3 @@
-require 'matrix'
-
 Vector.class_eval do
   def []=(i, x)
     @elements[i] = x

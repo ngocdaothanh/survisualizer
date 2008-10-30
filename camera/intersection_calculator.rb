@@ -20,13 +20,7 @@ class IntersectionCalculator
     end
 
     @cache = {}
-    heads.each_with_index do |p, i|
-      @cache[key(p)] = ints[i]
-    end
-  end
-
-  def intersection_for(head)
-    @cache[key(head)]
+    heads.each_with_index { |p, i| @cache[key(p)] = ints[i] }
   end
 
   # Returns heads of rays:
@@ -48,8 +42,6 @@ class IntersectionCalculator
     @heads
   end
 
-  private
-
   # Returns intersections of rays (see heads) and the model.
   def intersections
     return @intersections if @intersections
@@ -61,6 +53,12 @@ class IntersectionCalculator
     end
     @intersections
   end
+
+  def intersection_for(head)
+    @cache[key(head)]
+  end
+
+  private
 
   def key(point)
     "#{point[0]}-#{point[1]}-#{point[2]}"

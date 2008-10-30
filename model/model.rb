@@ -1,6 +1,3 @@
-require 'triangle'
-require 'mqo'
-
 class Model
   attr_reader :objects
 

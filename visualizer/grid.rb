@@ -5,7 +5,7 @@ class Grid
     @camera = camera
     @parallel_mode = parallel_mode
     @direction_mode = direction_mode
-    @delta = 1
+    reset_delta
   end
 
   def visualize
@@ -30,36 +30,78 @@ class Grid
 
   private
 
+  def reset_delta
+    @delta = (@direction_mode == :down)? 1 : delta_max
+  end
+
+  # Returns the maximum distance from heads to the camera position.
+  def dyhead_max
+    return @dyhead_max if @dyhead_max
+
+    yheads = @camera.rectangle.map { |h| h[1] }
+    yhead_min = (yheads.sort)[0]
+    @dyhead_max = (@camera.position[1] - yhead_min)
+  end
+
+  # Returns the tangent vector for a head.
+  def t(head)
+    if @cached_t.nil?
+      @cached_t = {}
+      @camera.intersection_calculator.heads.each do |h|
+        ret = (h - @camera.position)
+        if @parallel_mode == :ground
+          ratio = (1.0*dyhead_max/ret[1].abs)
+          ret *= ratio
+        end
+        @cached_t[h] = ret
+      end
+    end
+
+    @cached_t[head]
+  end
+
+  def delta_max
+    return @delta_max if @delta_max
+
+    int_min = nil
+    h_for_int_min = nil
+    @camera.intersection_calculator.heads.each do |h|
+      int = @camera.intersection_calculator.intersection_for(h)
+      if int_min.nil? || int_min[1] > int[1]
+        int_min = int
+        h_for_int_min = h
+      end
+    end
+    if int_min.nil?
+      @delta_max = nil
+    else
+      @delta_max = (1.0*(int_min[1] - @camera.position[1]))/t(h_for_int_min)[1]
+    end
+    @delta_max
+  end
+
   # Returns array of heads moved
   def move_heads
-    @delta += DELTA
+    @delta += (@direction_mode == :down)? DELTA : -DELTA
+
     heads = @camera.intersection_calculator.heads
     num_ended = 0
-    ys = heads.map { |v| v[1] }
-    ymin = (ys.sort)[0]
-    dmax = (@camera.position[1] - ymin)
     ret = heads.map do |h|
-      t = (h - @camera.position)
-      if @parallel_mode == :ground
-        ratio = (1.0*dmax/t[1].abs)
-        t = t*ratio
-      end
-
-      h2 = @camera.position + t*@delta
-
-      if h2[1] < -100  # far below the ground
+      h2 = @camera.position + t(h)*@delta
+      intersection = @camera.intersection_calculator.intersection_for(h)
+      if !intersection.nil? && h2[1] < intersection[1]
         num_ended += 1
-      else
-        intersection = @camera.intersection_calculator.intersection_for(h)
-        if !intersection.nil? && h2[1] < intersection[1]
-          num_ended += 1
-          h2 = intersection
-        end
+        h2 = intersection
       end
       h2
     end
 
-    @delta = 1 if num_ended == heads.size
+    if @direction_mode == :down
+      reset_delta if num_ended == heads.size
+    else
+      reset_delta if @delta <= 1
+    end
+
     ret
   end
 end
