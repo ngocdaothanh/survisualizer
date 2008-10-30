@@ -1,7 +1,8 @@
-class AnimationVisualizer < Visualizer
+class GridVisualizer < Visualizer
   def initialize(camera)
     super(camera)
-    @grid = Grid.new(@camera)
+
+    @grid = Grid.new(camera, :ground, :down)
   end
 
   def visualize_field_of_view
