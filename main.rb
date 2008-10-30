@@ -55,7 +55,7 @@ class Main
     glutIdleFunc(method(:idle).to_proc)
     glutKeyboardFunc(method(:keyboard).to_proc)
 
-    init_light
+    #init_light
     init_window
 
     glutMainLoop
@@ -76,21 +76,16 @@ class Main
     glEnable(GL_LIGHT0)
     glShadeModel(GL_SMOOTH)
 
-    # Enable color tracking
-    glEnable(GL_COLOR_MATERIAL)
-    # Set material properties which will be assigned by glColor
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE)
+    glEnable(GL_COLOR_MATERIAL)                       # Enable color tracking
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE) # Set material properties which will be assigned by glColor
   end
 
   def init_window
-    glClearColor(1.0, 1.0, 1.0, 1.0)
-    # Enables clearing of depth buffer
+    #glClearColor(1.0, 1.0, 1.0, 1.0)
+    glClearColor(0, 0, 0, 0)
     glClearDepth(1.0)
-    # Set type of depth test
     glDepthFunc(GL_LEQUAL)
-    # Enable depth testing
     glEnable(GL_DEPTH_TEST)
-    # Enable smooth color shading
     glShadeModel(GL_SMOOTH)
 
     glMatrixMode(GL_PROJECTION)
@@ -125,7 +120,7 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glTranslatef(@position_x, @position_y, @position_z)
 
-    $model.visualize
+    #$model.visualize
     @cameras.each { |c| c.visualize }
 
     # Swap buffers for display

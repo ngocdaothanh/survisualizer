@@ -25,8 +25,8 @@ class IntersectionCalculator
     end
   end
 
-  def intersection_for(point)
-    @cache[key(point)]
+  def intersection_for(head)
+    @cache[key(head)]
   end
 
   # Returns heads of rays:

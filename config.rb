@@ -11,7 +11,7 @@ CONFIG = {
       :width             => 0.64,
       :height            => 0.48,
       :segments_per_edge => 10,
-      :visualizer        => AnimationVisualizer
+      :visualizer        => VectorVisualizer
     },
     {
       :position          => Vector[0.5, 0.5, -10],
@@ -19,7 +19,7 @@ CONFIG = {
       :width             => 0.64,
       :height            => 0.48,
       :segments_per_edge => 10,
-      :visualizer        => AnimationVisualizer
+      :visualizer        => GridVisualizer
     }
   ]
 }
