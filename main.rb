@@ -161,7 +161,7 @@ class Main
       when ?x
         @angle_y += 0.5
 
-      when 27  # ESC
+      when "\e"  # ESC
         glutDestroyWindow(@window)
         exit(0)
     end
