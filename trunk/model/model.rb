@@ -19,9 +19,9 @@ class Model
 
           glBegin(GL_TRIANGLES)
             triangles.each do |t|
-              glVertex3fv(t.p0.to_a)
-              glVertex3fv(t.p1.to_a)
-              glVertex3fv(t.p2.to_a)
+              glVertex3fv(*t.p0.to_a)
+              glVertex3fv(*t.p1.to_a)
+              glVertex3fv(*t.p2.to_a)
             end
           glEnd
         end

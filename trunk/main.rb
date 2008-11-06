@@ -128,7 +128,7 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glTranslatef(@position_x, @position_y, @position_z)
 
-    #$model.visualize
+    $model.visualize
     @cameras.each { |c| c.visualize }
 
     # Swap buffers for display
@@ -148,7 +148,7 @@ class Main
 
       when ?u
         @position_y -= 0.1
-      when 100  # D
+      when ?d
         @position_y += 0.1
 
       when ?i

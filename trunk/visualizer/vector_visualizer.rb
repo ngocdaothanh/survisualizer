@@ -14,8 +14,8 @@ class VectorVisualizer < Visualizer
 
   def paint(ray)
     glBegin(GL_LINES)
-      glVertex3fv(ray.root.to_a)
-      glVertex3fv(ray.head.to_a)
+      glVertex3fv(*ray.root.to_a)
+      glVertex3fv(*ray.head.to_a)
     glEnd
   end
 end

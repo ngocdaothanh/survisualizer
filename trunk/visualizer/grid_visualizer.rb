@@ -16,8 +16,8 @@ class GridVisualizer < Visualizer
           intersection = @camera.intersection_calculator.intersection_for(v)
           unless intersection.nil?
             glBegin(GL_LINES)
-              glVertex3fv(intersection.to_a)
-              glVertex3fv(v.to_a)
+              glVertex3fv(*intersection.to_a)
+              glVertex3fv(*v.to_a)
             glEnd
           end
         end
