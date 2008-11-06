@@ -12,8 +12,9 @@ class IntersectionCalculator
     dir_name = File.dirname(__FILE__) + '/../data'
     full_name = "#{dir_name}/#{file_name}"
 
+    ints = []
     if File.exist?(full_name)
-      ints = Marshal.load(File.read(full_name))
+      File.open(full_name, 'rb') { |f| ints = Marshal.load(f.read) }
     else
       ints = intersections
       File.open(full_name, 'wb') { |f| f.write(Marshal.dump(ints)) }
