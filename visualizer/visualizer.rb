@@ -15,14 +15,14 @@ class Visualizer
 
     glBegin(GL_LINES)
       vertices.each do |v|
-        glVertex3fv(@camera.position.to_a)
-        glVertex3fv(v.to_a)
+        glVertex3fv(*@camera.position.to_a)
+        glVertex3fv(*v.to_a)
       end
     glEnd
 
     glBegin(GL_QUADS)
       vertices.each do |v|
-        glVertex3fv(v.to_a)
+        glVertex3fv(*v.to_a)
       end
     glEnd
   end

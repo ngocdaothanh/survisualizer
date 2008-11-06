@@ -14,7 +14,7 @@ class Grid
     (@camera.segments_per_edge + 1).times do |i|
       glBegin(GL_LINE_STRIP)
         (@camera.segments_per_edge + 1).times do |j|
-          glVertex3fv(points[i*(@camera.segments_per_edge + 1) + j].to_a)
+          glVertex3fv(*points[i*(@camera.segments_per_edge + 1) + j].to_a)
         end
       glEnd
     end
@@ -22,7 +22,7 @@ class Grid
     (@camera.segments_per_edge + 1).times do |i|
       glBegin(GL_LINE_STRIP)
         (@camera.segments_per_edge + 1).times do |j|
-          glVertex3fv(points[i + j*(@camera.segments_per_edge + 1)].to_a)
+          glVertex3fv(*points[i + j*(@camera.segments_per_edge + 1)].to_a)
         end
       glEnd
     end
