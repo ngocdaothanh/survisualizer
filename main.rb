@@ -59,7 +59,13 @@ class Main
     glutInitWindowSize(@window_width, @window_height)
     glutInitWindowPosition(0, 0)
 
-    @window = glutCreateWindow('Survisualizer')
+    if CONFIG[:fullscreen]
+      glutGameModeString("#{@window_width}x#{@window_height}:32@60")
+    glutEnterGameMode
+    else
+      @window = glutCreateWindow('Survisualizer')
+    end
+
     @angle_x, @angle_y, @angle_z = 0, 0, 0
     @position_x, @position_y, @position_z = 0, 0, 0
 
@@ -173,7 +179,7 @@ class Main
         @angle_y += 0.5
 
       when "\e"  # ESC
-        glutDestroyWindow(@window)
+        glutDestroyWindow(@window) if @window
         exit(0)
     end
     glutPostRedisplay
