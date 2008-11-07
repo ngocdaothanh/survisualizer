@@ -1,8 +1,4 @@
 #include <ruby.h>
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <memory.h>
-#include <string.h>
 
 #include "isense.h"
 
@@ -26,7 +22,6 @@ VALUE winter_sense_open(VALUE self) {
 	rb_iv_set(self, "@handle", rhandle);
 	return (handle > 0)? Qtrue : Qfalse;
 }
-
 
 VALUE winter_sense_close(VALUE self) {
 	VALUE              rhandle;
@@ -58,29 +53,29 @@ VALUE winter_sense_angles(VALUE self) {
 	}
 
 	handle = NUM2INT(rhandle);
+	if (handle <= 0) {
+		return Qnil;
+	}
+
 	istation = 1;	// Only one tracker is supported for now
+	ISD_GetTrackingData(handle, &data);
 
-	if (handle > 0) {
-		ISD_GetTrackingData(handle, &data);
+	// Clear station configuration info to make sure GetAnalogData and other flags are FALSE 
+	memset((void *) stations, 0, sizeof(stations));
+	ISD_GetStationConfig(handle, &stations[istation - 1], istation, TRUE);
 
-		// Clear station configuration info to make sure GetAnalogData and other flags are FALSE 
-		memset((void *) stations, 0, sizeof(stations));
-		ISD_GetStationConfig(handle, &stations[istation - 1], istation, TRUE);
-
-		if (stations[istation - 1].AngleFormat == ISD_QUATERNION ) {
-			printf("Quaternion angle format is not supported\n");
-			return Qnil;
-		} else {	// Euler angles
-			return rb_ary_new3(
-				3,
-				rb_float_new(data.Station[istation - 1].Euler[0]),
-				rb_float_new(data.Station[istation - 1].Euler[1]),
-				rb_float_new(data.Station[istation - 1].Euler[2]));
-		}
+	if (stations[istation - 1].AngleFormat == ISD_QUATERNION ) {
+		printf("Quaternion angle format is not supported\n");
+		return Qnil;
+	} else {	// Euler angles
+		return rb_ary_new3(
+			3,
+			rb_float_new(data.Station[istation - 1].Euler[0]),
+			rb_float_new(data.Station[istation - 1].Euler[1]),
+			rb_float_new(data.Station[istation - 1].Euler[2]));
 	}
 }
 
-// The initialization method for this module
 void Init_winter_sense() {
 	VALUE WinterSense = rb_define_class("WinterSense", rb_cObject);
 	rb_define_method(WinterSense, "open", winter_sense_open, 0);
