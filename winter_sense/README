@@ -1,0 +1,12 @@
+== Introduction
+
+Winter Sense = Inter Sense binding for Ruby on Windows
+
+This binding is simple. It returns angles and only supports one tracker at a time, typically connected to the computer through USB-serial converter.
+
+== API
+
+WinterSense
+* open
+* close
+* angles
