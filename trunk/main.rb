@@ -61,7 +61,7 @@ class Main
 
     if CONFIG[:fullscreen]
       glutGameModeString("#{@window_width}x#{@window_height}:32@60")
-    glutEnterGameMode
+      glutEnterGameMode
     else
       @window = glutCreateWindow('Survisualizer')
     end
