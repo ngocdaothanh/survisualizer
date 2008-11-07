@@ -15,6 +15,7 @@ EPSILON = 0.00000001  # Very small number
 $:.unshift('./camera')
 $:.unshift('./model')
 $:.unshift('./visualizer')
+$:.unshift('./winter_sense')
 
 require 'vector'
 require 'ray'
@@ -31,16 +32,22 @@ require 'grid'
 require 'grid_visualizer'
 require 'vector_visualizer'
 
+require 'winter_sense'
+
 require 'config'
 
 $model = nil
+$winter_sense = nil
 
 class Main
   def initialize
+    $model = Model.new
+    $winter_sense = WinterSense.new
+    $winter_sense.open
+
     # Load config
     @window_width  = CONFIG[:window_width]
     @window_height = CONFIG[:window_height]
-    $model = Model.new
     @cameras = CONFIG[:cameras].map do |c|
       camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
       camera.visualizer = c[:visualizer]
@@ -53,10 +60,8 @@ class Main
     glutInitWindowPosition(0, 0)
 
     @window = glutCreateWindow('Survisualizer')
-    @angle_y = 0
-    @position_x = 0
-    @position_y = 0
-    @position_z = 0
+    @angle_x, @angle_y, @angle_z = 0, 0, 0
+    @position_x, @position_y, @position_z = 0, 0, 0
 
     glutDisplayFunc(method(:visualize).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
@@ -67,6 +72,8 @@ class Main
     init_window
 
     glutMainLoop
+
+    $winter_sense.close
   end
 
   def init_light
@@ -125,7 +132,9 @@ class Main
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity
 
+    glRotatef(@angle_x, 1, 0, 0)
     glRotatef(@angle_y, 0, 1, 0)
+    glRotatef(@angle_z, 0, 0, 1)
     glTranslatef(@position_x, @position_y, @position_z)
 
     $model.visualize
@@ -136,6 +145,8 @@ class Main
   end
 
   def idle
+    angles = $winter_sense.angles
+    @angle_x, @angle_y, @angle_z = -angles[1], angles[0], angles[2] unless angles.nil?
     glutPostRedisplay
   end
 
