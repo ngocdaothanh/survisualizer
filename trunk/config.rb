@@ -1,6 +1,7 @@
 CONFIG = {
   :window_width  => 640,
   :window_height => 480,
+  :fullscreen    => false,
 
   :model => './data/scene.mqo',
 
