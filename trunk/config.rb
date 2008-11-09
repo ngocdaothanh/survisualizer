@@ -12,7 +12,7 @@ CONFIG = {
       :width             => 0.64,
       :height            => 0.48,
       :segments_per_edge => 20,
-      :visualizer        => GridVisualizer
+      :visualizer        => VectorVisualizer
     },
     {
       :position          => Vector[0.5, 0.5, -10],
