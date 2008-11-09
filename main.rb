@@ -40,6 +40,12 @@ $model = nil
 $winter_sense = nil
 
 class Main
+  VIEW_FREE = 0
+  VIEW_MAP  = 1
+  CHANGE_VIEW_THRESHOLD = 40
+  Y_FREE = -8
+  Y_MAP  = 80
+
   def initialize
     $model = Model.new
     $winter_sense = WinterSense.new
@@ -50,7 +56,7 @@ class Main
     @window_height = CONFIG[:window_height]
     @cameras = CONFIG[:cameras].map do |c|
       camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
-      camera.visualizer = c[:visualizer]
+      camera.visualizer = CONFIG[:visualizers].first
       camera
     end
 
@@ -67,7 +73,8 @@ class Main
     end
 
     @angle_x, @angle_y, @angle_z = 0, 0, 0
-    @position_x, @position_y, @position_z = 0, 0, 0
+    @position_x, @position_y, @position_z = 0, Y_FREE, 0
+    @view = VIEW_FREE
 
     glutDisplayFunc(method(:visualize).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
@@ -112,7 +119,7 @@ class Main
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity
     # Calculate aspect ratio of the window
-    gluPerspective(45.0, @window_width/@window_height, 0.1, 100.0)
+    gluPerspective(45.0, @window_width/@window_height, 0.1, 1000.0)
 
     glMatrixMode(GL_MODELVIEW)
     visualize
@@ -137,41 +144,78 @@ class Main
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity
-
+    
     glRotatef(@angle_x, 1, 0, 0)
     glRotatef(@angle_y, 0, 1, 0)
     glRotatef(@angle_z, 0, 0, 1)
-    glTranslatef(@position_x, @position_y, @position_z)
-
+    
+    visualize_position if @view == VIEW_MAP
+    
+    glTranslatef(-@position_x, -@position_y, -@position_z)
+    
     $model.visualize
     @cameras.each { |c| c.visualize }
 
     # Swap buffers for display
     glutSwapBuffers
   end
+  
+  def visualize_position
+    glRotatef(-@angle_y, 0, 1, 0)
+    glColor3f(1, 0, 0)
+    glBegin(GL_TRIANGLES)
+      glVertex3f( 0, Y_FREE - @position_y,  0)
+      glVertex3f( 1, Y_FREE - @position_y, -2)
+      glVertex3f(-1, Y_FREE - @position_y, -2)
+    glEnd
+    glBegin(GL_LINES)
+      glVertex3f( 0, Y_FREE - @position_y,  0)
+      glVertex3f( 2, Y_FREE - @position_y, -4)
+      glVertex3f( 0, Y_FREE - @position_y,  0)
+      glVertex3f(-2, Y_FREE - @position_y, -4)
+    glEnd
+    glRotatef(@angle_y, 0, 1, 0)
+  end
 
   def idle
-    angles = $winter_sense.angles
-    @angle_x, @angle_y, @angle_z = -angles[1], angles[0], angles[2] unless angles.nil?
+    update_angles
     glutPostRedisplay
+  end
+  
+  def update_angles
+    angles = $winter_sense.angles
+    return if angles.nil?
+
+    pitch = -90 + angles[2]
+    yaw = angles[0]
+    roll = -angles[1]
+
+    if @view == VIEW_FREE && ((pitch > 0 && 90 - pitch < CHANGE_VIEW_THRESHOLD) || (pitch < 0 && 270 + pitch < CHANGE_VIEW_THRESHOLD))
+      @view = VIEW_MAP
+      @position_y = Y_MAP
+    elsif @view == VIEW_MAP && ((pitch > 0 && 90 - pitch > CHANGE_VIEW_THRESHOLD) || (pitch < 0 && 270 + pitch > CHANGE_VIEW_THRESHOLD))
+      @view = VIEW_FREE
+      @position_y = Y_FREE
+    end
+    @angle_x, @angle_y, @angle_z = pitch, yaw, roll
   end
 
   def keyboard(key, x, y)
     case key
       when ?r
-        @position_x -= 0.1
-      when ?l
         @position_x += 0.1
+      when ?l
+        @position_x -= 0.1
 
       when ?u
-        @position_y -= 0.1
-      when ?d
         @position_y += 0.1
+      when ?d
+        @position_y -= 0.1
 
       when ?i
-        @position_z += 0.1
-      when ?o
         @position_z -= 0.1
+      when ?o
+        @position_z += 0.1
 
       when ?z
         @angle_y -= 0.5
