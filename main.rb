@@ -75,6 +75,7 @@ class Main
     @angle_x, @angle_y, @angle_z = 0, 0, 0
     @position_x, @position_y, @position_z = 0, Y_FREE, 0
     @view = VIEW_FREE
+    @map_height = Y_MAP
 
     glutDisplayFunc(method(:visualize).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
@@ -190,14 +191,42 @@ class Main
     yaw = angles[0]
     roll = -angles[1]
 
-    if @view == VIEW_FREE && ((pitch > 0 && 90 - pitch < CHANGE_VIEW_THRESHOLD) || (pitch < 0 && 270 + pitch < CHANGE_VIEW_THRESHOLD))
-      @view = VIEW_MAP
-      @position_y = Y_MAP
-    elsif @view == VIEW_MAP && ((pitch > 0 && 90 - pitch > CHANGE_VIEW_THRESHOLD) || (pitch < 0 && 270 + pitch > CHANGE_VIEW_THRESHOLD))
-      @view = VIEW_FREE
-      @position_y = Y_FREE
+    @angle_y = yaw
+    dpitch = (pitch > 0) ? 90 - pitch : 270 + pitch  # Always > 0
+
+    if @view == VIEW_FREE
+      if dpitch  < CHANGE_VIEW_THRESHOLD
+        # Switch view
+        @view = VIEW_MAP
+        @position_y = @map_height
+        @angle_x, @angle_z = 90, 0
+      else    
+        @angle_x, @angle_z = pitch, roll
+      end
+    elsif @view == VIEW_MAP
+      if dpitch > CHANGE_VIEW_THRESHOLD
+        # Switch view
+        @view = VIEW_FREE
+        @position_y = Y_FREE
+      else
+        # Move forward and back
+        length = dpitch/200
+        if length > 0.1
+          length = -length if pitch > 0
+          dx = Math.sin(yaw*Math::PI/180)*length
+          dz = -Math.cos(yaw*Math::PI/180)*length
+          @position_x += dx
+          @position_z += dz
+        end
+        
+        # Zoom in and out
+        dy = roll/300
+        if dy.abs > 0.1
+          @map_height += dy
+          @position_y = @map_height
+        end
+      end
     end
-    @angle_x, @angle_y, @angle_z = pitch, yaw, roll
   end
 
   def keyboard(key, x, y)
