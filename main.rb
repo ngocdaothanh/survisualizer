@@ -15,6 +15,7 @@ EPSILON = 0.00000001  # Very small number
 $:.unshift('./camera')
 $:.unshift('./model')
 $:.unshift('./visualizer')
+$:.unshift('./rewclib')
 $:.unshift('./winter_sense')
 
 require 'vector'
@@ -32,6 +33,7 @@ require 'grid'
 require 'grid_visualizer'
 require 'vector_visualizer'
 
+require 'rewclib'
 require 'winter_sense'
 
 require 'config'
@@ -48,6 +50,10 @@ class Main
 
   def initialize
     $model = Model.new(CONFIG[:to_meter_ratio])
+
+    @webcam = Rewclib.new
+    @webcam.open(CONFIG[:window_width], CONFIG[:window_height], 30)
+
     $winter_sense = WinterSense.new
     $winter_sense.open
 
@@ -87,6 +93,7 @@ class Main
 
     glutMainLoop
 
+    @webcam.close
     $winter_sense.close
   end
 
@@ -141,6 +148,9 @@ class Main
   def visualize
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    data = @webcam.image
+    glDrawPixels(CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE, data)
 
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
