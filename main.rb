@@ -117,7 +117,6 @@ class Main
   end
 
   def init_window
-    #glClearColor(1.0, 1.0, 1.0, 1.0)
     glClearColor(0, 0, 0, 0)
     glClearDepth(1.0)
     glDepthFunc(GL_LEQUAL)
@@ -149,13 +148,10 @@ class Main
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    data = @webcam.image
-    glDrawPixels(CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE, data)
-
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity
-    
+
     glRotatef(@angle_x, 1, 0, 0)
     glRotatef(@angle_y, 0, 1, 0)
     glRotatef(@angle_z, 0, 0, 1)
@@ -166,6 +162,15 @@ class Main
     
     $model.visualize
     @cameras.each { |c| c.visualize }
+
+    # Take out the foreground
+    glReadBuffer(GL_BACK)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    foreground = glReadPixels(0, 0, CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE)
+  
+    # Blend it with the webcam
+    blended = @webcam.blend(foreground)
+    glDrawPixels(CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
 
     # Swap buffers for display
     glutSwapBuffers
@@ -228,7 +233,7 @@ class Main
           @position_x += dx
           @position_z += dz
           
-          p "#{@position_x}              #{@position_z}"
+          #p "#{@position_x}              #{@position_z}"
         end
         
         # Zoom in and out
