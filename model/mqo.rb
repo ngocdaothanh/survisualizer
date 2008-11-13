@@ -3,8 +3,10 @@ require 'stringio'
 # .mqo (Metasequoia) file loader.
 # Based on http://d.hatena.ne.jp/ousttrue/20070429/1177805677
 class Mqo
-  def initialize(file_name)
+  # to_meter_ratio: The ratio to convert distance to meter unit
+  def initialize(file_name, to_meter_ratio)
     @file_name = file_name
+    @to_meter_ratio = to_meter_ratio
   end
 
   # Returns array of objects.
@@ -67,7 +69,7 @@ class Mqo
       line = @io.readline.strip
       break if line=='}'
 
-      x, y, z = line.split(' ').map { |e| e.to_f/20 }
+      x, y, z = line.split(' ').map { |e| e.to_f*@to_meter_ratio }
       ret << Vector[x, y, z]
     end
     ret

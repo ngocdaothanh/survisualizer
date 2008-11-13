@@ -42,12 +42,12 @@ $winter_sense = nil
 class Main
   VIEW_FREE = 0
   VIEW_MAP  = 1
-  CHANGE_VIEW_THRESHOLD = 40
-  Y_FREE = -8
+  CHANGE_VIEW_THRESHOLD = 60
+  Y_FREE = -15
   Y_MAP  = 80
 
   def initialize
-    $model = Model.new
+    $model = Model.new(CONFIG[:to_meter_ratio])
     $winter_sense = WinterSense.new
     $winter_sense.open
 
@@ -217,6 +217,8 @@ class Main
           dz = -Math.cos(yaw*Math::PI/180)*length
           @position_x += dx
           @position_z += dz
+          
+          p "#{@position_x}              #{@position_z}"
         end
         
         # Zoom in and out
