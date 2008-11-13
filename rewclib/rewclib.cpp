@@ -1,35 +1,45 @@
-//#include <ruby.h>
-extern "C" {
 #include <ruby.h>
-}
 
+#define EWC_TYPE MEDIASUBTYPE_RGB24
 #include "ewclib.h"
 
 VALUE rewclib_open(VALUE self, VALUE width, VALUE height, VALUE fps) {
-	return INT2NUM(EWC_Open(NUM2INT(width), NUM2INT(height), NUM2INT(fps)));
+	if (EWC_Open(NUM2INT(width), NUM2INT(height), NUM2INT(fps))) {
+		return T_FALSE;
+	}
+	
+	rb_iv_set(self, "@width", width);
+	return T_TRUE;
 }
 
 VALUE rewclib_close(VALUE self) {
 	return INT2NUM(EWC_Close());
 }
 
-VALUE rewclib_num_cameras(VALUE self) {
-	return INT2NUM(EWC_GetCamera());
-}
+VALUE rewclib_image(VALUE self) {
+	int size = EWC_GetBufferSize(0);
+	char *buffer = (char *) malloc(size);
+	if (EWC_GetImage(0, buffer)) {
+		free(buffer);
+		return T_NIL;
+	}
 
-VALUE rewclib_buffer_size(VALUE self, VALUE camera_index) {
-	return INT2NUM(EWC_GetBufferSize(NUM2INT(camera_index)));
-}
+	// The image is upside-down and is BGR
+	// Convert it to normal and RGB
+	int width = NUM2INT(rb_iv_get(self, "@width"));
+	int height = (size/3)/width;
+	char *buffer2 = (char *) malloc(size);
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			buffer2[((height - y - 1)*width + x)*3 + 0] = buffer[(y*width + x)*3 + 2];
+			buffer2[((height - y - 1)*width + x)*3 + 1] = buffer[(y*width + x)*3 + 1];
+			buffer2[((height - y - 1)*width + x)*3 + 2] = buffer[(y*width + x)*3 + 0];
+		}
+	}
 
-VALUE rewclib_image(VALUE self, VALUE camera_index) {
-	int size;
-	char *buffer;
-	VALUE ret;
-
-	size = EWC_GetBufferSize(NUM2INT(camera_index));
-	buffer = (char *) malloc(size);
-	ret = rb_str_new(buffer, size);
+	VALUE ret = rb_str_new(buffer2, size);
 	free(buffer);
+	free(buffer2);
 	return ret;
 }
 
@@ -37,7 +47,5 @@ void Init_rewclib() {
 	VALUE Rewclib = rb_define_class("Rewclib", rb_cObject);
 	rb_define_method(Rewclib, "open", (VALUE (__cdecl *)(...)) rewclib_open, 3);
 	rb_define_method(Rewclib, "close", (VALUE (__cdecl *)(...)) rewclib_close, 0);
-	rb_define_method(Rewclib, "num_cameras", (VALUE (__cdecl *)(...)) rewclib_num_cameras, 0);
-	rb_define_method(Rewclib, "buffer_size", (VALUE (__cdecl *)(...)) rewclib_buffer_size, 1);
-	rb_define_method(Rewclib, "image", (VALUE (__cdecl *)(...)) rewclib_image, 1);
+	rb_define_method(Rewclib, "image", (VALUE (__cdecl *)(...)) rewclib_image, 0);
 }
