@@ -1,8 +1,8 @@
 class Model
   attr_reader :objects
 
-  def initialize
-    mqo = Mqo.new(CONFIG[:model])
+  def initialize(to_meter_ratio)
+    mqo = Mqo.new(CONFIG[:model], to_meter_ratio)
     @objects = mqo.load_objects
   end
 

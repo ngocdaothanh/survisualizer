@@ -82,9 +82,10 @@ class Grid
 
   # Returns array of heads moved
   def move_heads
-    @delta += (@direction_mode == :down)? DELTA : -DELTA
-
     heads = @camera.intersection_calculator.heads
+    return heads if @delta.nil?
+    @delta += (@direction_mode == :down)? DELTA : -DELTA
+    
     num_ended = 0
     ret = heads.map do |h|
       h2 = @camera.position + t(h)*@delta
