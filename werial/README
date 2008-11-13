@@ -6,7 +6,7 @@ This binding is simple. It only supports reading from a serial port, typically a
 
 == API
 
-Werial
+Class Werial
 * open
 * close
 * data

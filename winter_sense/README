@@ -9,7 +9,7 @@ through serial-USB converter.
 
 == API
 
-WinterSense
+Class WinterSense
 * open
 * close
 * angles
