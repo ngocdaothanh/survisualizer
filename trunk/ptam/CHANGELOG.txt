@@ -1,0 +1,111 @@
+------------------------------------------------------------------------
+r108 | gk | 2008-12-18 17:36:21 +0000 (Thu, 18 Dec 2008) | 5 lines
+Changed paths:
+   M /trunk/ATANCamera.cc
+   M /trunk/ATANCamera.h
+   M /trunk/CameraCalibrator.cc
+   M /trunk/CameraCalibrator.h
+
+Added button to CameraCalibrator which kills of radial distortion, and assumes a linear camera
+Use this if you have a zoomier lens or one with pincushion distortion. 
+The calibrator and tracker will still perform poorly with zoomy lenses though!
+
+
+------------------------------------------------------------------------
+r107 | gk | 2008-11-18 11:58:52 +0000 (Tue, 18 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk/ATANCamera.h
+   M /trunk/CalibCornerPatch.cc
+   M /trunk/CalibCornerPatch.h
+   M /trunk/CalibImage.cc
+   M /trunk/CameraCalibrator.cc
+
+Minor: Camera calibrator tweaks
+
+------------------------------------------------------------------------
+r106 | gk | 2008-11-17 18:28:21 +0000 (Mon, 17 Nov 2008) | 2 lines
+Changed paths:
+   M /trunk/CalibCornerPatch.cc
+   M /trunk/CalibImage.cc
+   M /trunk/CalibImage.h
+   M /trunk/CameraCalibrator.cc
+
+Camera calibrator: Now draws errors (10x mag), and also gain opti is re-instated for the corner optimiser
+
+------------------------------------------------------------------------
+r105 | gk | 2008-11-03 15:12:18 +0000 (Mon, 03 Nov 2008) | 3 lines
+Changed paths:
+   M /trunk/PatchFinder.cc
+   M /trunk/Relocaliser.cc
+   M /trunk/SmallBlurryImage.cc
+   M /trunk/Tracker.cc
+
+Fix ancient factor-of-two gradient calc bug for subpixel-alignment routines.
+Makes subpix convergence faster in SBI and PatchFinder.
+
+------------------------------------------------------------------------
+r104 | gk | 2008-10-03 14:35:54 +0100 (Fri, 03 Oct 2008) | 6 lines
+Changed paths:
+   M /trunk/MapMaker.cc
+   M /trunk/SmallBlurryImage.cc
+   M /trunk/SmallBlurryImage.h
+   M /trunk/Tracker.cc
+   M /trunk/Tracker.h
+
+- Added frame-to-frame motion initialiser based on SBI as described in ECCV 2008 paper
+  This can be turned off with Tracker.UseRotationEstimator=0 if moving clutter becomes a problem
+
+- Changed SBI size to 1/16th size (40x30 for 640x480 source)
+
+
+------------------------------------------------------------------------
+r103 | gk | 2008-09-30 11:25:45 +0100 (Tue, 30 Sep 2008) | 2 lines
+Changed paths:
+   M /trunk/calibrator_settings.cfg
+   M /trunk/settings.cfg
+
+Minor: cfg files with Unix (not DOS) linebreaks
+
+------------------------------------------------------------------------
+r102 | gk | 2008-09-30 10:57:47 +0100 (Tue, 30 Sep 2008) | 3 lines
+Changed paths:
+   A /trunk/calibrator_settings.cfg
+   M /trunk/settings.cfg
+
+Minor: Added skeleton calibrator_settings.cfg after people asked why it's
+not there, and added some explanatory text to it and setting.cfg
+
+------------------------------------------------------------------------
+r101 | gk | 2008-09-25 19:07:27 +0100 (Thu, 25 Sep 2008) | 4 lines
+Changed paths:
+   M /trunk/Build/Linux/Makefile
+   M /trunk/CalibImage.cc
+   M /trunk/CameraCalibrator.cc
+   M /trunk/GLWindow2.cc
+   M /trunk/HomographyInit.cc
+   M /trunk/HomographyInit.h
+   M /trunk/MapMaker.cc
+   M /trunk/System.cc
+   M /trunk/Tracker.cc
+   M /trunk/main.cc
+
+Minor: Fixes for missing headers with gcc 4.3
+Minor: Add -fno-strict-aliasing flag to work around TooN aliasing bug
+Minor: Small bug in CalibImage, reference in HomographyInit
+
+------------------------------------------------------------------------
+r100 | gk | 2008-09-05 15:21:15 +0100 (Fri, 05 Sep 2008) | 2 lines
+Changed paths:
+   M /trunk/libraries_date
+
+Checked OK against current libCVD, TooN, GVars3
+
+------------------------------------------------------------------------
+r99 | gk | 2008-09-05 14:37:23 +0100 (Fri, 05 Sep 2008) | 2 lines
+Changed paths:
+   M /trunk/make_package_script
+   M /trunk/www_script
+
+Added CHANGELOG export
+
+------------------------------------------------------------------------
