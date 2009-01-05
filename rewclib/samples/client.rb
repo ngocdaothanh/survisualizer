@@ -15,8 +15,6 @@ class Main
   WIDTH  = 640
   HEIGHT = 480
 
-  CHUNK_SIZE = WIDTH*HEIGHT*3
-
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
     image = ''
@@ -66,13 +64,21 @@ class Main
     gluPerspective(45.0, 1.0*width/height, 0.1, 100.0)
   end
 
+  # Receive "size" bytes from @socket.
+  def recv_bytes(size)
+    ret = ''
+    ret << @socket.recvfrom(size - ret.size)[0] while ret.size < size
+    ret
+  end
+
   def visualize
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     #t1 = Time.now
-    image = ''
-    image << @socket.recvfrom(CHUNK_SIZE - image.size)[0] while image.size < CHUNK_SIZE
+    size = recv_bytes(4)
+    size = size.unpack('I!')[0]
+    image = recv_bytes(size)
     #t2 = Time.now
     #fps = 1.0/(t2 - t1)
     #p fps
