@@ -1,3 +1,4 @@
+# See http://www.cppblog.com/zmj/archive/2008/08/26/60039.aspx
 class Triangle
   attr_reader :p0, :p1, :p2
 
