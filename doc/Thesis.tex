@@ -21,7 +21,9 @@
 \authors  {\texorpdfstring
             {\href{ngocdaothanh@image.esys.tsukuba.ac.jp}{Dao Ngoc Thanh}}
             {Dao Ngoc Thanh}
+            {\\ Yuichi Ohta \\ Yoshinari Kameda \\ Itaru Kitahara}
             }
+
 \addresses  {\groupname\\\deptname\\\univname}  % Do not change this here, instead these must be set in the "Thesis.cls" file, please look through it instead
 \date       {\today}
 \subject    {}
@@ -48,18 +50,6 @@
 The Thesis Abstract is written here (and usually kept to just this page). The page is kept centered vertically so can expand into the blank space above the title too\ldots
 
 \clearpage  % Abstract ended, start a new page
-%% ----------------------------------------------------------------
-
-\setstretch{1.3}  % Reset the line-spacing to 1.3 for body text (if it has changed)
-
-% The Acknowledgements page, for thanking everyone
-\acknowledgements{
-\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
-
-The acknowledgements and the people to thank go here, don't forget to include your project advisors\ldots
-
-}
-\clearpage  % End of the Acknowledgements
 %% ----------------------------------------------------------------
 
 \pagestyle{fancy}  %The page style headers have been "empty" all this time, now use the "fancy" headers as defined before to bring them back
@@ -97,6 +87,21 @@ The acknowledgements and the people to thank go here, don't forget to include yo
 \input{./Chapters/Chapter5} % Evaluation of Visualization Methods
 
 \input{./Chapters/Chapter6} % Conclusion and Future Directions
+
+%% ----------------------------------------------------------------
+\clearpage
+
+\setstretch{1.3}  % Reset the line-spacing to 1.3 for body text (if it has changed)
+
+% The Acknowledgements page, for thanking everyone
+\acknowledgements{
+\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
+
+The acknowledgements and the people to thank go here, don't forget to include your project advisors\ldots
+
+}
+\clearpage  % End of the Acknowledgements
+%% ----------------------------------------------------------------
 
 %% ----------------------------------------------------------------
 % Now begin the Appendices, including them as separate files
