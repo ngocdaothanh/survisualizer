@@ -15,21 +15,19 @@ extern "C" void	dpotrs_ (char *uplo, int *n, int *nrhs, double *a, int *lda, dou
 
 inline bool LapackCholeskySolve_ReplaceArgs(Matrix<> &mLHS, Vector<> &vInputOutput)
 {
-  int nSize = mLHS.num_rows();
-  int nInfo;
-  assert(mLHS.num_cols() == nSize);
-  assert(vInputOutput.size() == nSize);
+	int nSize = mLHS.num_rows();
+	int nInfo;
+	assert(mLHS.num_cols() == nSize);
+	assert(vInputOutput.size() == nSize);
 
-  ::dpotrf_("U", &nSize, mLHS.get_data_ptr(), &nSize, &nInfo);
-  if(nInfo!=0)
-    return false;
-  
-  int nOne = 1;
-  ::dpotrs_("U", &nSize, &nOne, mLHS.get_data_ptr(), &nSize, vInputOutput.get_data_ptr(), &nSize, &nInfo);
-  if(nInfo!=0)
-    return false;
-  return true;
+	::dpotrf_("U", &nSize, mLHS.get_data_ptr(), &nSize, &nInfo);
+	if(nInfo!=0)
+		return false;
+
+	int nOne = 1;
+	::dpotrs_("U", &nSize, &nOne, mLHS.get_data_ptr(), &nSize, vInputOutput.get_data_ptr(), &nSize, &nInfo);
+	if(nInfo!=0)
+		return false;
+	return true;
 };
-
-
 #endif

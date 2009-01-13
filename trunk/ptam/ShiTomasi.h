@@ -7,8 +7,6 @@
 
 
 double FindShiTomasiScoreAtPoint(CVD::BasicImage<CVD::byte> &image,
-				 int nHalfBoxSize,
-				 CVD::ImageRef irCenter);
-
-
+								 int nHalfBoxSize,
+								 CVD::ImageRef irCenter);
 #endif
