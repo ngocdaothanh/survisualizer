@@ -4,6 +4,7 @@ require 'glu'
 require 'glut'
 require 'mathn'
 require 'matrix'
+require 'drb/drb'
 
 include Gl
 include Glu
@@ -53,6 +54,7 @@ class Main
 
     @webcam = Rewclib.new
     @webcam.open(CONFIG[:window_width], CONFIG[:window_height], 30)
+    DRb.start_service('druby://localhost:1225', @webcam)
 
     $winter_sense = WinterSense.new
     $winter_sense.open
@@ -126,7 +128,7 @@ class Main
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity
     # Calculate aspect ratio of the window
-    gluPerspective(45.0, @window_width/@window_height, 0.1, 1000.0)
+    gluPerspective(45.0, 1.0*@window_width/@window_height, 0.1, 1000.0)
 
     glMatrixMode(GL_MODELVIEW)
     visualize

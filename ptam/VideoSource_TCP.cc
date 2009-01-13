@@ -17,7 +17,8 @@ using namespace std;
 #define CAPTURE_SIZE_X	640
 #define CAPTURE_SIZE_Y	480
 #else
-#define HOST "133.51.81.184"
+//#define HOST "133.51.81.184"
+#define HOST "169.254.198.2"
 #define PORT 1225
 #define CAPTURE_SIZE_X	320
 #define CAPTURE_SIZE_Y	240
@@ -86,6 +87,12 @@ char *VideoSource::recv_bytes(int size)
 	return ret;
 }
 
+/**
+ * PTAM only needs grayscale to work. RGB is only needed for displaying. Thus we only need to
+ * send grayscale images from the remote camera.
+ *
+ * Because Y = 0.3*Red + 0.59*Green + 0.11*Blue, to speedup more, the server send Green channel instead of Y!
+ */
 void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb<CVD::byte> > &imRGB)
 {
 	// Get size in header
@@ -99,13 +106,15 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 	uncompress((Bytef *) m_buffer, &image_size, (Bytef *) compressed_image, size);
 	delete[] compressed_image;
 
-	for (int y=0; y<mirSize.y; y++) {
-		for (int x=0; x<mirSize.x; x++) {
-			imRGB[y][x].red   = m_buffer[(y*mirSize.x + x)*3 + 2];
-			imRGB[y][x].green = m_buffer[(y*mirSize.x + x)*3 + 1];
-			imRGB[y][x].blue  = m_buffer[(y*mirSize.x + x)*3 + 0];
+	// The code below can be optimized by copy the whole m_buffer to the neccessary destination
+	for (int y = 0; y < mirSize.y; y++) {
+		for (int x = 0; x < mirSize.x; x++) {
+			CVD::byte value = m_buffer[y*mirSize.x + x];
+			imRGB[y][x].red   = value;
+			imRGB[y][x].green = value;
+			imRGB[y][x].blue  = value;
 
-			imBW[y][x] = (CVD::byte) (0.3*imRGB[y][x].red + 0.59*imRGB[y][x].green + 0.11*imRGB[y][x].blue);
+			imBW[y][x] = value;
 		}
 	}
 
