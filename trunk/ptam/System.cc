@@ -44,11 +44,11 @@ System::System()
 	GUI.ParseLine("GLWindow.AddMenu Menu Menu");
 	GUI.ParseLine("Menu.ShowMenu Root");
 	GUI.ParseLine("Menu.AddMenuButton Root Reset Reset Root");
-	GUI.ParseLine("Menu.AddMenuButton Root Spacebar PokeTracker Root");
+	//GUI.ParseLine("Menu.AddMenuButton Root Spacebar PokeTracker Root");
 	GUI.ParseLine("DrawAR=0");
 	GUI.ParseLine("DrawMap=0");
-	GUI.ParseLine("Menu.AddMenuToggle Root \"View Map\" DrawMap Root");
-	GUI.ParseLine("Menu.AddMenuToggle Root \"Draw AR\" DrawAR Root");
+	GUI.ParseLine("Menu.AddMenuToggle Root \"Map\" DrawMap Root");
+	GUI.ParseLine("Menu.AddMenuToggle Root \"AR\" DrawAR Root");
 
 	mbDone = false;
 };
