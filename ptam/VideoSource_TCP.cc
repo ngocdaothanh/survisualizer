@@ -9,7 +9,7 @@
 using namespace CVD;
 using namespace std;
 
-#define LOCAL
+//#define LOCAL
 
 #ifdef LOCAL
 #define HOST "localhost"
