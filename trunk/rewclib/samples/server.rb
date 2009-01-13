@@ -20,8 +20,13 @@ require 'zlib'
 dir = File.dirname(__FILE__)
 require dir + '/../rewclib'
 
+$done = false
+trap(:INT) { $done = true }
+
 server = TCPServer.new(PORT)
 while true
+  break if $done
+
   begin
     socket = server.accept
   rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
