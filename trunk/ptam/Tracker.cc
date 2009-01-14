@@ -18,6 +18,7 @@
 #include <fstream>
 #include <fcntl.h>
 
+#include "VideoSource.h"
 
 using namespace CVD;
 using namespace std;
@@ -79,12 +80,159 @@ void Tracker::Reset()
 #endif
 }
 
+/*
+std::ostream& operator <<(std::ostream& os, const CVD::Image<CVD::byte>& im)
+{
+	int i;
+
+	os << im.size();
+	os.write((const char *) im.data(), im.size().area()*sizeof(CVD::byte));
+
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const Candidate& candidate)
+{
+	os << candidate.irLevelPos;
+	os << candidate.v2RootPos;
+	os << candidate.dSTScore;
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const Level& level)
+{
+	int i;
+
+	os << level.im;
+
+	i = level.vCorners.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << level.vCorners.at(j);
+	}
+
+	i = level.vCornerRowLUT.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << level.vCornerRowLUT.at(j);
+	}
+
+	i = level.vMaxCorners.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << level.vMaxCorners.at(j);
+	}
+	
+	i = level.vCandidates.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << level.vCandidates.at(j);
+	}
+	
+	os << level.bImplaneCornersCached;
+
+	i = level.vImplaneCorners.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << level.vImplaneCorners.at(j);
+	}
+
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const KeyFrame& key_frame)
+{
+	int i;
+
+	os << key_frame.se3CfromW;
+	os << key_frame.bFixed;
+
+	i = LEVELS;
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << key_frame.aLevels[j];
+	}
+	
+
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const MapPoint& map_point)
+{
+	os << map_point.v3WorldPos;
+	os << map_point.bBad;
+	//os << *map_point.pPatchSourceKF;
+
+	return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const Map& map)
+{
+	int i;  // Used to force writing integer
+
+	os << map.bGood;
+
+	i = map.vpKeyFrames.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << *map.vpKeyFrames.at(j);
+	}
+
+	i = map.vpPointsTrash.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << *map.vpPointsTrash.at(j);
+	}
+
+	i = map.vpPoints.size();
+	os << i;
+	for (int j = 0; j < i; j++) {
+		os << *map.vpPoints.at(j);
+	}
+
+	return os;
+}
+*/
+
+// Hack: Feed the tracker with controlled data
+#define USE_CONTROLLED_IMAGES
+//#define CAPTURE_IMAGES
+#define CONTROLLED_IMAGE1 "1.dat"
+#define CONTROLLED_IMAGE2 "2.dat"
+
 // TrackFrame is called by System.cc with each incoming video frame.
 // It figures out what state the tracker is in, and calls appropriate internal tracking
 // functions. bDraw tells the tracker wether it should output any GL graphics
 // or not (it should not draw, for example, when AR stuff is being shown.)
 void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 {
+#ifdef CAPTURE_IMAGES
+	if (mnInitialStage != TRAIL_TRACKING_COMPLETE && mbUserPressedSpacebar) {
+		ofstream out((mnInitialStage == TRAIL_TRACKING_NOT_STARTED)? CONTROLLED_IMAGE1 : CONTROLLED_IMAGE2, ios::binary);
+		out.write((char *) imFrame.data(), imFrame.size().area());
+		out.close();
+	}
+#endif
+
+#ifdef USE_CONTROLLED_IMAGES
+	if (mnInitialStage != TRAIL_TRACKING_COMPLETE) {
+		ifstream in((mnInitialStage == TRAIL_TRACKING_NOT_STARTED)? CONTROLLED_IMAGE1 : CONTROLLED_IMAGE2, ios::binary);
+		char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
+		in.read(buffer, imFrame.size().area());
+		BasicImage<byte> image((byte *) buffer, imFrame.size());
+		imFrame.copy_from(image);
+
+		static int wait = 0;
+		wait++;
+		if (wait > 30) {
+			mbUserPressedSpacebar = true;
+			wait = 0;
+		}
+	}
+#endif
+
+	//----------------------------------------------------------------------------
+
 	mbDraw = bDraw;
 	mMessageForUser.str("");   // Wipe the user message clean
 
@@ -112,7 +260,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 	// From now on we only use the keyframe struct!
 	mnFrame++;
 
-	if(mbDraw)
+	if (mbDraw)
 	{
 		glDrawPixels(mCurrentKF.aLevels[0].im);
 		if(GV2.GetInt("Tracker.DrawFASTCorners",0, SILENT))
@@ -125,9 +273,24 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 	}
 
 	// Decide what to do - if there is a map, try to track the map ...
-	if(mMap.IsGood())
+	if (mMap.IsGood())
 	{
-		if(mnLostFrames < 3)  // .. but only if we're not lost!
+		/*
+		// Serialize the map to disk
+		int static count = 0;
+		if (count < 50) {
+			count++;
+		}
+		if (count == 50) {
+			count++;
+			cout << mMap;
+			//ofstream ofs("map.dat", ios::binary);
+			//ofs.write((char *) &mMap, sizeof(mMap));
+			//ofs.close();
+		}
+		*/
+
+		if (mnLostFrames < 3)  // .. but only if we're not lost!
 		{
 			if(mbUseSBIInit)
 				CalcSBIRotation();
@@ -167,11 +330,13 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 				AssessTrackingQuality();
 			}
 		}
-		if(mbDraw)
+		if (mbDraw)
 			RenderGrid();
-	} 
-	else // If there is no map, try to make one.
-		TrackForInitialMap(); 
+	} else { // If there is no map, try to make one.
+		//ifstream ifs("map.dat", ios::binary);
+		//ifs.read((char *) &mMap, sizeof(mMap));
+		TrackForInitialMap();
+	}
 
 	// GUI interface
 	while(!mvQueuedCommands.empty())
@@ -307,9 +472,9 @@ void Tracker::TrackForInitialMap()
 	MiniPatch::mnMaxSSD = *gvnMaxSSD;
 
 	// What stage of initial tracking are we at?
-	if(mnInitialStage == TRAIL_TRACKING_NOT_STARTED) 
+	if (mnInitialStage == TRAIL_TRACKING_NOT_STARTED) 
 	{
-		if(mbUserPressedSpacebar)  // First spacebar = this is the first keyframe
+		if (mbUserPressedSpacebar)  // First spacebar = this is the first keyframe
 		{
 			mbUserPressedSpacebar = false;
 			TrailTracking_Start();
@@ -320,17 +485,17 @@ void Tracker::TrackForInitialMap()
 		return;
 	};
 
-	if(mnInitialStage == TRAIL_TRACKING_STARTED)
+	if (mnInitialStage == TRAIL_TRACKING_STARTED)
 	{
 		int nGoodTrails = TrailTracking_Advance();  // This call actually tracks the trails
-		if(nGoodTrails < 10) // if most trails have been wiped out, no point continuing.
+		if (nGoodTrails < 10) // if most trails have been wiped out, no point continuing.
 		{
 			Reset();
 			return;
 		}
 
 		// If the user pressed spacebar here, use trails to run stereo and make the intial map..
-		if(mbUserPressedSpacebar)
+		if (mbUserPressedSpacebar)
 		{
 			mbUserPressedSpacebar = false;
 			vector<pair<ImageRef, ImageRef> > vMatches;   // This is the format the mapmaker wants for the stereo pairs

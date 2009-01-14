@@ -200,7 +200,6 @@ bool MapMaker::InitFromStereo(KeyFrame &kF,
 {
 	mCamera.SetImageSize(kF.aLevels[0].im.size());
 
-
 	vector<HomographyMatch> vMatches;
 	for(unsigned int i=0; i<vTrailMatches.size(); i++)
 	{

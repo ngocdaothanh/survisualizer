@@ -51,13 +51,12 @@ System::System()
 	GUI.ParseLine("Menu.AddMenuToggle Root \"AR\" DrawAR Root");
 
 	mbDone = false;
-};
+}
 
 void System::Run()
 {
 	while(!mbDone)
 	{
-
 		// We use two versions of each video frame:
 		// One black and white (for processing by the tracker etc)
 		// and one RGB, for drawing.
@@ -106,6 +105,6 @@ void System::Run()
 
 void System::GUICommandCallBack(void *ptr, string sCommand, string sParams)
 {
-	if(sCommand=="quit" || sCommand == "exit")
+	if(sCommand == "quit" || sCommand == "exit")
 		static_cast<System*>(ptr)->mbDone = true;
 }
