@@ -193,10 +193,31 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 */
 
 // Hack: Feed the tracker with controlled data
+//     0.dat      1.dat      2.dat
+// |-----+-----|-----------|-----------|---   ---|-----+-----|
+//    spacebar                                      spacebar
 #define USE_CONTROLLED_IMAGES
-//#define CAPTURE_IMAGES
-#define CONTROLLED_IMAGE1 "1.dat"
-#define CONTROLLED_IMAGE2 "2.dat"
+#define SHOW_IMAGE_DURATION 3*2  // [loops], should be an even number
+
+int get_num_controlled_images()
+{
+	int ret = 0;
+	char file_name[5];
+
+	while (true) {
+		sprintf(file_name, "%d.dat", ret);
+		FILE* fp = fopen(file_name, "r");
+		if (fp) {
+			ret++;
+			fclose(fp);
+		} else {
+			break;
+		}
+	}
+
+	printf("There are %d controlled images\n", ret);
+	return ret;
+}
 
 // TrackFrame is called by System.cc with each incoming video frame.
 // It figures out what state the tracker is in, and calls appropriate internal tracking
@@ -204,27 +225,40 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 // or not (it should not draw, for example, when AR stuff is being shown.)
 void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 {
-#ifdef CAPTURE_IMAGES
-	if (mnInitialStage != TRAIL_TRACKING_COMPLETE && mbUserPressedSpacebar) {
-		ofstream out((mnInitialStage == TRAIL_TRACKING_NOT_STARTED)? CONTROLLED_IMAGE1 : CONTROLLED_IMAGE2, ios::binary);
-		out.write((char *) imFrame.data(), imFrame.size().area());
-		out.close();
-	}
-#endif
-
 #ifdef USE_CONTROLLED_IMAGES
-	if (mnInitialStage != TRAIL_TRACKING_COMPLETE) {
-		ifstream in((mnInitialStage == TRAIL_TRACKING_NOT_STARTED)? CONTROLLED_IMAGE1 : CONTROLLED_IMAGE2, ios::binary);
-		char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
-		in.read(buffer, imFrame.size().area());
-		BasicImage<byte> image((byte *) buffer, imFrame.size());
-		imFrame.copy_from(image);
+	static int num_controlled_images = get_num_controlled_images();
+	static int iimage = 0;  // Index, goes from 0 to num_controlled_images - 1
+	static int wait = 0;    // Wait for the loaded image to be proccessed, goes from 0 to SHOW_IMAGE_DURATION - 1
 
-		static int wait = 0;
-		wait++;
-		if (wait > 30) {
-			mbUserPressedSpacebar = true;
-			wait = 0;
+	if (num_controlled_images >= 2) {
+		// Reset iimage when PTAM need to recreate the map
+		if (mnInitialStage == TRAIL_TRACKING_NOT_STARTED) {
+			iimage = 0;
+		}
+
+		if (mnInitialStage != TRAIL_TRACKING_COMPLETE) {
+			char file_name[5];
+			sprintf(file_name, "%d.dat", iimage);
+
+			ifstream in(file_name, ios::binary);
+			char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
+			in.read(buffer, imFrame.size().area());
+			BasicImage<byte> image((byte *) buffer, imFrame.size());
+			imFrame.copy_from(image);
+
+			wait++;
+			if ((iimage == 0 || iimage == num_controlled_images - 1) && wait == SHOW_IMAGE_DURATION/2) {
+				mbUserPressedSpacebar = true;
+			}
+			if (wait > SHOW_IMAGE_DURATION) {
+				iimage++;
+				if (iimage == num_controlled_images) {
+					iimage = num_controlled_images - 1;
+				}
+				printf("Using %d.dat\n", iimage);
+
+				wait = 0;
+			}
 		}
 	}
 #endif
