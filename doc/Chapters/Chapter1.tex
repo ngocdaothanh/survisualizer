@@ -4,48 +4,51 @@
 
 \section{Introduction}
 
-In recent years, surveillance cameras are becoming very popular and placed almost everywhere, e.g. stations, airports, banks, shops, streets. It is hard to keep a balance between security and privacy. A person may feel protected when he knows himself and his surroundings are being observed. But at the same time he may feel uncomfortable because he does not know how many cameras are set and from what angle they are pointing at him.
+Surveillance cameras has become popular and placed almost everywhere, e.g. train stations, airports, banks, shops, streets. The balance between security and privacy is still an open problem for researchers and is an active subject for political/social debate. It is hard to keep a balance between security and privacy, a person may feel protected when he knows himself and his surroundings are being observed, but at the same time he may feel uncomfortable because he does not know how many cameras are set and from what angle they are pointing at him.
 
-The information that a person probably wants to know most about the cameras is their viewing fields, e.g. whether he is being observed. It is almost impossible to find cameras without any support in real scene. There is a generally known technology which can be applied for purposes like this: Mixed Reality (MR). MR is the encompassing of both Augmented Reality and Augmented Virtuality, merging real world in which we are living and virtual worlds created by computers. It produces new environments where real and virtual entities can co-exist and interact in realtime. Mixed Reality applications are usually equipped with Head Mounted Display (HMD) as shown in figure \ref{fig:HMD}.
+The information that a person probably wants to know most about surveillance cameras is their viewing fields, e.g. where the camera are, whether the person is inside the observed area. For indoor environment, because the space is usually small, people may easily locate and estimate the viewing fields of the cameras. For outdoor environment, it is almost impossible to find surveillance camera systems which support people to visually see the viewing fields in real scene. Fortunately, there is a technology which can be applied for situations like this: MR (Mixed Reality). MR is the encompassing of both Augmented Reality and Augmented Virtuality, merging real world in which we are living and virtual worlds created by computers. MR produces new environments where real and virtual entities can co-exist and interact in realtime \citep{Reference3}.
 
-\begin{figure}[htbp]
-  \centering
-    \includegraphics{./Primitives/hmd.jpg}
-    \rule{35em}{0.5pt}
-  \caption[An HMD]{An HMD}
-  \label{fig:HMD}
-\end{figure}
-
-However, HMDs are bulky and inconvenient for outdoor applications, as discussed in \citep{Reference2} \citep{Reference4}. In place of that, mobile devices like the one in figure \ref{fig:VAIO}, equipped with built-in camera, Global Positioning System (GPS) and gyrocompass devices, have been found practical and are a topic of many researches \citep{Reference2} \citep{Reference4}. Such devices find their high potential use in outdoor MR applications and researches because of their small size, high specifications, and competitive prices compared to normal laptops.
+MR applications are traditionally equipped with HMD (Head Mounted Display) as shown in figure \ref{fig:HMD}. However, HMDs are usually bulky and inconvenient for outdoor applications, where wide-range mobility is crucial. In recent years, mobile devices has become popular, devices like cell phones, PDA (Personal Digital Assistants) can be seen everywhere. Their prices have come down and they could reach the hands of common people even in developing countries like Viet Nam. High-end mobile devices, such as Apple iPhone and Google T-Mobile G1, usually have high specifications. More importantly for outdoor MR applications, they are equipped with built-in cameras, GPS (Global Positioning System), and accelerometer devices. These auxiliary devices usually meet the need of common outdoor MR applications because they provide video and information to help tracking and mapping the position and orientation of the mobile devices \citep{Reference2} \citep{Reference4}.
 
 \begin{figure}[htbp]
-  \centering
-    \includegraphics{./Primitives/vaio.png}
-    \rule{35em}{0.5pt}
-  \caption[A SONY VAIO mobile device]{A SONY VAIO mobile device}
-  \label{fig:VAIO}
+	\centering
+	\includegraphics{./Primitives/hmd.jpg}
+	\rule{35em}{0.5pt}
+	\caption[An HMD]{An HMD}
+	\label{fig:HMD}
 \end{figure}
 
-In this research, we propose a combination of such mobile devices and outdoor MR to enable a user to easily have a visualization of viewing fields of surveillance cameras surrounding him. The main part of this research is to find the best methods to visualize the viewing fields of the surveillance cameras.
+However, image processing applications usually need large memory and powerful computing capability. Even current high-end cell phones and PDA may not run MR applications properly without special tweaking. For processing-extensive outdoor MR applications, more powerful UMPC (Ultra-Mobile Portable Computer) devices like the one in figure \ref{fig:VAIO} may be used. UMPC equipped with built-in camera, GPS, and gyrocompass devices has been found practical and are a topic of many researches \citep{Reference2} \citep{Reference4}. Such devices find their high potential use in outdoor MR applications and researches because of their small size, high specifications, and competitive prices.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/vaio.png}
+	\rule{35em}{0.5pt}
+	\caption[Sony VAIO VGN-UX90PS]{Sony VAIO VGN-UX90PS}
+	\label{fig:VAIO}
+\end{figure}
+
+In this research, we propose:
+\begin{itemize}
+	\item Five methods to visualize the viewing fields of surveillance cameras on mobile device screen (chapter \ref{Chapter3}).
+	\item A prototype implementation based on server-side PTAM (Parallel Tracking and Mapping) \citep{Reference12} technology (chapter \ref{Chapter4}). The prototype uses a Sony VAIO VGN-UX90PS (appendix \ref{AppendixA}) and provides realtime video. Because the VAIO is still weak to do PTAM processing, we connect it wirelessly to an Apple MacBook Pro, which actually does the heavy work of PTAM. This results in a prototype system providing realtime video without any GPS and gyrocompass devices.
+\end{itemize}
+
+An evaluation experiment to find the best visualization method is described in chapter \ref{Chapter5}.
 
 \section{A use case}
 
-In order to get visualized images of the viewing fields of surrounding surveillance cameras in a certain direction, the typical usage scenario is:
+Using the prototype system we made, when a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is:
 
 \begin{enumerate}
-\item The user points the mobile camera in that direction and takes video of the scene.
-\item The mobile device is equipped with a camera, GPS and gyrocompass devices. The camera lets the user take video from his own point of view. GPS and gyrocompass devices give the system the position and orientation of the mobile camera, respectively.
-\item The video is processed to integrate the visualization about the viewing field of the surrounding surveillance cameras.
-\item The integrated video is rendered on the screen of the mobile device so that the user can see.
+	\item The user points the mobile camera in a certain direction.
+	\item Through wireless network, the mobile device continuously sends image captured by the camera of the scene to a more powerful remote computer for processing.
+	\item Based on pre-registered data and the image, the remote computer continuously tracks and maps the position and orientation of the mobile camera, and send them to the mobile device.
+	\item Based on pre-registered 3D model of the scene and the position and orientation data, the mobile device correctly renders virtual CG (computer graphics) objects onto the image to visualize the viewing field of the surrounding surveillance cameras, and renders the resulted image onto its screen. In this research we study five visualization methods. They are described in detail in chapter \ref{Chapter3}.
 \end{enumerate}
 
-An example is shown in Figure [cite, cite, cite]:
-\begin{itemize}
-\item Figure [cite] shows the position of the user, the mobile device, and the a surveillance camera in the world coordinates.
-\item The user is taking video using the camera on the mobile device, at the position and in the direction as shown in Figure [cite].
-\item The original video taken by the camera is shown in Figure [cite]. This video is not rendered on the screen.
-\item The viewing field of the surveillance camera is visualized on the original video, then this video is rendered on the screen as shown in Figure [cite].
-\item When the user changes the position or orientation of the mobile camera, the video and the visualized viewing field of the surveillance camera will also change accordingly.
-\end{itemize}
+The system provides realtime video. When the user changes the position or orientation of the mobile camera, the video displayed on the screen will also change accordingly.
 
-The above example only demonstrates one kind of visualization method, which may not be the best one, only to show how the system works. Five visualization methods are proposed in this research and are described in chapter \ref{Chapter3}.
+The above scenario roughly gives the idea of how the prototype system works. The system is described in detail in chapter \ref{Chapter4}.
+
+[TODO: add figure]
