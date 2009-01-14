@@ -1,24 +1,29 @@
-\chapter{Reference Implementation}
+\chapter{Prototype Implementation}
 \label{Chapter4}
-\lhead{Chapter 4. \emph{Reference Implementation}}
+\lhead{Chapter 4. \emph{Prototype Implementation}}
+
+This chapter describes a reference implementation of the visualization methods in chapter \ref{Chapter3}.
+
+mobile device is equipped with a camera, GPS and gyrocompass devices. The camera lets the user take video from his own point of view. GPS and gyrocompass devices give the system the position and orientation of the mobile camera, respectively.
+
 
 \section{System architecture}
 
 \subsection{Hardware}
 
-The mobile device used is a SONY VAIO VGN-UX90PS as shown in Figure [cite]. It has two built-in cameras. We use only the camera at the back as shown in Figure [cite], at 15fps@640x480. The specifications of the device is as follows:
-
 \begin{itemize}
-\item Size: 150.2mm x 95mm x 32.2mm
-\item Weight: 520g
-\item CPU: Core solo U1400 1.20 GHz
-\item RAM: 512MB DDR2
-\item OS: Microsoft Windows XP Professional (SP2)
+	\item The mobile device used is a SONY VAIO VGN-UX90PS, its specifications is in appendix \ref{AppendixA}. It has two built-in cameras. We use only the camera at the back as shown in figure \ref{fig:VAIO_Back}, at 15fps@640x480.
+	\item The gyrocompass attached is an InterSense InertiaCube3. It is one of the world's smallest inertial orientation reference system, its specifications is in appendix \ref{AppendixB}. The update rate is 180Hz, which eliminates tracker induced lag. It is connected to the mobile device with and RS322-USB adapter.
+	\item The RTK-GPS system is shown in Figure [cite]. It is also connected to the mobile device with and RS232-USB adapter.
 \end{itemize}
 
-The gyrocompass attached is and InterSense InertiaCube3. It is one of the world's smallest inertial orientation reference system (26.2mm x 39.2mm x 14.8mm). The update rate is 180Hz, which eliminates tracker induced lag. It is connected to the mobile device with and RS322-USB adapter.
-
-The RTK-GPS system is shown in Figure [cite]. It is also connected to the mobile device with and RS232-USB adapter.
+\begin{figure}[htbp]
+  \centering
+    \includegraphics{./Primitives/vaio_back.jpg}
+    \rule{35em}{0.5pt}
+  \caption[The camera at the back of the SONY VAIO VGN-UX90PS]{The camera at the back of the SONY VAIO VGN-UX90PS}
+  \label{fig:VAIO_Back}
+\end{figure}
 
 \subsection{Software}
 
