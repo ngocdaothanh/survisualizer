@@ -9,10 +9,9 @@ PORT = ARGV[0].to_i
 
 WIDTH  = 640
 HEIGHT = 480
-FPS    = 30
 #WIDTH  = 320
 #HEIGHT = 240
-#FPS    = 15
+FPS    = 30
 
 require 'socket'
 require 'zlib'
