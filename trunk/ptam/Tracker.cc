@@ -197,7 +197,7 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 // |-----+-----|-----------|-----------|---   ---|-----+-----|
 //    spacebar                                      spacebar
 #define USE_CONTROLLED_IMAGES
-#define SHOW_IMAGE_DURATION 3*2  // [loops], should be an even number
+#define SHOW_IMAGE_DURATION 10*2  // [loops], should be an even number
 
 int get_num_controlled_images()
 {
