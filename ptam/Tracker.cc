@@ -18,15 +18,13 @@
 #include <fstream>
 #include <fcntl.h>
 
-#include "VideoSource.h"
-
 using namespace CVD;
 using namespace std;
 using namespace GVars3;
 
 // The constructor mostly sets up interal reference variables
 // to the other classes..
-Tracker::Tracker(ImageRef irVideoSize, const ATANCamera &c, Map &m, MapMaker &mm) : 
+Tracker::Tracker(ImageRef irVideoSize, const ATANCamera &c, Map &m, MapMaker &mm) :
 mMap(m),
 mMapMaker(mm),
 mCamera(c),
@@ -67,7 +65,7 @@ void Tracker::Reset()
 	Zero(mv6CameraVelocity);
 	mbJustRecoveredSoUseCoarse = false;
 
-	// Tell the MapMaker to reset itself.. 
+	// Tell the MapMaker to reset itself..
 	// this may take some time, since the mapmaker thread may have to wait
 	// for an abort-check during calculation, so sleep while waiting.
 	// MapMaker will also clear the map.
@@ -122,13 +120,13 @@ std::ostream& operator <<(std::ostream& os, const Level& level)
 	for (int j = 0; j < i; j++) {
 		os << level.vMaxCorners.at(j);
 	}
-	
+
 	i = level.vCandidates.size();
 	os << i;
 	for (int j = 0; j < i; j++) {
 		os << level.vCandidates.at(j);
 	}
-	
+
 	os << level.bImplaneCornersCached;
 
 	i = level.vImplaneCorners.size();
@@ -152,7 +150,7 @@ std::ostream& operator <<(std::ostream& os, const KeyFrame& key_frame)
 	for (int j = 0; j < i; j++) {
 		os << key_frame.aLevels[j];
 	}
-	
+
 
 	return os;
 }
@@ -266,7 +264,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 		if(GV2.GetInt("Tracker.DrawFASTCorners",0, SILENT))
 		{
 			glColor3f(1,0,1);  glPointSize(1); glBegin(GL_POINTS);
-			for(unsigned int i=0; i<mCurrentKF.aLevels[0].vCorners.size(); i++) 
+			for(unsigned int i=0; i<mCurrentKF.aLevels[0].vCorners.size(); i++)
 				glVertex(mCurrentKF.aLevels[0].vCorners[i]);
 			glEnd();
 		}
@@ -294,9 +292,9 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 		{
 			if(mbUseSBIInit)
 				CalcSBIRotation();
-			ApplyMotionModel();       // 
+			ApplyMotionModel();       //
 			TrackMap();               //  These three lines do the main tracking work.
-			UpdateMotionModel();      // 
+			UpdateMotionModel();      //
 
 			AssessTrackingQuality();  //  Check if we're lost or if tracking is poor.
 
@@ -349,7 +347,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 // Try to relocalise in case tracking was lost.
 // Returns success or failure as a bool.
 // Actually, the SBI relocaliser will almost always return true, even if
-// it has no idea where it is, so graphics will go a bit 
+// it has no idea where it is, so graphics will go a bit
 // crazy when lost. Could use a tighter SSD threshold and return more false,
 // but the way it is now gives a snappier response and I prefer it.
 bool Tracker::AttemptRecovery()
@@ -458,7 +456,7 @@ void Tracker::GUICommandHandler(string sCommand, string sParams)  // Called by t
 
 	cout << "! Tracker::GUICommandHandler: unhandled command "<< sCommand << endl;
 	exit(1);
-}; 
+};
 
 // Routine for establishing the initial map. This requires two spacebar presses from the user
 // to define the first two key-frames. Salient points are tracked between the two keyframes
@@ -472,7 +470,7 @@ void Tracker::TrackForInitialMap()
 	MiniPatch::mnMaxSSD = *gvnMaxSSD;
 
 	// What stage of initial tracking are we at?
-	if (mnInitialStage == TRAIL_TRACKING_NOT_STARTED) 
+	if (mnInitialStage == TRAIL_TRACKING_NOT_STARTED)
 	{
 		if (mbUserPressedSpacebar)  // First spacebar = this is the first keyframe
 		{
@@ -514,7 +512,7 @@ void Tracker::TrackForInitialMap()
 void Tracker::TrailTracking_Start()
 {
 	mCurrentKF.MakeKeyFrame_Rest();  // This populates the Candidates list, which is Shi-Tomasi thresholded.
-	mFirstKF = mCurrentKF; 
+	mFirstKF = mCurrentKF;
 	vector<pair<double,ImageRef> > vCornersAndSTScores;
 	for(unsigned int i=0; i<mCurrentKF.aLevels[0].vCandidates.size(); i++)  // Copy candidates into a trivially sortable vector
 	{                                                                     // so that we can choose the image corners with max ST score
@@ -618,22 +616,22 @@ void Tracker::TrackMap()
 		manMeasAttempted[i] = manMeasFound[i] = 0;
 
 	// The Potentially-Visible-Set (PVS) is split into pyramid levels.
-	vector<TrackerData*> avPVS[LEVELS]; 
+	vector<TrackerData*> avPVS[LEVELS];
 	for(int i=0; i<LEVELS; i++)
 		avPVS[i].reserve(500);
 
 	// For all points in the map..
 	for(unsigned int i=0; i<mMap.vpPoints.size(); i++)
 	{
-		MapPoint &p= *(mMap.vpPoints[i]); 
+		MapPoint &p= *(mMap.vpPoints[i]);
 		// Ensure that this map point has an associated TrackerData struct.
-		if(!p.pTData) p.pTData = new TrackerData(&p);   
+		if(!p.pTData) p.pTData = new TrackerData(&p);
 		TrackerData &TData = *p.pTData;
 
 		// Project according to current view, and if it's not in the image, skip.
-		TData.Project(mse3CamFromWorld, mCamera); 
+		TData.Project(mse3CamFromWorld, mCamera);
 		if(!TData.bInImage)
-			continue;   
+			continue;
 
 		// Calculate camera projection derivatives of this point.
 		TData.GetDerivsUnsafe(mCamera);
@@ -654,7 +652,7 @@ void Tracker::TrackMap()
 	for(int i=0; i<LEVELS; i++)
 		random_shuffle(avPVS[i].begin(), avPVS[i].end());
 
-	// The next two data structs contain the list of points which will next 
+	// The next two data structs contain the list of points which will next
 	// be searched for in the image, and then used in pose update.
 	vector<TrackerData*> vNextToSearch;
 	vector<TrackerData*> vIterationSet;
@@ -674,7 +672,7 @@ void Tracker::TrackMap()
 
 	// Set of heuristics to check if we should do a coarse tracking stage.
 	bool bTryCoarse = true;
-	if(*gvnCoarseDisabled || 
+	if(*gvnCoarseDisabled ||
 		mdMSDScaledVelocityMagnitude < *gvdCoarseMinVel  ||
 		nCoarseMax == 0)
 		bTryCoarse = false;
@@ -686,16 +684,16 @@ void Tracker::TrackMap()
 		mbJustRecoveredSoUseCoarse = false;
 	};
 
-	// If we do want to do a coarse stage, also check that there's enough high-level 
+	// If we do want to do a coarse stage, also check that there's enough high-level
 	// PV map points. We use the lowest-res two pyramid levels (LEVELS-1 and LEVELS-2),
 	// with preference to LEVELS-1.
 	if(bTryCoarse && avPVS[LEVELS-1].size() + avPVS[LEVELS-2].size() > *gvnCoarseMin )
 	{
-		// Now, fill the vNextToSearch struct with an appropriate number of 
+		// Now, fill the vNextToSearch struct with an appropriate number of
 		// TrackerDatas corresponding to coarse map points! This depends on how many
 		// there are in different pyramid levels compared to CoarseMin and CoarseMax.
 
-		if(avPVS[LEVELS-1].size() <= nCoarseMax) 
+		if(avPVS[LEVELS-1].size() <= nCoarseMax)
 		{ // Fewer than CoarseMax in LEVELS-1? then take all of them, and remove them from the PVS list.
 			vNextToSearch = avPVS[LEVELS-1];
 			avPVS[LEVELS-1].clear();
@@ -734,20 +732,20 @@ void Tracker::TrackMap()
 				if(iter != 0)
 				{ // Re-project the points on all but the first iteration.
 					for(unsigned int i=0; i<vIterationSet.size(); i++)
-						if(vIterationSet[i]->bFound)  
+						if(vIterationSet[i]->bFound)
 							vIterationSet[i]->ProjectAndDerivs(mse3CamFromWorld, mCamera);
 				}
 				for(unsigned int i=0; i<vIterationSet.size(); i++)
 					if(vIterationSet[i]->bFound)
 						vIterationSet[i]->CalcJacobian();
 				double dOverrideSigma = 0.0;
-				// Hack: force the MEstimator to be pretty brutal 
+				// Hack: force the MEstimator to be pretty brutal
 				// with outliers beyond the fifth iteration.
 				if(iter > 5)
 					dOverrideSigma = 1.0;
 
 				// Calculate and apply the pose update...
-				Vector<6> v6Update = 
+				Vector<6> v6Update =
 					CalcPoseUpdate(vIterationSet, dOverrideSigma);
 				mse3CamFromWorld = SE3::exp(v6Update) * mse3CamFromWorld;
 			};
@@ -757,7 +755,7 @@ void Tracker::TrackMap()
 	// So, at this stage, we may or may not have done a coarse tracking stage.
 	// Now do the fine tracking stage. This needs many more points!
 
-	int nFineRange = 10;  // Pixel search range for the fine stage. 
+	int nFineRange = 10;  // Pixel search range for the fine stage.
 	if(mbDidCoarse)       // Can use a tighter search if the coarse stage was already done.
 		nFineRange = 5;
 
@@ -778,7 +776,7 @@ void Tracker::TrackMap()
 		for(unsigned int i=0; i<avPVS[l].size(); i++)
 			vNextToSearch.push_back(avPVS[l][i]);
 
-	// But we haven't got CPU to track _all_ patches in the map - arbitrarily limit 
+	// But we haven't got CPU to track _all_ patches in the map - arbitrarily limit
 	// ourselves to 1000, and choose these randomly.
 	static gvar3<int> gvnMaxPatchesPerFrame("Tracker.MaxPatchesPerFrame", 1000, SILENT);
 	int nFinePatchesToUse = *gvnMaxPatchesPerFrame - vIterationSet.size();
@@ -808,7 +806,7 @@ void Tracker::TrackMap()
 		// reprojection at every iteration - it really isn't necessary!
 		if(iter == 0 || iter == 4 || iter == 9)
 			bNonLinearIteration = true;   // Even this is probably overkill, the reason we do many
-		else                            // iterations is for M-Estimator convergence rather than 
+		else                            // iterations is for M-Estimator convergence rather than
 			bNonLinearIteration = false;  // linearisation effects.
 
 		if(iter != 0)   // Either way: first iteration doesn't need projection update.
@@ -838,7 +836,7 @@ void Tracker::TrackMap()
 			dOverrideSigma = 16.0;
 
 		// Calculate and update pose; also store update vector for linear iteration updates.
-		Vector<6> v6Update = 
+		Vector<6> v6Update =
 			CalcPoseUpdate(vIterationSet, dOverrideSigma, iter==9);
 		mse3CamFromWorld = SE3::exp(v6Update) * mse3CamFromWorld;
 		v6LastUpdate = v6Update;
@@ -852,7 +850,7 @@ void Tracker::TrackMap()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_POINTS);
 		for(vector<TrackerData*>::reverse_iterator it = vIterationSet.rbegin();
-			it!= vIterationSet.rend(); 
+			it!= vIterationSet.rend();
 			it++)
 		{
 			if(! (*it)->bFound)
@@ -873,7 +871,7 @@ void Tracker::TrackMap()
 	// Record successful measurements. Use the KeyFrame-Measurement struct for this.
 	mCurrentKF.mMeasurements.clear();
 	for(vector<TrackerData*>::iterator it = vIterationSet.begin();
-		it!= vIterationSet.end(); 
+		it!= vIterationSet.end();
 		it++)
 	{
 		if(! (*it)->bFound)
@@ -881,7 +879,7 @@ void Tracker::TrackMap()
 		Measurement m;
 		m.v2RootPos = (*it)->v2Found;
 		m.nLevel = (*it)->nSearchLevel;
-		m.bSubPix = (*it)->bDidSubPix; 
+		m.bSubPix = (*it)->bDidSubPix;
 		mCurrentKF.mMeasurements[& ((*it)->Point)] = m;
 	}
 
@@ -891,7 +889,7 @@ void Tracker::TrackMap()
 		double dSumSq = 0;
 		int nNum = 0;
 		for(vector<TrackerData*>::iterator it = vIterationSet.begin();
-			it!= vIterationSet.end(); 
+			it!= vIterationSet.end();
 			it++)
 			if((*it)->bFound)
 			{
@@ -926,10 +924,10 @@ int Tracker::SearchForPoints(vector<TrackerData*> &vTD, int nRange, int nSubPixI
 		}
 		manMeasAttempted[Finder.GetLevel()]++;  // Stats for tracking quality assessmenta
 
-		bool bFound = 
+		bool bFound =
 			Finder.FindPatchCoarse(ir(TD.v2Image), mCurrentKF, nRange);
 		TD.bSearched = true;
-		if(!bFound) 
+		if(!bFound)
 		{
 			TD.bFound = false;
 			continue;
@@ -983,7 +981,7 @@ Vector<6> Tracker::CalcPoseUpdate(vector<TrackerData*> vTD, double dOverrideSigm
 		nEstimator = 1;
 	else if(*gvsEstimator == "Huber")
 		nEstimator = 2;
-	else 
+	else
 	{
 		cout << "Invalid TrackerMEstimator, choices are Tukey, Cauchy, Huber" << endl;
 		nEstimator = 0;
@@ -1016,7 +1014,7 @@ Vector<6> Tracker::CalcPoseUpdate(vector<TrackerData*> vTD, double dOverrideSigm
 			dSigmaSquared = Tukey::FindSigmaSquared(vdErrorSquared);
 		else if(nEstimator == 1)
 			dSigmaSquared = Cauchy::FindSigmaSquared(vdErrorSquared);
-		else 
+		else
 			dSigmaSquared = Huber::FindSigmaSquared(vdErrorSquared);
 	}
 
@@ -1037,7 +1035,7 @@ Vector<6> Tracker::CalcPoseUpdate(vector<TrackerData*> vTD, double dOverrideSigm
 			dWeight= Tukey::Weight(dErrorSq, dSigmaSquared);
 		else if(nEstimator == 1)
 			dWeight= Cauchy::Weight(dErrorSq, dSigmaSquared);
-		else 
+		else
 			dWeight= Huber::Weight(dErrorSq, dSigmaSquared);
 
 		// Inlier/outlier accounting, only really works for cut-off estimators such as Tukey.
