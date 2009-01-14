@@ -9,9 +9,8 @@
 using namespace CVD;
 using namespace std;
 
-//#define LOCAL
-
-#ifdef LOCAL
+//#define USE_LOCAL_CAMERA  // Comment out to use local camera
+#ifdef USE_LOCAL_CAMERA
 #define HOST "localhost"
 #define PORT 1225
 #define CAPTURE_SIZE_X	640
@@ -117,7 +116,6 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 			imBW[y][x] = value;
 		}
 	}
-
 }
 
 ImageRef VideoSource::Size()
