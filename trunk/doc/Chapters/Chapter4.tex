@@ -4,6 +4,8 @@
 
 In this chapter, we implement a prototype based on PTAM \citep{Reference12}. The prototype integrates the five methods in section \ref{VisualizationMethods}. A use case of this system is in section \ref{AUseCase}.
 
+%------------------------------------------------------------------------------
+
 \section{System Architecture}
 
 The mobile device used in the prototype is a SONY VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \citep{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dual core CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook. The architecture is in figure \ref{VAIOMacBookPro}.
@@ -11,6 +13,8 @@ The mobile device used in the prototype is a SONY VAIO VGN-UX90PS (see appendix 
 The VAIO and the MacBook are connected by a 11 Mbps wireless network. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed.
 
 The MacBook may run at 54 Mbps, but the VAIO's built-in wireless network card can only run at 11 Mbps. The 11 Mbps is sufficient for the current prototype. For faster network speed, we can attach a 54 Mbps auxiliary wireless network card for the VAIO. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
+
+%------------------------------------------------------------------------------
 
 \section{Server-side PTAM}
 
@@ -62,19 +66,65 @@ The prototype uses frame size of 320x240. This gives smooth frame rate with be a
 
 When increasing from 320x240 to 640x480, the frame rate drop about 4 times, and the prototype no longer works smoothly as required in \ref{VisualizationRequirements}. 
 
-\section{PTAM's Map Initializing Problem}
+%------------------------------------------------------------------------------
 
-PTAM continuously build and maintain a map of feature points taken from the frames.
+\section{Pre-registered 3D Model and Viewing Field Visualization}
 
-\section{Pre-registered Data}
+On the VAIO, there is pre-registered the positions and orientations of surveillance cameras. Having the position and orientation of itself tracked and fed by the MacBook, the VAIO can create CG objects and correctly overlay them on the screen to visualize the viewing fields.
 
-The system does not use a server or any real surveillance camera. In place of those, 3D model of the building of the College of International Studies and the gymnasium (Figure [cite]), together with the hard coded geometry information about the virtual surveillance cameras are used.
+To make the CG objects look more ``real'', we use also use pre-registered 3D model of the surrounding buildings. For example, in animation visualization method, we can stop the grid when it touch the surface of the building walls. The 3D model only contains planes, texture is not necessary.
 
-\section{History of this prototype}
+%------------------------------------------------------------------------------
+
+\section{Map Initializing and 3D Model Registering}
+
+PTAM continuously builds and maintains a 3D map by adding stable feature points and removing unstable ones taken from the frames (figure \ref{fig:Map}). The problem is the 3D model must be in match with this map. When the scene is unchanged, the map may be rotated or translated but relative positions among the feature points are preserved. Thus we have the following workflow:
+
+\begin{enumerate}
+	\item Initialization and registration phase: Let PTAM build the map. Manually translate and rotate the model to match the map (or vice versa), the save the translation and rotation parameters.
+	\item Usage phase: On next program startups, as long as we can make sure that the map is not different from the map used to save the parameters, we can use the parameters to translate and rotate the model to match map.
+\end{enumerate}
+
+The reference implementation of PTAM initializes the map on each program startup by taking two keyframes which form a stereo pair as in figure \ref{fig:Stereo}. As a result, there are two approaches to solve the map-model matching problem:
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/map.png}
+	\rule{35em}{0.5pt}
+	\caption[Map]{Map}
+	\label{fig:Map}
+\end{figure}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Figures/stereo.png}
+	\rule{35em}{0.5pt}
+	\caption[Map initialization]{Map initialization}
+	\label{fig:Stereo}
+\end{figure}
+
+\begin{itemize}
+	\item Control the two keyframes. This approach is easy because we simply take two images before-hand, then feed them to PTAM on each program startup.
+	\item In the initialization and registration phase, serialize the map to string and save the string to disk, then on usage phase just skip the map initialization, load the map from disk, deserialize and feed it directly to PTAM. This approach is very powerful because we can prebuild a large fine-grain map to use in the usage phase, thus the system becomes very robust.
+\end{itemize}
+
+For the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to PTAM, with the first and the last one act as the two keyframe as in figure \ref{fig:2KeyFrames}. The video retrieving part and feature point processing part of PTAM run in two separate threads, as a result slightly different maps may be initialized each time PTAM during startup. To make sure that PTAM always initialize the same map, we must feed each frame for an enough amount time, about more than one second for the MacBook we are using.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Figures/2keyframes.png}
+	\rule{35em}{0.5pt}
+	\caption[Feeding frame to PTAM to initialize map]{Feeding frame to PTAM to initialize map}
+	\label{fig:2KeyFrames}
+\end{figure}
+
+%------------------------------------------------------------------------------
+
+\section{History of current prototype}
 
 The prototype described in the above sections is not the only decision choice we have made throughout this research. Previously, we have made others as described below.
 
-\subsection{Hardware -- Prototype with SONY VAIO VGN-UX90PS, Garmin GPSmap 60CSx, and InterSense InertiaCube3}
+\subsection{Hardware -- Prototype with GPS and gyrocompass devices}
 
 We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixD}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 10m, which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \citep{Reference13} method may be used.
 
