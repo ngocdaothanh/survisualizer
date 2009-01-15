@@ -5,7 +5,8 @@ command line of ImageMagick can be used:
 convert -resize 400x input.image output.image
 
 Note for OmiGraffle:
-* .graffle can be a file or a directory
-* When it is a directory, the Icon file in the directory is named "Icon\r"
-by OmniGraffle, thus cannot be committed by Subversion. The file can be safely
-renamed to "Icon" to be committed to Subversion repository.
+* figures.graffle is a directory
+* The Icon file in the directory is named "Icon\r" by OmniGraffle, thus cannot
+be committed by Subversion. The file can be safely renamed to "Icon" to be
+committed.
+* Figures are exported to the directory "Figures"
