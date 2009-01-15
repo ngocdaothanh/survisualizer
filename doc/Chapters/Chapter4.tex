@@ -14,14 +14,22 @@ The MacBook may run at 54 Mbps, but the VAIO's built-in wireless network card ca
 
 \section{Server-side PTAM}
 
-We modify the original PTAM source code so that the ``video source'' is remotely located on the VAIO, not on the MacBook. We learn a little from Erlang \citep{Reference17} of how to write concurrent, high-performance systems. Right after the TCP (Transmission Control Protocol) connection between the VAIO and the MackBook is established:
+We modify the original PTAM source code so that the ``video source'' is remotely located on the VAIO, not on the MacBook. We learn a little from Erlang language \citep{Reference17} of how to write concurrent, high-performance systems. Right after the TCP (Transmission Control Protocol) connection between the VAIO and the MackBook is established:
 
 \begin{itemize}
-	\item The VAIO continuously sends frames captured from its camera to the MacBook.
-	\item The MacBook continuously sends position and orientation of the camera of the VAIO to the VAIO.
+	\item The VAIO continuously feeds frames captured from its camera to the MacBook.
+	\item The MacBook continuously feeds position and orientation of the camera of the VAIO to the VAIO.
 \end{itemize}
 
-As the above explanation suggests, we use ``push'' instead of ``pull''. In other words we use the mailbox design pattern instead of the RPC (Remote Procedure Call) design pattern, which has synchronizing problem.
+As the above explanation suggests, we use ``push'' instead of ``pull'', one side actively sends data to the other side without having to wait for the request for the data from the other side. In other words we use the mailbox design pattern instead of the RPC (Remote Procedure Call) design pattern, which is slower and requires synchronizing the call and the result (figure \ref{fig:MailboxRPC}).
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Figures/mailbox_rpc.png}
+	\rule{35em}{0.5pt}
+	\caption[Mailbox vs. RPC]{Mailbox (above) vs. RPC (below)}
+	\label{fig:MailboxRPC}
+\end{figure}
 
 Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. To increase the frame rate sent to the MacBook, we further improve the data transmission by the following optimizations:
 
@@ -41,7 +49,7 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 			compressed G    &     \\
 			\hline
 		\end{tabular}
-		\caption{Frame rate improves when applying optimizations}
+		\caption{Frame rate improves when applying frame transmission optimizations}
 	\end{center}
 \end{table}
 
@@ -55,6 +63,8 @@ The prototype uses frame size of 320x240. This gives smooth frame rate with be a
 When increasing from 320x240 to 640x480, the frame rate drop about 4 times, and the prototype no longer works smoothly as required in \ref{VisualizationRequirements}. 
 
 \section{PTAM's Map Initializing Problem}
+
+PTAM continuously build and maintain a map of feature points taken from the frames.
 
 \section{Pre-registered Data}
 
