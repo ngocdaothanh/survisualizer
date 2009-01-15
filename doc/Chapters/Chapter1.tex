@@ -24,8 +24,16 @@ However, image processing applications usually need large memory and powerful co
 	\centering
 	\includegraphics{./Primitives/vaio.png}
 	\rule{35em}{0.5pt}
-	\caption[Sony VAIO VGN-UX90PS]{Sony VAIO VGN-UX90PS}
+	\caption[SONY VAIO VGN-UX90PS with a camera at the front]{SONY VAIO VGN-UX90PS　with a camera at the front (top, center)}
 	\label{fig:VAIO}
+\end{figure}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/vaio_back.jpg}
+	\rule{35em}{0.5pt}
+	\caption[SONY VAIO VGN-UX90PS with a camera at the back]{SONY VAIO VGN-UX90PS with a camera at the back (top, left)}
+	\label{fig:VAIOBack}
 \end{figure}
 
 In this research, we propose:
@@ -34,11 +42,12 @@ In this research, we propose:
 	\item A prototype implementation based on server-side PTAM (Parallel Tracking and Mapping) \citep{Reference12} technology (chapter \ref{Chapter4}). The prototype uses a Sony VAIO VGN-UX90PS (appendix \ref{AppendixA}) and provides realtime video. Because the VAIO is still weak to do PTAM processing, we connect it wirelessly to an Apple MacBook Pro, which actually does the heavy work of PTAM. This results in a prototype system providing realtime video without any GPS and gyrocompass devices.
 \end{itemize}
 
-An evaluation experiment to find the best visualization method is described in chapter \ref{Chapter5}.
+An experiment to evaluate the visualization methods is described in chapter \ref{Chapter5}.
 
-\section{A use case}
+\section{A Use Case}
+\label{AUseCase}
 
-Using the prototype system we made, when a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is:
+Using the prototype system we make in chapter \ref{Chapter4}, when a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is:
 
 \begin{enumerate}
 	\item The user points the mobile camera in a certain direction.
@@ -47,8 +56,16 @@ Using the prototype system we made, when a user wants to see the visualized view
 	\item Based on pre-registered 3D model of the scene and the position and orientation data, the mobile device correctly renders virtual CG (computer graphics) objects onto the image to visualize the viewing field of the surrounding surveillance cameras, and renders the resulted image onto its screen. In this research we study five visualization methods. They are described in detail in chapter \ref{Chapter3}.
 \end{enumerate}
 
-The system provides realtime video. When the user changes the position or orientation of the mobile camera, the video displayed on the screen will also change accordingly.
-
-The above scenario roughly gives the idea of how the prototype system works. The system is described in detail in chapter \ref{Chapter4}.
-
 [TODO: add figure]
+
+The system is described in detail in chapter \ref{Chapter4}. It provides realtime video. When the user changes the position or orientation of the mobile camera, the video displayed on the screen will simultaneously change accordingly to the camera movement.
+
+The purpose of the above use case is to give one example of application of visualizing viewing fields of surveillance cameras and to give a rough idea of how the prototype system works. There may be other applications. For example, we can build a system which visualizes ``safe paths" or ``safe areas" for pupils, as in figure \ref{fig:HomeSchool}. Pupils can use their cell phones to see if their current location is being well observed when they walk to school or go home from school.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/home_school.png}
+	\rule{35em}{0.5pt}
+	\caption[Safe path to school]{Safe path to school}
+	\label{fig:HomeSchool}
+\end{figure}
