@@ -48,20 +48,28 @@ An experiment to evaluate the visualization methods is described in chapter \ref
 \section{A Use Case}
 \label{AUseCase}
 
-Using the prototype we make in chapter \ref{Chapter4}, when a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is:
+Using the prototype we make in chapter \ref{Chapter4}, when a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is (see figure \ref{VAIOMacBookPro}):
 
 \begin{enumerate}
 	\item The user points the mobile camera in a certain direction.
-	\item Through wireless network, the mobile device continuously sends image captured by the camera of the scene to a more powerful remote computer for processing.
-	\item Based on pre-registered data and the image, the remote computer continuously tracks and maps the position and orientation of the mobile camera, and send them to the mobile device.
-	\item Based on pre-registered 3D model of the scene and the position and orientation data, the mobile device correctly renders virtual CG (computer graphics) objects onto the image to visualize the viewing field of the surrounding surveillance cameras, and renders the resulted image onto its screen. In this research we study five visualization methods. They are described in detail in chapter \ref{Chapter3}.
+	\item Through wireless network, the mobile device continuously sends frames captured by the camera of the scene to a more powerful remote computer for processing.
+	\item Based on pre-registered data and the frames, the remote computer continuously tracks and maps the position and orientation of the mobile camera, and send them to the mobile device.
+	\item Based on pre-registered 3D model of the scene and the position and orientation data, the mobile device correctly renders virtual CG (computer graphics) objects onto the frame to visualize the viewing field of the surrounding surveillance cameras, and renders the resulted image onto its screen. In this research we study five visualization methods. They are described in detail in chapter \ref{Chapter3}.
 \end{enumerate}
 
-[TODO: add figure]
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/vaio_macbookpro.png}
+	\rule{35em}{0.5pt}
+	\caption[Prototype architecture]{Prototype architecture}
+	\label{fig:VAIOMacBookPro}
+\end{figure}
+
+[FIXME: replace the image]
 
 The system is described in detail in chapter \ref{Chapter4}. It provides realtime video. When the user changes the position or orientation of the mobile camera, the video displayed on the screen will simultaneously change accordingly to the camera movement.
 
-The purpose of the above use case is to give one example of application of visualizing viewing fields of surveillance cameras and to give a rough idea of how the prototype works. There may be other applications. For example, we can build a system which visualizes ``safe paths" or ``safe areas" for pupils, as in figure \ref{fig:HomeSchool}. Pupils can use their cell phones to see if their current location is being well observed when they walk to school or go home from school.
+The purpose of the above use case is to give one example of application of visualizing viewing fields of surveillance cameras and to give a rough idea of how the prototype works. There may be other applications. For example, we can build a system which visualizes ``safe paths'' or ``safe areas'' for pupils, as in figure \ref{fig:HomeSchool}. Pupils can use their cell phones to see if their current location is being well observed when they walk to school or go home from school.
 
 \begin{figure}[htbp]
 	\centering
