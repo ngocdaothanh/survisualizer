@@ -1,1 +1,11 @@
 See http://www.sunilpatel.co.uk/thesistemplate.php
+
+The width of images should be at most 400px. To convert wider images, "convert"
+command line of ImageMagick can be used:
+convert -resize 400x input.image output.image
+
+Note for OmiGraffle:
+* .graffle can be a file or a directory
+* When it is a directory, the Icon file in the directory is named "Icon\r"
+by OmniGraffle, thus cannot be committed by Subversion. The file can be safely
+renamed to "Icon" to be committed to Subversion repository.
