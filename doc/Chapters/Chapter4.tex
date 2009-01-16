@@ -1,172 +1,26 @@
-\chapter{Prototype Implementation}
+\chapter{Evaluation of Visualization Methods}
 \label{Chapter4}
-\lhead{Chapter 4. \emph{Prototype Implementation}}
+\lhead{Chapter 4. \emph{Evaluation of Visualization Methods}}
 
-In this chapter, we implement a prototype based on PTAM \citep{Reference12}. The prototype integrates the five methods in section \ref{VisualizationMethods}. A use case of this system is in section \ref{AUseCase}.
-
-%------------------------------------------------------------------------------
-
-\section{System Architecture}
-
-The mobile device used in the prototype is a SONY VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \citep{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dual core CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook. The architecture is in figure \ref{VAIOMacBookPro}.
-
-The VAIO and the MacBook are connected by a 11 Mbps wireless network. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed.
-
-The MacBook may run at 54 Mbps, but the VAIO's built-in wireless network card can only run at 11 Mbps. The 11 Mbps is sufficient for the current prototype. For faster network speed, we can attach a 54 Mbps auxiliary wireless network card for the VAIO. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
+In this chapter, we use the prototype implemented in chapter \ref{Chapter3} to conduct an experiment to evaluate the five visualization methods in section \ref{VisualizationMethods}. Another purpose is to verify the requirements in section \ref{VisualizationRequirements}.
 
 %------------------------------------------------------------------------------
 
-\section{Server-side PTAM}
+\section{Evaluation Condition}
 
-We modify the original PTAM source code so that the ``video source'' is remotely located on the VAIO, not on the MacBook. We learn a little from Erlang language \citep{Reference17} of how to write concurrent, high-performance systems. Right after the TCP (Transmission Control Protocol) connection between the VAIO and the MackBook is established:
-
-\begin{itemize}
-	\item The VAIO continuously feeds frames captured from its camera to the MacBook.
-	\item The MacBook continuously feeds position and orientation of the camera of the VAIO to the VAIO.
-\end{itemize}
-
-As the above explanation suggests, we use ``push'' instead of ``pull'', one side actively sends data to the other side without having to wait for the request for the data from the other side. In other words we use the mailbox design pattern instead of the RPC (Remote Procedure Call) design pattern, which is slower and requires synchronizing the call and the result (figure \ref{fig:MailboxRPC}).
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Figures/mailbox_rpc.png}
-	\rule{35em}{0.5pt}
-	\caption[Mailbox vs. RPC]{Mailbox (above) vs. RPC (below)}
-	\label{fig:MailboxRPC}
-\end{figure}
-
-Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. To increase the frame rate sent to the MacBook, we further improve the data transmission by the following optimizations:
+Ten users of about 20-30 years old are invited to use the system with the five visualization methods. After that, each user are asked to rank each visualization method in the following categories in five levels:
 
 \begin{itemize}
-	\item Send G color channel instead of Y, because G affects Y the most as in the above common equation. This does not affect PTAM. This optimization enormously improves the frame rate because when we send Y, if the image size is 320x240, we must apply the above equation 76800 times for each frame!
-	\item Losslessly compress G color channel using the standard library ``zlib''. The compression rate is about 50\%.
+	\item Understandability
+	\item Realtimeness
+	\item Accuracy
+	\item Robustness to the disturbance of passers-by and handshaking movement of the mobile device
 \end{itemize}
 
-\begin{table}[tb]
-	\begin{center}
-		\begin{tabular}{|c|l|l|}
-			\hline
-			Sent color data & FPS \\
-			\hline
-			Y               &     \\
-			G               &     \\
-			compressed G    &     \\
-			\hline
-		\end{tabular}
-		\caption{Frame rate improves when applying frame transmission optimizations}
-	\end{center}
-\end{table}
-
-The prototype uses frame size of 320x240. This gives smooth frame rate with be above system architecture and optimizations. Bigger frame size allows PTAM to find more feature points, but the following drawbacks pop up:
-
-\begin{itemize}
-	\item Data for each frame gets bigger. This increases data transmission time for each frame.
-	\item The MacBook must process more data. This decreases the result frame rate.
-\end{itemize}
-
-When increasing from 320x240 to 640x480, the frame rate drop about 4 times, and the prototype no longer works smoothly as required in \ref{VisualizationRequirements}. 
+3D model:The system does not use a server or any real surveillance camera. In place of those, 3D model of the building of the College of International Studies and the gymnasium (Figure [cite]), together with the hard coded geometry information about the virtual surveillance cameras are used.
 
 %------------------------------------------------------------------------------
 
-\section{Pre-registered 3D Model and Viewing Field Visualization}
+\section{Result and Discussion}
 
-On the VAIO, there is pre-registered the positions and orientations of surveillance cameras. Having the position and orientation of itself tracked and fed by the MacBook, the VAIO can create CG objects and correctly overlay them on the screen to visualize the viewing fields.
-
-To make the CG objects look more ``real'', we use also use pre-registered 3D model of the surrounding buildings. For example, in animation visualization method, we can stop the grid when it touch the surface of the building walls. The 3D model only contains planes, texture is not necessary.
-
-%------------------------------------------------------------------------------
-
-\section{Map Initializing and 3D Model Registering}
-
-PTAM continuously builds and maintains a 3D map by adding stable feature points and removing unstable ones taken from the frames (figure \ref{fig:Map}). The problem is the 3D model must be in match with this map. When the scene is unchanged, the map may be rotated or translated but relative positions among the feature points are preserved. Thus we have the following workflow:
-
-\begin{enumerate}
-	\item Initialization and registration phase: Let PTAM build the map. Manually translate and rotate the model to match the map (or vice versa), the save the translation and rotation parameters.
-	\item Usage phase: On next program startups, as long as we can make sure that the map is not different from the map used to save the parameters, we can use the parameters to translate and rotate the model to match map.
-\end{enumerate}
-
-The reference implementation of PTAM initializes the map on each program startup by taking two keyframes which form a stereo pair as in figure \ref{fig:Stereo}. As a result, there are two approaches to solve the map-model matching problem:
-
-\begin{itemize}
-	\item Control the two keyframes. This approach is easy because we simply take two images before-hand, then feed them to PTAM on each program startup. The scene in the two images is usually a scene of buildings. It is called a landmark. In the usage phase, PTAM allows the user at startup to stand at a slightly different position other than the ones where we took the two images (figure \ref{fig:Stereo}). This is convenient because normally it is very hard to return to the exact position after some time.
-	\item In the initialization and registration phase, serialize the map to string and save the string to disk, then on usage phase just skip the map initialization, load the map from disk, deserialize and feed it directly to PTAM. We can prebuild a large fine-grain map to use in the usage phase, thus the system becomes very robust. Moreover, in the usage phase at startup the user can stand at a very different position and orientation, as long as the position is inside the prebuilt map.
-\end{itemize}
-
-The landmark can be thought as an ``access point'' as in wireless network terminology. Its appearance should not change too much over time so that it is usable. The second approach is in general more powerful than the first one, but if the scene changes too much then it may be less powerful because parts of the prebuilt map will become invalid and cause noise or heavy load to PTAM. The first approach always works given a good landmark, because the map can be updated dynamically by PTAM.
-
-With the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to PTAM, with the first and the last one act as the two keyframe as in figure \ref{fig:2KeyFrames}. The video retrieving part and feature point processing part of PTAM run in two separate threads, as a result slightly different maps may be initialized each time PTAM during startup. To make sure that PTAM always initialize the same map, we must feed each frame for an enough amount time, about more than one second for the MacBook we are using.
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/map.png}
-	\rule{35em}{0.5pt}
-	\caption[Map]{Map}
-	\label{fig:Map}
-\end{figure}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Figures/stereo.png}
-	\rule{35em}{0.5pt}
-	\caption[Map initialization]{Map initialization}
-	\label{fig:Stereo}
-\end{figure}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Figures/2keyframes.png}
-	\rule{35em}{0.5pt}
-	\caption[Feeding frame to PTAM to initialize map]{Feeding frame to PTAM to initialize map}
-	\label{fig:2KeyFrames}
-\end{figure}
-
-%------------------------------------------------------------------------------
-
-\section{History of current prototype}
-
-The prototype described in the above sections is not the only decision choice we have made throughout this research. Previously, we have made others as described below.
-
-\subsection{Hardware -- Prototype with GPS and gyrocompass devices}
-
-We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixD}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 5-10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \citep{Reference13} method may be used.
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/vaio_gps_gyro.png}
-	\rule{35em}{0.5pt}
-	\caption[Prototype with SONY VAIO VGN-UX90PS, Garmin GPSmap 60CSx, and InterSense InertiaCube3]{Prototype with SONY VAIO VGN-UX90PS, Garmin GPSmap 60CSx, and InterSense InertiaCube3}
-	\label{fig:VAIOGPSGyro}
-\end{figure}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/gps_error.png}
-	\rule{35em}{0.5pt}
-	\caption[GPS error]{The points do not lie in the red line because of GPS error}
-	\label{fig:GPSError}
-\end{figure}
-
-In the above prototype, we do not use GPS and gyrocompass devices. Although the more auxiliary devices we add the bulkier and more complicated in programming the mobile device will be, GPS and gyrocompass devices can be used together with PTAM in the multi-sensor fusion \citep{Reference14} style, which may greatly improves the robustness of the system:
-
-\begin{itemize}
-	\item Initialization problem: the GPS and gyrocompass devices may provide initial position and orientation of the mobile device. Although the error of the GPS device is not small, in a large map it may help PTAM to reduce the search space.
-	\item Quick movement: PTAM is image-based, thus it does not work well when the user quickly moves the mobile device. At this time, the gyrocompass may provide PTAM the orientation information because its update rate is high. Although the gyrocompass suffers from drifting error and needs to be continuously adjusted by the other sensors in the fusion, quick mobile device movement usually lasts only in a short time, thus gyrocompass may provide precious temporary information during this time.
-\end{itemize}
-
-\subsection{Software -- Development environment}
-
-Visualization methods are expected to be found experimentally and visually. Thus, trial and error methodology is applied here. To shorten the trial and error cycle, we need a good development environment which allows quick compiling, running and modifying.
-
-At first we used C/C++ language and OpenGL API \citep{Reference10}. Because both the language and the API are in too low level, the development speed was slow. Later, C/C++ language was fully replaced by Ruby language. Ruby is an object oriented strongly-typed dynamic language that attracts attention of developers world-wide in recent years. From the perspective of software engineering, the above features provide the following benefits:
-
-\begin{itemize}
-	\item Object oriented feature: Easy to structure the program and later maintain the source code over time.
-	\item Strongly-typed feature: Variables have types, thus we can avoid bugs which usually occur in weakly-typed languages like PHP.
-	\item Dynamic feature: There is no compile time. With static languages like C/C++, a lot time is wasted on compiling source code. With Ruby we can modify source code and run right away.
-\end{itemize}
-
-The development speed was better but still slow, partly because of the slow. It was concluded that the speed of the development is largely affected by the API rather than the language. Consequently, a higher level 3D rendering engine has been adopted: Irrlicht. Later, we read many reviews on the Internet that say that OGRE \citep{Reference11} is easier to use than Irrlicht, thus we migrated to OGRE. OGRE, Object-Oriented Graphics Rendering Engine, is a scene-oriented, flexible 3D rendering engine written in C++ designed to make it easier and more intuitive for developers to produce applications utilizing hardware-accelerated 3D graphics. The class library abstracts all the details of using the underlying system libraries like Direct3D and OpenGL and provides an interface based on world objects and other intuitive classes.
-
-However, OGRE is generally used for creating 3D games thus contain too many features that we do not need. The framework forced us to write too much bloated code for the purpose of this research. As a result, we finally migrated to a combination of Ruby and C language with pure OpenGL API. At this time Ruby has grown to version 1.9. In this version the interpreter is replaced by a virtual machine, which boosts our Ruby program's speed to about 10x. Moreover importantly it is ridiculously easy to write C extension for Ruby \citep{Reference15}. For program parts that need speed like networking and image processing, we use the Ruby standard library which is written in C, or write them as C extension for Ruby. For program parts that need trial-error or does not need speed like the user interface part, we write them in pure Ruby.
-
-In short, our experience suggests that keeping a balance between dynamic language and static language is a good choice.
+%A good visualization method is the one in which CG objects used to visualize the viewing fields do not occlude the original scene. Moving objects do not occlude the scene over time, thus
