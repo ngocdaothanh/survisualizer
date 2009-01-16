@@ -87,6 +87,15 @@ PTAM continuously builds and maintains a 3D map by adding stable feature points 
 
 The reference implementation of PTAM initializes the map on each program startup by taking two keyframes which form a stereo pair as in figure \ref{fig:Stereo}. As a result, there are two approaches to solve the map-model matching problem:
 
+\begin{itemize}
+	\item Control the two keyframes. This approach is easy because we simply take two images before-hand, then feed them to PTAM on each program startup. The scene in the two images is usually a scene of buildings. It is called a landmark. In the usage phase, PTAM allows the user at startup to stand at a slightly different position other than the ones where we took the two images (figure \ref{fig:Stereo}). This is convenient because normally it is very hard to return to the exact position after some time.
+	\item In the initialization and registration phase, serialize the map to string and save the string to disk, then on usage phase just skip the map initialization, load the map from disk, deserialize and feed it directly to PTAM. We can prebuild a large fine-grain map to use in the usage phase, thus the system becomes very robust. Moreover, in the usage phase at startup the user can stand at a very different position and orientation, as long as the position is inside the prebuilt map.
+\end{itemize}
+
+The landmark can be thought as an ``access point'' as in wireless network terminology. Its appearance should not change too much over time so that it is usable. The second approach is in general more powerful than the first one, but if the scene changes too much then it may be less powerful because parts of the prebuilt map will become invalid and cause noise or heavy load to PTAM. The first approach always works given a good landmark, because the map can be updated dynamically by PTAM.
+
+With the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to PTAM, with the first and the last one act as the two keyframe as in figure \ref{fig:2KeyFrames}. The video retrieving part and feature point processing part of PTAM run in two separate threads, as a result slightly different maps may be initialized each time PTAM during startup. To make sure that PTAM always initialize the same map, we must feed each frame for an enough amount time, about more than one second for the MacBook we are using.
+
 \begin{figure}[htbp]
 	\centering
 	\includegraphics{./Primitives/map.png}
@@ -102,13 +111,6 @@ The reference implementation of PTAM initializes the map on each program startup
 	\caption[Map initialization]{Map initialization}
 	\label{fig:Stereo}
 \end{figure}
-
-\begin{itemize}
-	\item Control the two keyframes. This approach is easy because we simply take two images before-hand, then feed them to PTAM on each program startup.
-	\item In the initialization and registration phase, serialize the map to string and save the string to disk, then on usage phase just skip the map initialization, load the map from disk, deserialize and feed it directly to PTAM. This approach is very powerful because we can prebuild a large fine-grain map to use in the usage phase, thus the system becomes very robust.
-\end{itemize}
-
-For the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to PTAM, with the first and the last one act as the two keyframe as in figure \ref{fig:2KeyFrames}. The video retrieving part and feature point processing part of PTAM run in two separate threads, as a result slightly different maps may be initialized each time PTAM during startup. To make sure that PTAM always initialize the same map, we must feed each frame for an enough amount time, about more than one second for the MacBook we are using.
 
 \begin{figure}[htbp]
 	\centering
@@ -126,7 +128,7 @@ The prototype described in the above sections is not the only decision choice we
 
 \subsection{Hardware -- Prototype with GPS and gyrocompass devices}
 
-We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixD}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 10m, which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \citep{Reference13} method may be used.
+We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixD}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 5-10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \citep{Reference13} method may be used.
 
 \begin{figure}[htbp]
 	\centering
@@ -136,7 +138,15 @@ We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPS
 	\label{fig:VAIOGPSGyro}
 \end{figure}
 
-In the above prototype, we do not use GPS and gyrocompass devices. But GPS and gyrocompass devices can be used together with PTAM in the multi-sensor fusion \citep{Reference14} style, which may greatly improves the robustness of the system:
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/gps_error.png}
+	\rule{35em}{0.5pt}
+	\caption[GPS error]{The points do not lie in the red line because of GPS error}
+	\label{fig:GPSError}
+\end{figure}
+
+In the above prototype, we do not use GPS and gyrocompass devices. Although the more auxiliary devices we add the bulkier and more complicated in programming the mobile device will be, GPS and gyrocompass devices can be used together with PTAM in the multi-sensor fusion \citep{Reference14} style, which may greatly improves the robustness of the system:
 
 \begin{itemize}
 	\item Initialization problem: the GPS and gyrocompass devices may provide initial position and orientation of the mobile device. Although the error of the GPS device is not small, in a large map it may help PTAM to reduce the search space.
