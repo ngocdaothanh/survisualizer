@@ -9,6 +9,8 @@
 using namespace CVD;
 using namespace std;
 
+// TODO: run the video receiving part in a thread
+
 //#define USE_LOCAL_CAMERA  // Comment out to use local camera
 #ifdef USE_LOCAL_CAMERA
 #define HOST "localhost"
