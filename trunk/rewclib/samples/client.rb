@@ -8,17 +8,12 @@ include Gl
 include Glu
 include Glut
 
-dir = File.dirname(__FILE__)
-require dir + '/../rewclib'
-
 class Main
-  WIDTH  = 640
-  HEIGHT = 480
+  WIDTH  = 304
+  HEIGHT = 400
 
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
-    image = ''
-    image << @socket.recvfrom(CHUNK_SIZE - image.size)[0] while image.size < CHUNK_SIZE
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
@@ -76,13 +71,18 @@ class Main
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     #t1 = Time.now
-    size = recv_bytes(4)
-    size = size.unpack('I!')[0]
-    image = recv_bytes(size)
+    
+    #size = recv_bytes(4)
+    #size = size.unpack('I!')[0]
+    #image = recv_bytes(size)
+    image = recv_bytes(WIDTH*HEIGHT)
+    
     #t2 = Time.now
     #fps = 1.0/(t2 - t1)
     #p fps
     #glDrawPixels(WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, image)
+
+    glDrawPixels(WIDTH, HEIGHT, GL_LUMINANCE, GL_UNSIGNED_BYTE, image)
 
     # Swap buffers for display
     glutSwapBuffers
@@ -108,4 +108,5 @@ if ARGV.size != 2
 end
 
 host, port = ARGV[0], ARGV[1].to_i
+ARGV = []  # See http://rubyforge.org/tracker/index.php?func=detail&aid=23602&group_id=2103&atid=8185
 Main.new(host, port)
