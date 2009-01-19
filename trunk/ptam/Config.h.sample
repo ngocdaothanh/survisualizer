@@ -1,0 +1,29 @@
+#ifndef __CONFIG__
+#define __CONFIG__
+
+// Video config ---------------------------------------------------------------
+
+//#define USE_ZLIB
+//#define USE_LOCAL_CAMERA
+
+#ifdef USE_LOCAL_CAMERA
+#define HOST "localhost"
+#define CAPTURE_SIZE_X 640
+#define CAPTURE_SIZE_Y 480
+#else
+#define HOST "169.254.179.110"
+#define CAPTURE_SIZE_X 304
+#define CAPTURE_SIZE_Y 400
+#endif
+#define PORT 1225
+
+// Tracker config -------------------------------------------------------------
+
+// Hack: Feed the tracker with controlled data
+//     0.dat      1.dat      2.dat
+// |-----+-----|-----------|-----------|---   ---|-----+-----|
+//    spacebar                                      spacebar
+//#define USE_CONTROLLED_IMAGES
+#define SHOW_IMAGE_DURATION 10*2  // [loops], should be an even number
+
+#endif

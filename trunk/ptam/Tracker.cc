@@ -1,4 +1,6 @@
 // Copyright 2008 Isis Innovation Limited
+
+#include "Config.h"
 #include "OpenGL.h"
 #include "Tracker.h"
 #include "MEstimator.h"
@@ -191,13 +193,6 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 	return os;
 }
 */
-
-// Hack: Feed the tracker with controlled data
-//     0.dat      1.dat      2.dat
-// |-----+-----|-----------|-----------|---   ---|-----+-----|
-//    spacebar                                      spacebar
-//#define USE_CONTROLLED_IMAGES
-#define SHOW_IMAGE_DURATION 10*2  // [loops], should be an even number
 
 int get_num_controlled_images()
 {

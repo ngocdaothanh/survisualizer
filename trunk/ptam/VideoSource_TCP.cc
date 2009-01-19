@@ -1,29 +1,16 @@
 #define WIN32_LEAN_AND_MEAN
 
-#include "VideoSource.h"
 #include <Windows.h>
 #include <cvd/utility.h>
-
 #include <zlib.h>
+
+#include "Config.h"
+#include "VideoSource.h"
 
 using namespace CVD;
 using namespace std;
 
 // TODO: run the video receiving part in a thread
-
-//#define USE_ZLIB
-//#define USE_LOCAL_CAMERA
-
-#ifdef USE_LOCAL_CAMERA
-#define HOST "localhost"
-#define CAPTURE_SIZE_X	640
-#define CAPTURE_SIZE_Y	480
-#else
-#define HOST "169.254.179.110"
-#define CAPTURE_SIZE_X	304
-#define CAPTURE_SIZE_Y	400
-#endif
-#define PORT 1225
 
 VideoSource::VideoSource()
 {
