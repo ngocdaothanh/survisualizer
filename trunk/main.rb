@@ -4,7 +4,6 @@ require 'glu'
 require 'glut'
 require 'mathn'
 require 'matrix'
-require 'drb/drb'
 
 include Gl
 include Glu
@@ -17,7 +16,6 @@ $:.unshift('./camera')
 $:.unshift('./model')
 $:.unshift('./visualizer')
 $:.unshift('./rewclib')
-$:.unshift('./winter_sense')
 
 require 'vector'
 require 'ray'
@@ -35,33 +33,21 @@ require 'grid_visualizer'
 require 'vector_visualizer'
 
 require 'rewclib'
-require 'winter_sense'
 
 require 'config'
 
 $model = nil
-$winter_sense = nil
 
 class Main
-  VIEW_FREE = 0
-  VIEW_MAP  = 1
-  CHANGE_VIEW_THRESHOLD = 60
-  Y_FREE = -15
-  Y_MAP  = 80
-
   def initialize
     $model = Model.new(CONFIG[:to_meter_ratio])
 
     @webcam = Rewclib.new
-    @webcam.open(CONFIG[:window_width], CONFIG[:window_height], 30)
-    DRb.start_service('druby://localhost:1225', @webcam)
-
-    $winter_sense = WinterSense.new
-    $winter_sense.open
+    @webcam.open(CONFIG[:video_width], CONFIG[:video_height], CONFIG[:video_fps])
 
     # Load config
-    @window_width  = CONFIG[:window_width]
-    @window_height = CONFIG[:window_height]
+    @window_width  = CONFIG[:video_width]
+    @window_height = CONFIG[:video_height]
     @cameras = CONFIG[:cameras].map do |c|
       camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
       camera.visualizer = CONFIG[:visualizers].first
@@ -81,9 +67,7 @@ class Main
     end
 
     @angle_x, @angle_y, @angle_z = 0, 0, 0
-    @position_x, @position_y, @position_z = 0, Y_FREE, 0
-    @view = VIEW_FREE
-    @map_height = Y_MAP
+    @position_x, @position_y, @position_z = 0, 0, 0
 
     glutDisplayFunc(method(:visualize).to_proc)
     glutReshapeFunc(method(:reshape).to_proc)
@@ -96,7 +80,6 @@ class Main
     glutMainLoop
 
     @webcam.close
-    $winter_sense.close
   end
 
   def init_light
@@ -157,9 +140,7 @@ class Main
     glRotatef(@angle_x, 1, 0, 0)
     glRotatef(@angle_y, 0, 1, 0)
     glRotatef(@angle_z, 0, 0, 1)
-    
-    visualize_position if @view == VIEW_MAP
-    
+
     glTranslatef(-@position_x, -@position_y, -@position_z)
     
     $model.visualize
@@ -168,84 +149,18 @@ class Main
     # Take out the foreground
     glReadBuffer(GL_BACK)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-    foreground = glReadPixels(0, 0, CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE)
+    foreground = glReadPixels(0, 0, CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE)
   
     # Blend it with the webcam
     blended = @webcam.blend(foreground)
-    glDrawPixels(CONFIG[:window_width], CONFIG[:window_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
+    glDrawPixels(CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
 
     # Swap buffers for display
     glutSwapBuffers
   end
-  
-  def visualize_position
-    glRotatef(-@angle_y, 0, 1, 0)
-    glColor3f(1, 0, 0)
-    glBegin(GL_TRIANGLES)
-      glVertex3f( 0, Y_FREE - @position_y,  0)
-      glVertex3f( 1, Y_FREE - @position_y, -2)
-      glVertex3f(-1, Y_FREE - @position_y, -2)
-    glEnd
-    glBegin(GL_LINES)
-      glVertex3f( 0, Y_FREE - @position_y,  0)
-      glVertex3f( 2, Y_FREE - @position_y, -4)
-      glVertex3f( 0, Y_FREE - @position_y,  0)
-      glVertex3f(-2, Y_FREE - @position_y, -4)
-    glEnd
-    glRotatef(@angle_y, 0, 1, 0)
-  end
 
   def idle
-    update_angles
     glutPostRedisplay
-  end
-  
-  def update_angles
-    angles = $winter_sense.angles
-    return if angles.nil?
-
-    pitch = -90 + angles[2]
-    yaw = angles[0]
-    roll = -angles[1]
-
-    @angle_y = yaw
-    dpitch = (pitch > 0) ? 90 - pitch : 270 + pitch  # Always > 0
-
-    if @view == VIEW_FREE
-      if dpitch  < CHANGE_VIEW_THRESHOLD
-        # Switch view
-        @view = VIEW_MAP
-        @position_y = @map_height
-        @angle_x, @angle_z = 90, 0
-      else    
-        @angle_x, @angle_z = pitch, roll
-      end
-    elsif @view == VIEW_MAP
-      if dpitch > CHANGE_VIEW_THRESHOLD
-        # Switch view
-        @view = VIEW_FREE
-        @position_y = Y_FREE
-      else
-        # Move forward and back
-        length = dpitch/200
-        if length > 0.1
-          length = -length if pitch > 0
-          dx = Math.sin(yaw*Math::PI/180)*length
-          dz = -Math.cos(yaw*Math::PI/180)*length
-          @position_x += dx
-          @position_z += dz
-          
-          #p "#{@position_x}              #{@position_z}"
-        end
-        
-        # Zoom in and out
-        dy = roll/300
-        if dy.abs > 0.1
-          @map_height += dy
-          @position_y = @map_height
-        end
-      end
-    end
   end
 
   def keyboard(key, x, y)
