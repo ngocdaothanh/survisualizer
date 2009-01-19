@@ -79,7 +79,11 @@ VALUE rewclib_image(VALUE self, VALUE upsidedown, VALUE channel) {
 	return ret;
 }
 
-VALUE rewclib_blend(VALUE self, VALUE foreground) {
+/**
+ * Parts that have black color on the foreground will be painted by the background.
+ * Otherwise, the two will be blended. alpha = 1 means only foreground painted.
+ */
+VALUE rewclib_blend(VALUE self, VALUE foreground, VALUE alpha) {
 	int size = EWC_GetBufferSize(0);
 	unsigned char *buffer = (unsigned char *) malloc(size);
 	if (EWC_GetImage(0, buffer)) {
@@ -93,18 +97,22 @@ VALUE rewclib_blend(VALUE self, VALUE foreground) {
 	int height = (size/3)/width;
 	unsigned char *buffer2 = (unsigned char *) malloc(size);
 	unsigned char *foreground_ptr = (unsigned char *) RSTRING_PTR(foreground);
+	double c_alpha = NUM2DBL(alpha);
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
-			int c;
+			unsigned char cf, cb;
 
-			c = foreground_ptr[((height - y - 1)*width + x)*3 + 0];
-			buffer2[((height - y - 1)*width + x)*3 + 0] = (c == 0)? buffer[(y*width + x)*3 + 2] : c;
+			cf = foreground_ptr[((height - y - 1)*width + x)*3 + 0];
+			cb = buffer[(y*width + x)*3 + 2];
+			buffer2[((height - y - 1)*width + x)*3 + 0] = (cf == 0)? cb : (cf*c_alpha + (1 - c_alpha)*cb);
 
-			c = foreground_ptr[((height - y - 1)*width + x)*3 + 1];
-			buffer2[((height - y - 1)*width + x)*3 + 1] = (c == 0)? buffer[(y*width + x)*3 + 1] : c;
+			cf = foreground_ptr[((height - y - 1)*width + x)*3 + 1];
+			cb = buffer[(y*width + x)*3 + 1];
+			buffer2[((height - y - 1)*width + x)*3 + 1] = (cf == 0)? cb : (cf*c_alpha + (1 - c_alpha)*cb);
 
-			c = foreground_ptr[((height - y - 1)*width + x)*3 + 2];
-			buffer2[((height - y - 1)*width + x)*3 + 2] = (c == 0)? buffer[(y*width + x)*3 + 0]*0.5 : c;
+			cf = foreground_ptr[((height - y - 1)*width + x)*3 + 2];
+			cb = buffer[(y*width + x)*3 + 0];
+			buffer2[((height - y - 1)*width + x)*3 + 2] = (cf == 0)? cb : (cf*c_alpha + (1 - c_alpha)*cb);
 		}
 	}
 
@@ -119,5 +127,5 @@ void Init_rewclib() {
 	rb_define_method(Rewclib, "open",  (VALUE (__cdecl *)(...)) rewclib_open,  3);
 	rb_define_method(Rewclib, "close", (VALUE (__cdecl *)(...)) rewclib_close, 0);
 	rb_define_method(Rewclib, "image", (VALUE (__cdecl *)(...)) rewclib_image, 2);
-	rb_define_method(Rewclib, "blend", (VALUE (__cdecl *)(...)) rewclib_blend, 1);
+	rb_define_method(Rewclib, "blend", (VALUE (__cdecl *)(...)) rewclib_blend, 2);
 }
