@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Client.h"
+				>
+			</File>
+			<File
 				RelativePath=".\EyeGame.h"
 				>
 			</File>
@@ -299,6 +303,10 @@
 			</File>
 			<File
 				RelativePath=".\Bundle.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\Client.cpp"
 				>
 			</File>
 			<File
