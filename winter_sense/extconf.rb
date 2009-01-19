@@ -1,1 +1,0 @@
-require 'mkmf'EXT_NAME = 'winter_sense'dir_config(EXT_NAME)create_makefile(EXT_NAME)
