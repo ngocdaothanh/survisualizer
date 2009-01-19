@@ -9,14 +9,24 @@ include Gl
 include Glu
 include Glut
 
-class Main
-  NUM_FRAMES = 200
+NUM_FRAMES  = 200   # Number of frames to benchmark FPS
 
+# Whether header (width, height, compress) is sent by the server
+# TODO: remove this when program for iPhone is finished
+WITH_HEADER = true
+
+class Main
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
-    @width    = recv_bytes(4).unpack('I!')[0]
-    @height   = recv_bytes(4).unpack('I!')[0]
-    @compress = recv_bytes(4).unpack('I!')[0] == 1
+    if WITH_HEADER
+      @width    = recv_bytes(4).unpack('I!')[0]
+      @height   = recv_bytes(4).unpack('I!')[0]
+      @compress = recv_bytes(4).unpack('I!')[0] == 1
+    else
+      @width = 304
+      @height = 400
+      @compress = false
+    end
 
     @iframe = 1
     @t = Time.now
