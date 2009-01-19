@@ -1,7 +1,7 @@
 # Send the Green channel of the webcam image to client.
 
 PORT = 1225
-COMPRESS = false  # Compress Green channel
+COMPRESS = true  # Compress Green channel
 
 WIDTH  = 640
 HEIGHT = 480
@@ -38,16 +38,16 @@ while true
   # Send video size as header
   socket.send([WIDTH].pack('I!'), 0)
   socket.send([HEIGHT].pack('I!'), 0)
+  socket.send([COMPRESS ? 1 : 0].pack('I!'), 0)
 
   begin
     while true
       image = cam.image(false, 1)  # Not upsidedown, Green
       if COMPRESS
         compressed_image = Zlib::Deflate.deflate(image)
-        size = compressed_image.size
 
         # Send the size as header, then the compressed image as body
-        socket.send([size].pack('I!'), 0)
+        socket.send([compressed_image.size].pack('I!'), 0)
         socket.send(compressed_image, 0)
       else
         socket.send(image, 0)

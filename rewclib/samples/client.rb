@@ -3,16 +3,23 @@ require 'gl'
 require 'glu'
 require 'glut'
 require 'socket'
+require 'zlib'
 
 include Gl
 include Glu
 include Glut
 
 class Main
+  NUM_FRAMES = 200
+
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
-    @width  = recv_bytes(4).unpack('I!')[0]
-    @height = recv_bytes(4).unpack('I!')[0]
+    @width    = recv_bytes(4).unpack('I!')[0]
+    @height   = recv_bytes(4).unpack('I!')[0]
+    @compress = recv_bytes(4).unpack('I!')[0] == 1
+
+    @iframe = 1
+    @t = Time.now
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
@@ -69,17 +76,22 @@ class Main
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    #t1 = Time.now
-    
-    #size = recv_bytes(4)
-    #size = size.unpack('I!')[0]
-    #image = recv_bytes(size)
-    image = recv_bytes(@width*@height)
-    
-    #t2 = Time.now
-    #fps = 1.0/(t2 - t1)
-    #p fps
-    #glDrawPixels(@width, @height, GL_RGB, GL_UNSIGNED_BYTE, image)
+    if @compress
+      size = recv_bytes(4).unpack('I!')[0]
+      compressed_image = recv_bytes(size)
+      image = Zlib::Inflate.inflate(compressed_image)
+    else
+      image = recv_bytes(@width*@height)
+    end
+
+    if @iframe < NUM_FRAMES
+      @iframe += 1
+      if @iframe == NUM_FRAMES
+        dt = Time.now - @t
+        fps = NUM_FRAMES/dt
+        puts "#{fps} FPS"
+      end
+    end
 
     glDrawPixels(@width, @height, GL_LUMINANCE, GL_UNSIGNED_BYTE, image)
 
