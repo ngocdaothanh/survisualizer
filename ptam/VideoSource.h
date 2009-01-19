@@ -22,6 +22,7 @@ public:
 
 private:
 	char *recv_bytes(int size);
+	int recv_int();
 
 private:
 	SOCKET m_client;

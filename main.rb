@@ -1,4 +1,9 @@
+# Socket:
+#   http://www.kallasoft.com/programming-a-simple-clientserver-with-ruby/
+#   http://www.ruby-lang.org/ja/man/html/TCPServer.html
+
 require 'rubygems'
+require 'socket'
 require 'gl'
 require 'glu'
 require 'glut'
@@ -40,6 +45,20 @@ $model = nil
 
 class Main
   def initialize
+    @server = TCPServer.new(CONFIG[:port])
+    puts 'Waiting for client to connect...'
+    begin
+      @socket = @server.accept
+    rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
+      IO.select([@server])
+      retry
+    end
+    puts 'Client connected'
+    
+    # Send video size as header
+    @socket.send([CONFIG[:video_width]].pack('I!'), 0)
+    @socket.send([CONFIG[:video_height]].pack('I!'), 0)
+  
     $model = Model.new(CONFIG[:to_meter_ratio])
 
     @webcam = Rewclib.new
@@ -160,6 +179,9 @@ class Main
   end
 
   def idle
+    image = @webcam.image(false, 1)  # Not upsidedown, Green
+    @socket.send(image, 0)
+
     glutPostRedisplay
   end
 

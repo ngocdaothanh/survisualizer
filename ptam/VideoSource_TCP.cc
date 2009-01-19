@@ -44,8 +44,8 @@ VideoSource::VideoSource()
 		exit(-1);
 	}
 
-	mirSize.x = CAPTURE_SIZE_X;
-	mirSize.y = CAPTURE_SIZE_Y;
+	mirSize.x = recv_int();
+	mirSize.y = recv_int();
 };
 
 VideoSource::~VideoSource()
@@ -73,6 +73,13 @@ char *VideoSource::recv_bytes(int size)
 	return ret;
 }
 
+int VideoSource::recv_int() {
+	unsigned char *bytes = (unsigned char *) recv_bytes(4);
+	int ret = bytes[0] + bytes[1]*256 + bytes[2]*256*256 + bytes[3]*256*256*256;
+	delete[] bytes;
+	return ret;
+}
+
 /**
  * PTAM only needs grayscale to work. RGB is only needed for displaying. Thus we only need to
  * send grayscale images from the remote camera.
@@ -82,12 +89,10 @@ char *VideoSource::recv_bytes(int size)
 void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb<CVD::byte> > &imRGB)
 {
 #ifdef USE_ZLIB
-	unsigned char *image = new unsigned char[CAPTURE_SIZE_X*CAPTURE_SIZE_Y];
+	unsigned char *image = new unsigned char[mirSize.x*mirSize.y];
 
 	// Get size in header
-	unsigned char *bytes = (unsigned char *) recv_bytes(4);
-	int size = bytes[0] + bytes[1]*256 + bytes[2]*256*256 + bytes[3]*256*256*256;
-	delete[] bytes;
+	int size = recv_int();
 
 	// Get image
 	char *compressed_image = recv_bytes(size);
@@ -95,12 +100,12 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 	uncompress((Bytef *) m_buffer, &image_size, (Bytef *) compressed_image, size);
 	delete[] compressed_image;
 #else
-	unsigned char *image = (unsigned char *) recv_bytes(CAPTURE_SIZE_X*CAPTURE_SIZE_Y);
+	unsigned char *image = (unsigned char *) recv_bytes(mirSize.x*mirSize.y);
 #endif
 	// The code below can be optimized by copy the whole m_buffer to the neccessary destination
-	for (int y = 0; y < CAPTURE_SIZE_Y; y++) {
-		for (int x = 0; x < CAPTURE_SIZE_X; x++) {
-			CVD::byte value = image[y*CAPTURE_SIZE_X + x];
+	for (int y = 0; y < mirSize.y; y++) {
+		for (int x = 0; x < mirSize.x; x++) {
+			CVD::byte value = image[y*mirSize.x + x];
 			imRGB[y][x].red   = value;
 			imRGB[y][x].green = value;
 			imRGB[y][x].blue  = value;

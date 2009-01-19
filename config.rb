@@ -4,6 +4,8 @@ CONFIG = {
   :video_fps    => 30,
   :fullscreen   => false,
 
+  :port => 1225,
+
   :model => './data/scene.mqo',
   :to_meter_ratio => 0.1,
 

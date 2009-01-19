@@ -22,6 +22,7 @@ server = TCPServer.new(PORT)
 while true
   break if $done
 
+  puts 'Waiting for client to connect...'
   begin
     socket = server.accept
   rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
@@ -33,6 +34,10 @@ while true
   cam = Rewclib.new
   cam.open(WIDTH, HEIGHT, FPS)
   puts 'Camera opened'
+
+  # Send video size as header
+  socket.send([WIDTH].pack('I!'), 0)
+  socket.send([HEIGHT].pack('I!'), 0)
 
   begin
     while true
