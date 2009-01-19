@@ -119,12 +119,30 @@ class Main
 
   def recv_pose
     data_len = recv_int
-    serialized_pose = recv_bytes(data_len)
-    #puts serialized_pose
-    values = serialized_pose.split(' ').map { |e| e.to_f }
-    @position_x, @position_y, @position_z = values[0..2]
-    rotation = values[3..11]
-    p rotation
+    data = recv_bytes(data_len)
+    numbers = data.split(' ').map { |e| e.to_f }
+
+    # Frustum (see glMultMatrix for the order of elements)
+    @frustum = Array.new(16)
+    4.times do |col|
+      4.times do |row|
+        @frustum[4*col + row] = numbers[4*row + col]
+      end
+    end
+    
+    # Translation
+    @translation = numbers[16..18]
+
+    # Rotation
+    rotation3x3 = numbers[19..27]
+    @rotation = Array.new(16)
+    3.times do |col|
+      3.times do |row|
+        @rotation[4*col + row] = rotation3x3[3*row + col]
+      end
+      @rotation[4*col + 3] = 0
+    end
+    @rotation[12], @rotation[13], @rotation[14], @rotation[15] = 0, 0, 0, 1
   end
 
   def init_light
@@ -178,18 +196,35 @@ class Main
     # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+    # Projection
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity
+    if @frustum && @translation && @rotation
+      glMultMatrix(@frustum)
+      glTranslate(*(@translation))
+      glMultMatrix(@rotation)
+    end
+
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity
-
-    glRotatef(@angle_x, 1, 0, 0)
-    glRotatef(@angle_y, 0, 1, 0)
-    glRotatef(@angle_z, 0, 0, 1)
-
-    glTranslatef(-@position_x, -@position_y, -@position_z)
     
-    $model.visualize
-    @cameras.each { |c| c.visualize }
+    glColor3d(1, 1, 1);
+	glBegin(GL_QUADS);
+	glVertex3d(-1, -1, 0);
+	glVertex3d(1, -1, 0);
+	glVertex3d(1, 1, 0);
+	glVertex3d(-1, 1, 0);
+	glEnd();
+
+    #~ glRotatef(@angle_x, 1, 0, 0)
+    #~ glRotatef(@angle_y, 0, 1, 0)
+    #~ glRotatef(@angle_z, 0, 0, 1)
+
+    #~ glTranslatef(-@position_x, -@position_y, -@position_z)
+    
+    #$model.visualize
+    #@cameras.each { |c| c.visualize }
 
     # Take out the foreground
     glReadBuffer(GL_BACK)
@@ -197,7 +232,7 @@ class Main
     foreground = glReadPixels(0, 0, CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE)
   
     # Blend it with the webcam
-    blended = @webcam.blend(foreground)
+    blended = @webcam.blend(foreground, 0.5)
     glDrawPixels(CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
 
     # Swap buffers for display
