@@ -9,6 +9,7 @@ require 'glu'
 require 'glut'
 require 'mathn'
 require 'matrix'
+require 'zlib'
 
 include Gl
 include Glu
@@ -21,6 +22,7 @@ $:.unshift('./camera')
 $:.unshift('./model')
 $:.unshift('./visualizer')
 $:.unshift('./rewclib')
+$:.unshift('./winter_sense')
 
 require 'vector'
 require 'ray'
@@ -38,6 +40,7 @@ require 'grid_visualizer'
 require 'vector_visualizer'
 
 require 'rewclib'
+require 'winter_sense'
 
 require 'config'
 
@@ -45,6 +48,18 @@ $model = nil
 
 class Main
   def initialize
+    # Load config
+    @window_width  = CONFIG[:video_width]
+    @window_height = CONFIG[:video_height]
+    @cameras = CONFIG[:cameras].map do |c|
+      camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
+      camera.visualizer = CONFIG[:visualizers].first
+      camera
+    end
+
+    @winter_sense = WinterSense.new
+    @winter_sense = nil unless @winter_sense.open
+
     @server = TCPServer.new(CONFIG[:port])
     puts 'Waiting for client to connect...'
     begin
@@ -54,30 +69,22 @@ class Main
       retry
     end
     puts 'Client connected'
-    
-    # Send video size as header
+
+    # Send video config
     @socket.send([CONFIG[:video_width]].pack('I!'), 0)
     @socket.send([CONFIG[:video_height]].pack('I!'), 0)
-    
+    @socket.send([(CONFIG[:video_compress])? 1 : 0].pack('I!'), 0)
+
     Thread.new do
       loop do
         recv_pose
       end
     end
-  
+
     $model = Model.new(CONFIG[:to_meter_ratio])
 
     @webcam = Rewclib.new
     @webcam.open(CONFIG[:video_width], CONFIG[:video_height], CONFIG[:video_fps])
-
-    # Load config
-    @window_width  = CONFIG[:video_width]
-    @window_height = CONFIG[:video_height]
-    @cameras = CONFIG[:cameras].map do |c|
-      camera = Camera.new(c[:position], c[:focal_vector], c[:width], c[:height], c[:segments_per_edge])
-      camera.visualizer = CONFIG[:visualizers].first
-      camera
-    end
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
@@ -104,6 +111,7 @@ class Main
 
     glutMainLoop
 
+    @winter_sense.close if @winter_sense
     @webcam.close
   end
 
@@ -208,23 +216,16 @@ class Main
     # Reset the view
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity
-    
-    glColor3d(1, 1, 1);
-	glBegin(GL_QUADS);
-	glVertex3d(-1, -1, 0);
-	glVertex3d(1, -1, 0);
-	glVertex3d(1, 1, 0);
-	glVertex3d(-1, 1, 0);
-	glEnd();
 
-    #~ glRotatef(@angle_x, 1, 0, 0)
-    #~ glRotatef(@angle_y, 0, 1, 0)
-    #~ glRotatef(@angle_z, 0, 0, 1)
-
-    #~ glTranslatef(-@position_x, -@position_y, -@position_z)
+    # Adjust camera
+    glRotatef(@angle_x, 1, 0, 0)
+    glRotatef(@angle_y, 0, 1, 0)
+    glRotatef(@angle_z, 0, 0, 1)
+    glTranslatef(-@position_x, -@position_y, -@position_z)
     
-    #$model.visualize
-    #@cameras.each { |c| c.visualize }
+    # Visualize
+    $model.visualize
+    @cameras.each { |c| c.visualize }
 
     # Take out the foreground
     glReadBuffer(GL_BACK)
@@ -240,8 +241,16 @@ class Main
   end
 
   def idle
+    @angle_x, @angle_y, @angle_z = @winter_sense.angles if @winter_sense
+
     image = @webcam.image(false, 1)  # Not upsidedown, Green
-    @socket.send(image, 0)
+    if CONFIG[:video_compress]
+      compressed_image = Zlib::Deflate.deflate(image)
+      @socket.send([compressed_image.size].pack('I!'), 0)
+      @socket.send(compressed_image, 0)
+    else
+      @socket.send(image, 0)
+    end
 
     glutPostRedisplay
   end
