@@ -1,7 +1,8 @@
 CONFIG = {
-  :window_width  => 640,
-  :window_height => 480,
-  :fullscreen    => false,
+  :video_width  => 640,
+  :video_height => 480,
+  :video_fps    => 30,
+  :fullscreen   => false,
 
   :model => './data/scene.mqo',
   :to_meter_ratio => 0.1,
