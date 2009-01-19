@@ -4,8 +4,8 @@
 #include <cvd/utility.h>
 #include <zlib.h>
 
-#include "Config.h"
 #include "VideoSource.h"
+#include "Client.h"
 
 using namespace CVD;
 using namespace std;
@@ -14,71 +14,9 @@ using namespace std;
 
 VideoSource::VideoSource()
 {
-	WSADATA wsaData;
-	WORD version;
-	int error;
-	version = MAKEWORD( 2, 0 );
-	error = WSAStartup( version, &wsaData );
-	if (error != 0)
-	{
-		exit(-1);
-	}
-	
-	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0)
-	{
-		WSACleanup();
-		exit(-1);
-	}
-
-	m_client = socket(AF_INET, SOCK_STREAM, 0);
-
-	struct hostent *host;
-	host = gethostbyname(HOST);
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof sin);
-	sin.sin_family = AF_INET;
-	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
-	sin.sin_port = htons(PORT);
-	if (connect(m_client, (struct sockaddr *) &sin, sizeof(sin)) == SOCKET_ERROR) {
-		printf("Error opening socket\n");
-		exit(-1);
-	}
-
-	mirSize.x = recv_int();
-	mirSize.y = recv_int();
+	mirSize.x = Client::get_instance()->recv_int();
+	mirSize.y = Client::get_instance()->recv_int();
 };
-
-VideoSource::~VideoSource()
-{
-	closesocket(m_client);
-	WSACleanup();
-}
-
-char *VideoSource::recv_bytes(int size)
-{
-	int total = 0;
-	char *ret = new char[size];
-	while (total < size) {
-		char *buffer = new char[size - total];
-		int recv_size = recv(m_client, buffer, size - total, 0);
-		if (recv_size <= 0) {
-			printf("Error receiving data\n");
-			exit(-1);
-		}
-		memcpy(ret + total, buffer, recv_size);
-		delete[] buffer;
-		total += recv_size;
-	}
-
-	return ret;
-}
-
-int VideoSource::recv_int() {
-	unsigned char *bytes = (unsigned char *) recv_bytes(4);
-	int ret = bytes[0] + bytes[1]*256 + bytes[2]*256*256 + bytes[3]*256*256*256;
-	delete[] bytes;
-	return ret;
-}
 
 /**
  * PTAM only needs grayscale to work. RGB is only needed for displaying. Thus we only need to
@@ -100,7 +38,7 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 	uncompress((Bytef *) m_buffer, &image_size, (Bytef *) compressed_image, size);
 	delete[] compressed_image;
 #else
-	unsigned char *image = (unsigned char *) recv_bytes(mirSize.x*mirSize.y);
+	unsigned char *image = (unsigned char *) Client::get_instance()->recv_bytes(mirSize.x*mirSize.y);
 #endif
 	// The code below can be optimized by copy the whole m_buffer to the neccessary destination
 	for (int y = 0; y < mirSize.y; y++) {
