@@ -22,7 +22,7 @@ server = TCPServer.new(PORT)
 while true
   break if $done
 
-  puts 'Waiting for client to connect...'
+  puts "Waiting for client to connect on port #{PORT}..."
   begin
     socket = server.accept
   rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
