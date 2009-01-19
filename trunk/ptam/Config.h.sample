@@ -8,12 +8,8 @@
 
 #ifdef USE_LOCAL_CAMERA
 #define HOST "localhost"
-#define CAPTURE_SIZE_X 640
-#define CAPTURE_SIZE_Y 480
 #else
 #define HOST "169.254.179.110"
-#define CAPTURE_SIZE_X 304
-#define CAPTURE_SIZE_Y 400
 #endif
 #define PORT 1225
 
