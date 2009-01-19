@@ -3,7 +3,6 @@
 
 // Video config ---------------------------------------------------------------
 
-//#define USE_ZLIB
 //#define USE_LOCAL_CAMERA
 
 #ifdef USE_LOCAL_CAMERA

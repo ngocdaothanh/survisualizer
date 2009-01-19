@@ -18,4 +18,5 @@ public:
 
 private:
 	CVD::ImageRef mirSize;
+	bool compress;
 };

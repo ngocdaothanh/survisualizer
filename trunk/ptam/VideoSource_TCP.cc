@@ -16,6 +16,7 @@ VideoSource::VideoSource()
 {
 	mirSize.x = Client::get_instance()->recv_int();
 	mirSize.y = Client::get_instance()->recv_int();
+	compress  = Client::get_instance()->recv_int();
 };
 
 /**
@@ -26,20 +27,21 @@ VideoSource::VideoSource()
  */
 void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW)
 {
-#ifdef USE_ZLIB
-	unsigned char *image = new unsigned char[mirSize.x*mirSize.y];
+	unsigned char *image;
+	if (compress) {
+		image = new unsigned char[mirSize.area()];
 
-	// Get size in header
-	int size = recv_int();
+		// Get size in header
+		int size = Client::get_instance()->recv_int();
 
-	// Get image
-	char *compressed_image = recv_bytes(size);
-	uLongf image_size;
-	uncompress((Bytef *) m_buffer, &image_size, (Bytef *) compressed_image, size);
-	delete[] compressed_image;
-#else
-	unsigned char *image = (unsigned char *) Client::get_instance()->recv_bytes(mirSize.x*mirSize.y);
-#endif
+		// Get image
+		char *compressed_image = Client::get_instance()->recv_bytes(size);
+		uLongf image_size;
+		uncompress((Bytef *) image, &image_size, (Bytef *) compressed_image, size);
+		delete[] compressed_image;
+	} else {
+		image = (unsigned char *) Client::get_instance()->recv_bytes(mirSize.x*mirSize.y);
+	}
 	BasicImage<byte> bi(image, imBW.size());
 	imBW.copy_from(bi);
 	delete[] image;
