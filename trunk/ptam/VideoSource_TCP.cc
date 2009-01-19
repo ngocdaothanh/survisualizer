@@ -24,7 +24,7 @@ VideoSource::VideoSource()
  *
  * Because Y = 0.3*Red + 0.59*Green + 0.11*Blue, to speedup more, the server send Green channel instead of Y!
  */
-void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb<CVD::byte> > &imRGB)
+void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW)
 {
 #ifdef USE_ZLIB
 	unsigned char *image = new unsigned char[mirSize.x*mirSize.y];
@@ -40,17 +40,8 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 #else
 	unsigned char *image = (unsigned char *) Client::get_instance()->recv_bytes(mirSize.x*mirSize.y);
 #endif
-	// The code below can be optimized by copy the whole m_buffer to the neccessary destination
-	for (int y = 0; y < mirSize.y; y++) {
-		for (int x = 0; x < mirSize.x; x++) {
-			CVD::byte value = image[y*mirSize.x + x];
-			imRGB[y][x].red   = value;
-			imRGB[y][x].green = value;
-			imRGB[y][x].blue  = value;
-
-			imBW[y][x] = value;
-		}
-	}
+	BasicImage<byte> bi(image, imBW.size());
+	imBW.copy_from(bi);
 	delete[] image;
 }
 

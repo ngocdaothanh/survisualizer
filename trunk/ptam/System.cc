@@ -22,7 +22,7 @@ System::System()
 	GUI.RegisterCommand("quit", GUICommandCallBack, this);
 
 	mimFrameBW.resize(mVideoSource.Size());
-	mimFrameRGB.resize(mVideoSource.Size());
+
 	// First, check if the camera is calibrated.
 	// If not, we need to run the calibration widget.
 	Vector<NUMTRACKERCAMPARAMETERS> vTest;
@@ -64,7 +64,7 @@ void System::Run()
 		// and one RGB, for drawing.
 
 		// Grab new video frame...
-		mVideoSource.GetAndFillFrameBWandRGB(mimFrameBW, mimFrameRGB);  
+		mVideoSource.GetAndFillFrameBWandRGB(mimFrameBW);  
 		static bool bFirstFrame = true;
 		if(bFirstFrame)
 		{
@@ -91,7 +91,7 @@ void System::Run()
 		if(bDrawMap)
 			mpMapViewer->DrawMap(pose);
 		else if(bDrawAR)
-			mpARDriver->Render(mimFrameRGB, pose);
+			mpARDriver->Render(mimFrameBW, pose);
 
 		// Send pose to remote camera
 		if (mpMap->IsGood()) {
