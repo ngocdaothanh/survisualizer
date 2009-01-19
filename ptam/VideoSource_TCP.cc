@@ -11,19 +11,19 @@ using namespace std;
 
 // TODO: run the video receiving part in a thread
 
-//#define USE_LOCAL_CAMERA  // Comment out to use local camera
+//#define USE_ZLIB
+//#define USE_LOCAL_CAMERA
+
 #ifdef USE_LOCAL_CAMERA
 #define HOST "localhost"
-#define PORT 1225
 #define CAPTURE_SIZE_X	640
 #define CAPTURE_SIZE_Y	480
 #else
-//#define HOST "133.51.81.184"
-#define HOST "169.254.198.2"
-#define PORT 1225
-#define CAPTURE_SIZE_X	320
-#define CAPTURE_SIZE_Y	240
+#define HOST "169.254.179.110"
+#define CAPTURE_SIZE_X	304
+#define CAPTURE_SIZE_Y	400
 #endif
+#define PORT 1225
 
 VideoSource::VideoSource()
 {
@@ -57,7 +57,6 @@ VideoSource::VideoSource()
 		exit(-1);
 	}
 
-	m_buffer = new unsigned char[CAPTURE_SIZE_X*CAPTURE_SIZE_Y*3];
 	mirSize.x = CAPTURE_SIZE_X;
 	mirSize.y = CAPTURE_SIZE_Y;
 };
@@ -66,7 +65,6 @@ VideoSource::~VideoSource()
 {
 	closesocket(m_client);
 	WSACleanup();
-	delete[] m_buffer;
 }
 
 char *VideoSource::recv_bytes(int size)
@@ -96,6 +94,9 @@ char *VideoSource::recv_bytes(int size)
  */
 void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb<CVD::byte> > &imRGB)
 {
+#ifdef USE_ZLIB
+	unsigned char *image = new unsigned char[CAPTURE_SIZE_X*CAPTURE_SIZE_Y];
+
 	// Get size in header
 	unsigned char *bytes = (unsigned char *) recv_bytes(4);
 	int size = bytes[0] + bytes[1]*256 + bytes[2]*256*256 + bytes[3]*256*256*256;
@@ -106,11 +107,13 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 	uLongf image_size;
 	uncompress((Bytef *) m_buffer, &image_size, (Bytef *) compressed_image, size);
 	delete[] compressed_image;
-
+#else
+	unsigned char *image = (unsigned char *) recv_bytes(CAPTURE_SIZE_X*CAPTURE_SIZE_Y);
+#endif
 	// The code below can be optimized by copy the whole m_buffer to the neccessary destination
-	for (int y = 0; y < mirSize.y; y++) {
-		for (int x = 0; x < mirSize.x; x++) {
-			CVD::byte value = m_buffer[y*mirSize.x + x];
+	for (int y = 0; y < CAPTURE_SIZE_Y; y++) {
+		for (int x = 0; x < CAPTURE_SIZE_X; x++) {
+			CVD::byte value = image[y*CAPTURE_SIZE_X + x];
 			imRGB[y][x].red   = value;
 			imRGB[y][x].green = value;
 			imRGB[y][x].blue  = value;
@@ -118,6 +121,7 @@ void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW, Image<CVD::Rgb
 			imBW[y][x] = value;
 		}
 	}
+	delete[] image;
 }
 
 ImageRef VideoSource::Size()

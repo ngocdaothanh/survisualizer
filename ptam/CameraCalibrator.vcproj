@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libcvdd.lib gvars3d.lib glew32.lib opengl32.lib blas_win32.lib lapack_win32.lib pthreadVCE2.lib"
+				AdditionalDependencies="zlib.lib WSock32.Lib libcvdd.lib gvars3d.lib glew32.lib opengl32.lib blas_win32.lib lapack_win32.lib pthreadVCE2.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\lib"
 				GenerateDebugInformation="true"
@@ -137,7 +137,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libcvd.lib gvars3.lib glew32.lib opengl32.lib blas_win32.lib lapack_win32.lib pthreadVCE2.lib"
+				AdditionalDependencies="zlib.lib WSock32.Lib libcvd.lib gvars3.lib glew32.lib opengl32.lib blas_win32.lib lapack_win32.lib pthreadVCE2.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\lib"
 				GenerateDebugInformation="true"
@@ -204,7 +204,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\VideoSource_Win32_EWCLIB.cc"
+				RelativePath=".\VideoSource_TCP.cc"
 				>
 			</File>
 		</Filter>
