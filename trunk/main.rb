@@ -58,6 +58,12 @@ class Main
     # Send video size as header
     @socket.send([CONFIG[:video_width]].pack('I!'), 0)
     @socket.send([CONFIG[:video_height]].pack('I!'), 0)
+    
+    Thread.new do
+      loop do
+        recv_pose
+      end
+    end
   
     $model = Model.new(CONFIG[:to_meter_ratio])
 
@@ -99,6 +105,26 @@ class Main
     glutMainLoop
 
     @webcam.close
+  end
+
+  def recv_bytes(size)
+    ret = ''
+    ret << @socket.recvfrom(size - ret.size)[0] while ret.size < size
+    ret
+  end
+  
+  def recv_int
+    recv_bytes(4).unpack('I!')[0]
+  end
+
+  def recv_pose
+    data_len = recv_int
+    serialized_pose = recv_bytes(data_len)
+    #puts serialized_pose
+    values = serialized_pose.split(' ').map { |e| e.to_f }
+    @position_x, @position_y, @position_z = values[0..2]
+    rotation = values[3..11]
+    p rotation
   end
 
   def init_light

@@ -73,3 +73,20 @@ int Client::recv_int() {
 	delete[] bytes;
 	return ret;
 }
+
+void Client::send_bytes(const char *bytes, int size) {
+	int sent_bytes = 0;
+	while (sent_bytes < size) {
+		int ret = send(m_socket, bytes + sent_bytes, (size - sent_bytes), 0);
+		if (ret == SOCKET_ERROR) {
+			printf("Error sending data\n");
+			exit(-1);
+		}
+		sent_bytes += ret;
+	}
+}
+
+void Client::send_int(int value) {
+	char *bytes = (char *) &value;
+	send_bytes(bytes, 4);
+}
