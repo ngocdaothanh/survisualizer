@@ -1,11 +1,7 @@
-# Send the compressed Green channel of the webcam image to client.
+# Send the Green channel of the webcam image to client.
 
-if ARGV.size != 1
-  puts "Usage: server.rb <port>\n"
-  exit(-1)
-end
-
-PORT = ARGV[0].to_i
+PORT = 1225
+COMPRESS = false  # Compress Green channel
 
 WIDTH  = 640
 HEIGHT = 480
@@ -41,12 +37,16 @@ while true
   begin
     while true
       image = cam.image(false, 1)  # Not upsidedown, Green
-      compressed_image = Zlib::Deflate.deflate(image)
-      size = compressed_image.size
+      if COMPRESS
+        compressed_image = Zlib::Deflate.deflate(image)
+        size = compressed_image.size
 
-      # Send the size as header, then the compressed image as body
-      socket.send([size].pack('I!'), 0)
-      socket.send(compressed_image, 0)
+        # Send the size as header, then the compressed image as body
+        socket.send([size].pack('I!'), 0)
+        socket.send(compressed_image, 0)
+      else
+        socket.send(image, 0)
+      end
     end
   rescue
   ensure
