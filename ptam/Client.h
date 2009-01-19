@@ -2,7 +2,6 @@
 #define __CLIENT__
 
 #include <winsock2.h>
-//#include <winsock.h>
 
 class Client {
 public:
@@ -10,6 +9,9 @@ public:
 
 	char *recv_bytes(int size);
 	int recv_int();
+
+	void send_bytes(const char *bytes, int size);
+	void send_int(int value);
 
 private:
 	Client();

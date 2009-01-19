@@ -9,6 +9,8 @@
 #include "ARDriver.h"
 #include "MapViewer.h"
 
+#include "Client.h"
+
 using namespace CVD;
 using namespace std;
 using namespace GVars3;
@@ -74,7 +76,7 @@ void System::Run()
 		mGLWindow.SetupVideoOrtho();
 		mGLWindow.SetupVideoRasterPosAndZoom();
 
-		if(!mpMap->IsGood())
+		if (!mpMap->IsGood())
 			mpARDriver->Reset();
 
 		static gvar3<int> gvnDrawMap("DrawMap", 0, HIDDEN|SILENT);
@@ -85,10 +87,28 @@ void System::Run()
 
 		mpTracker->TrackFrame(mimFrameBW, !bDrawAR && !bDrawMap);
 
+		TooN::SE3 pose = mpTracker->GetCurrentPose();
 		if(bDrawMap)
-			mpMapViewer->DrawMap(mpTracker->GetCurrentPose());
+			mpMapViewer->DrawMap(pose);
 		else if(bDrawAR)
-			mpARDriver->Render(mimFrameRGB, mpTracker->GetCurrentPose());
+			mpARDriver->Render(mimFrameRGB, pose);
+
+		// Send pose to remote camera
+		if (mpMap->IsGood()) {
+			char serialized_pose[9999];
+			pose = pose.inverse();
+			TooN::Vector<3> translation = pose.get_translation();
+			TooN::Matrix<3> rotation = pose.get_rotation().get_matrix();
+			sprintf(serialized_pose, "%f %f %f %f %f %f %f %f %f %f %f %f",
+				translation[0], translation[1], translation[2],
+				rotation[0][0], rotation[0][1], rotation[0][2],
+				rotation[1][0], rotation[1][1], rotation[1][2],
+				rotation[2][0], rotation[2][1], rotation[2][2]);
+			
+			int data_len = strlen(serialized_pose);
+			Client::get_instance()->send_int(data_len);
+			Client::get_instance()->send_bytes(serialized_pose, data_len);
+		}
 
 		//      mGLWindow.GetMousePoseUpdate();
 		string sCaption;
