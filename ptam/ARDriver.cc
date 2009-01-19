@@ -35,7 +35,7 @@ void ARDriver::Reset()
 	mnCounter = 0;
 }
 
-void ARDriver::Render(Image<Rgb<byte> > &imFrame, SE3 se3CfromW)
+void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 {
 	if(!mbInitialised)
 	{
@@ -50,7 +50,7 @@ void ARDriver::Render(Image<Rgb<byte> > &imFrame, SE3 se3CfromW)
 	glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,
 		0, 0, 0,
 		mirFrameSize.x, mirFrameSize.y,
-		GL_RGB,
+		GL_LUMINANCE,
 		GL_UNSIGNED_BYTE,
 		imFrame.data());
 
