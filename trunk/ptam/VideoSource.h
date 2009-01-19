@@ -25,7 +25,5 @@ private:
 
 private:
 	SOCKET m_client;
-
-	unsigned char *m_buffer;
 	CVD::ImageRef mirSize;
 };
