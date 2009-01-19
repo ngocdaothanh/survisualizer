@@ -91,8 +91,6 @@ void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 	mGLWindow.SetupVideoRasterPosAndZoom();
 }
 
-
-
 void ARDriver::MakeFrameBuffer()
 {
 	// Needs nvidia drivers >= 97.46
@@ -188,7 +186,6 @@ void ARDriver::DrawFBBackGround()
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 }
 
-
 void ARDriver::DrawDistortedFB()
 {
 	static bool bFirstRun = true;
@@ -217,7 +214,7 @@ void ARDriver::DrawDistortedFB()
 		for(int ystep = 0; ystep<nStepsY; ystep++)
 		{  
 			glBegin(GL_QUAD_STRIP);
-			for(int xstep = 0; xstep<=nStepsX; xstep++)
+			for(int xstep = 0; xstep<=nStepsX; xstep++) {
 				for(int yystep = ystep; yystep<=ystep + 1; yystep++) // Two y-coords in one go - magic.
 				{
 					Vector<2> v2Iter;
@@ -227,8 +224,9 @@ void ARDriver::DrawDistortedFB()
 					Vector<2> v2UFBUnDistorted = mCamera.UFBLinearProject(mCamera.UFBUnProject(v2UFBDistorted));
 					glTexCoord2d(v2UFBUnDistorted[0] * mirFBSize.x, (1.0 - v2UFBUnDistorted[1]) * mirFBSize.y);
 					glVertex(v2UFBDistorted);
-				}	 
-				glEnd();
+				}
+			}
+			glEnd();
 		}
 		glEndList();
 	}
