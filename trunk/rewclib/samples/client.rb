@@ -9,15 +9,14 @@ include Glu
 include Glut
 
 class Main
-  WIDTH  = 304
-  HEIGHT = 400
-
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
+    @width  = recv_bytes(4).unpack('I!')[0]
+    @height = recv_bytes(4).unpack('I!')[0]
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
-    glutInitWindowSize(WIDTH, HEIGHT)
+    glutInitWindowSize(@width, @height)
     glutInitWindowPosition(0, 0)
 
     @window = glutCreateWindow('Survisualizer')
@@ -41,7 +40,7 @@ class Main
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity
-    gluPerspective(45.0, 1.0*WIDTH/HEIGHT, 0.1, 1000.0)
+    gluPerspective(45.0, 1.0*@width/@height, 0.1, 1000.0)
 
     glMatrixMode(GL_MODELVIEW)
     visualize
@@ -75,14 +74,14 @@ class Main
     #size = recv_bytes(4)
     #size = size.unpack('I!')[0]
     #image = recv_bytes(size)
-    image = recv_bytes(WIDTH*HEIGHT)
+    image = recv_bytes(@width*@height)
     
     #t2 = Time.now
     #fps = 1.0/(t2 - t1)
     #p fps
-    #glDrawPixels(WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, image)
+    #glDrawPixels(@width, @height, GL_RGB, GL_UNSIGNED_BYTE, image)
 
-    glDrawPixels(WIDTH, HEIGHT, GL_LUMINANCE, GL_UNSIGNED_BYTE, image)
+    glDrawPixels(@width, @height, GL_LUMINANCE, GL_UNSIGNED_BYTE, image)
 
     # Swap buffers for display
     glutSwapBuffers
