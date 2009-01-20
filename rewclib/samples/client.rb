@@ -13,7 +13,7 @@ NUM_FRAMES  = 200   # Number of frames to benchmark FPS
 
 # Whether header (width, height, compress) is sent by the server
 # TODO: remove this when program for iPhone is finished
-WITH_HEADER = true
+WITH_HEADER = false
 
 class Main
   def initialize(host, port)
