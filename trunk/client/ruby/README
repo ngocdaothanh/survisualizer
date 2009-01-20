@@ -1,0 +1,12 @@
+== Requirements
+
+* Windows XP+
+* Ruby 1.9.1+
+* ruby-opengl 0.60.0+
+* InterSense tracker (gyro compass)
+* NMEA GPS device connected to a COM port (use GpsGate to emulate if your GPS device has only USB port)
+
+== Running
+
+* Edit config.rb if neccessary
+* Run main.rb
