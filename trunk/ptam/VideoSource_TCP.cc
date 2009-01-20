@@ -1,6 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
-
-#include <Windows.h>
 #include <cvd/utility.h>
 #include <zlib.h>
 
@@ -14,9 +11,12 @@ using namespace std;
 
 VideoSource::VideoSource()
 {
-	mirSize.x = Client::get_instance()->recv_int();
+	/*mirSize.x = Client::get_instance()->recv_int();
 	mirSize.y = Client::get_instance()->recv_int();
-	compress  = Client::get_instance()->recv_int();
+	compress  = Client::get_instance()->recv_int();*/
+		mirSize.x = 304;
+		mirSize.y = 400;
+		compress  = false;
 };
 
 /**

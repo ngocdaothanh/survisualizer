@@ -1,8 +1,6 @@
 #ifndef __CLIENT__
 #define __CLIENT__
 
-#include <winsock2.h>
-
 class Client {
 public:
 	static Client *get_instance();
@@ -18,7 +16,7 @@ private:
 	~Client();
 
 private:
-	SOCKET m_socket;
+	int m_socket;
 };
 
 #endif

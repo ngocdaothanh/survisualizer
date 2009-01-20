@@ -1,4 +1,13 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
 
 #include "Client.h"
 #include "Config.h"
@@ -13,20 +22,6 @@ Client *Client::get_instance() {
 }
 
 Client::Client() {
-	WSADATA wsaData;
-	WORD version;
-	int error;
-	version = MAKEWORD( 2, 0 );
-	error = WSAStartup( version, &wsaData );
-	if (error != 0) {
-		exit(-1);
-	}
-	
-	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
-		WSACleanup();
-		exit(-1);
-	}
-
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 
 	struct hostent *host;
@@ -36,7 +31,7 @@ Client::Client() {
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = ((struct in_addr *)(host->h_addr))->s_addr;
 	sin.sin_port = htons(PORT);
-	if (connect(m_socket, (struct sockaddr *) &sin, sizeof(sin)) == SOCKET_ERROR) {
+	if (connect(m_socket, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
 		printf("Error opening socket\n");
 		exit(-1);
 	}
@@ -44,8 +39,7 @@ Client::Client() {
 
 Client::~Client()
 {
-	closesocket(m_socket);
-	WSACleanup();
+	close(m_socket);
 }
 
 char *Client::recv_bytes(int size)
@@ -78,7 +72,7 @@ void Client::send_bytes(const char *bytes, int size) {
 	int sent_bytes = 0;
 	while (sent_bytes < size) {
 		int ret = send(m_socket, bytes + sent_bytes, (size - sent_bytes), 0);
-		if (ret == SOCKET_ERROR) {
+		if (ret < 0) {
 			printf("Error sending data\n");
 			exit(-1);
 		}

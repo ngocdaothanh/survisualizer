@@ -3,17 +3,15 @@
 
 # Edit the lines below to point to any needed include and link paths
 # Or to change the compiler's optimization flags
-CC = g++
-COMPILEFLAGS = -I MY_CUSTOM_INCLUDE_PATH -D_LINUX -D_REENTRANT -Wall  -O3 -march=nocona -msse3 -fno-strict-aliasing
-LINKFLAGS = -L MY_CUSTOM_LINK_PATH -lGVars3 -lcvd
-
-# Edit this line to change video source
-VIDEOSOURCE = VideoSource_Linux_DV.o
+CC = g++ -g -O3
+COMPILEFLAGS = -I /Users/ngocdt/tmp/PTAM -D_OSX -D_REENTRANT -D CVD_HAVE_TOON
+LINKFLAGS = -framework OpenGL -framework VecLib -lGVars3 -lcvd -lz
 
 OBJECTS=	main.o\
+		VideoSource_TCP.o\
+		Client.o\
 		GLWindow2.o\
 		GLWindowMenu.o\
-		$(VIDEOSOURCE)\
 		System.o \
 		ATANCamera.o\
 		KeyFrame.o\
@@ -21,33 +19,34 @@ OBJECTS=	main.o\
 		Map.o\
 		SmallBlurryImage.o\
 		ShiTomasi.o \
-		HomographyInit.o \
 		MapMaker.o \
 		Bundle.o \
 		PatchFinder.o\
+		HomographyInit.o\
 		Relocaliser.o\
 		MiniPatch.o\
 		MapViewer.o\
 		ARDriver.o\
 		EyeGame.o\
-		Tracker.o
+		Tracker.o 
 
 CALIB_OBJECTS=	GLWindow2.o\
 		GLWindowMenu.o\
-		$(VIDEOSOURCE)\
+		VideoSource_TCP.o\
+		Client.o\
 		CalibImage.o \
 		CalibCornerPatch.o\
 		ATANCamera.o \
-		CameraCalibrator.o
+		CameraCalibrator.o 
 
 All: PTAM CameraCalibrator
 
-PTAM: $(OBJECTS)
+PTAM:$(OBJECTS)
 	$(CC) -o PTAM $(OBJECTS) $(LINKFLAGS)
-
+	/Developer/Tools/Rez OSX_resource_file.r -o PTAM
 CameraCalibrator:$(CALIB_OBJECTS)
 	$(CC) -o CameraCalibrator $(CALIB_OBJECTS) $(LINKFLAGS)
-
+	/Developer/Tools/Rez OSX_resource_file.r -o CameraCalibrator
 
 %.o: %.cc
 	$(CC) $< -o $@ -c $(COMPILEFLAGS)
@@ -60,14 +59,4 @@ depend:
 	rm dependecies; touch dependencies
 	makedepend -fdependencies $(INCLUDEFLAGS) $(MOREINCS) *.cc *.h
 
-
 -include dependencies
-
-
-
-
-
-
-
-
-
