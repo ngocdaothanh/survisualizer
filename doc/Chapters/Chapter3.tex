@@ -35,7 +35,7 @@ As the above explanation suggests, we use ``push'' instead of ``pull'', one side
 	\label{fig:MailboxRPC}
 \end{figure}
 
-Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. To increase the frame rate sent to the MacBook, we further improve the data transmission by the following optimizations:
+Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. There are serveral optimizations to further improve the frame rate sent to the MacBook:
 
 \begin{itemize}
 	\item Send G color channel instead of Y, because G affects Y the most as in the above common equation. This does not affect PTAM. This optimization enormously improves the frame rate because when we send Y, if the image size is 320x240, we must apply the above equation 76800 times for each frame!
@@ -44,16 +44,21 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 
 \begin{table}[tb]
 	\begin{center}
-		\begin{tabular}{|c|l|l|}
+		\begin{tabular}{|c|l|l|l|}
 			\hline
-			Sent color data & FPS \\
+			Size (only G color channel) & Compressed & With PTAM processing & FPS   \\
 			\hline
-			Y               &     \\
-			G               &     \\
-			compressed G    &     \\
+			320x240 & NO         & NO                   &  8.01 \\
+			320x240 & YES        & NO                   & 10.67 \\
+			640x480 & NO         & NO                   &  1.97 \\
+			640x480 & YES        & NO                   &  3.03 \\
+			320x240 & NO         & YES                  &  6.57 \\
+			320x240 & YES        & YES                  &  6.23 \\
+			640x480 & NO         & YES                  &  1.84 \\
+			640x480 & YES        & YES                  &  1.69 \\
 			\hline
 		\end{tabular}
-		\caption{Frame rate improves when applying frame transmission optimizations}
+		\caption{Frame rates of various conditions}
 	\end{center}
 \end{table}
 
