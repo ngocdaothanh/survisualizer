@@ -1,12 +1,3 @@
-//
-//  EAGLView.h
-//  Survisualizer
-//
-//  Created by Ngoc Dao on 1/20/09.
-//  Copyright VTM 2009. All rights reserved.
-//
-
-
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
