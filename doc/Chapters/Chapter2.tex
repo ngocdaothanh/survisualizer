@@ -1,12 +1,14 @@
 \chapter{Visualization Methods}
 \label{Chapter2}
 
+We take up ordinary perspective cameras for surveillance cameras in this research.
+
 %------------------------------------------------------------------------------
 
-\section{Viewing Volume, Viewing Frustum, Viewing Field, and Visualization Requirements}
+\section{Visualization Elements}
 \label{VisualizationRequirements}
 
-In natural sense, viewing volume of a camera is defined by an infinite half cone, apex of which corresponds to the focal point of the camera. Because real computers cannot have unlimited resources, in practical computer 3D technology we usually limit the bottom of the cone by a far clip plane, then limit the top of the cone even more by a near clip plane, and express the result by a frustum (figure \ref{fig:ViewingVolume}). To visualize the viewing volume, there may be many methods other than directly rendering the volume. Thus in this research we abstract the viewing volume by the term ``viewing field''.
+Viewing volume of a projective camera is defined by an infinite half cone, apex of which corresponds to the focal point of the camera. Because real computers cannot have unlimited resources, in practical computer 3D technology we usually limit the bottom of the cone by a far clip plane or by a boundary surface which may cut the viewing volume, then limit the top of the cone even more by a near clip plane. It may result in a frustum (figure \ref{fig:ViewingVolume}). Thus in this research we abstract the viewing volume for visualization by the term ``viewing field''.
 
 \begin{figure}[htbp]
 	\centering
@@ -16,16 +18,16 @@ In natural sense, viewing volume of a camera is defined by an infinite half cone
 	\label{fig:ViewingVolume}
 \end{figure}
 
-There may be many visualization methods, not limited to the ones discussed in the next section. But for a method to find practical use in outdoor MR, it should be able to be implemented (see section \ref{UseCases} to have a rough illustration) so that it meets the following basic qualitative requirements, expressed in the ``it should'' tongue of most DSLs (Domain Specific Language) of the BDD (Behavior Driven Development) methodology in software engineering:
+There may be many methods for visualizing the viewing fields, not limited to the ones discussed in the next section. But for a method to find practical use in outdoor MR, it should be able to be implemented (see section \ref{UseCases} to have a rough illustration) so that it meets the following basic qualitative requirements, expressed in the ``it should'' tongue of most DSLs (Domain Specific Language) of the BDD (Behavior Driven Development) methodology in software engineering:
 
 \begin{itemize}
-	\item It should be easy for the user to understand when they see the visualized viewing fields of surrounding surveillance cameras.
-	\item It should work in realtime. When the user changes the position or orientation of the mobile device, the video displayed on the screen of the mobile device should simultaneously change accordingly to the movement without much delay.
-	\item It should have good accuracy. In order to correctly overlay CG objects onto the original video, the position and orientation of the mobile device's camera must be estimated within a small error.
-	\item It should be robust to disturbance in outdoor environment. In outdoor environment, naturally there may be many passers-by and they may prevent the mobile device's camera from continuously capturing a scene. If the system use GPS device, the GPS signal strength may change a lot when the user walk from an open space to a space shadowed by trees or buildings.
+	\item It should be easy to understand when users see the visualized viewing fields of surrounding surveillance cameras.
+	\item It should work in realtime. When the user changes the position or orientation of the mobile device, the MR video displayed on the screen of the mobile device should simultaneously change accordingly to the movement with no or little delay.
+	\item It should have good accuracy. In order to correctly overlay CG objects onto the original video taken at the user side, the position and orientation of the mobile camera must be estimated within a small error.
+	\item It should be robust to disturbance in outdoor environment. Some of the disturbance that may arise in real situations are passers in front of the camera and GPS signal noise/weakness. For example, in outdoor environment, there may be bicycle riders passing by and they may temporary block the camera. Another example is that if the system use GPS device, the GPS signal strength may change a lot when the user walk from an open space to a space shadowed by trees or buildings.
 \end{itemize}
 
-When implementing the prototype in chapter \ref{Chapter3} and conducting experiment to evaluate the visualization methods, we must take the above requirements into account.
+We must take the above requirements into account when implementing the prototype in chapter \ref{Chapter3} and conducting experiment to evaluate the visualization methods.
 
 %------------------------------------------------------------------------------
 
