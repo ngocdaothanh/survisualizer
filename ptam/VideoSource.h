@@ -1,8 +1,3 @@
-// This VideoSource for Win32 uses EWCLIB
-//
-// EWCLIB ver.1.2
-// http://www.geocities.jp/in_subaru/ewclib/index.html
-
 #include <cvd/image.h>
 #include <cvd/byte.h>
 #include <cvd/rgb.h>
