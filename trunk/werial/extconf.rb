@@ -1,1 +1,0 @@
-require 'mkmf'EXT_NAME = 'werial'dir_config(EXT_NAME)create_makefile(EXT_NAME)
