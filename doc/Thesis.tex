@@ -1,52 +1,75 @@
-%% ----------------------------------------------------------------
-%% Thesis.tex -- MAIN FILE (the one that you compile with LaTeX)
-%% ----------------------------------------------------------------
+\documentclass[a4paper,11pt]{report}
 
-% Set up the document
-\documentclass[a4paper, 11pt, oneside]{Thesis}  % Use the "Thesis" style, based on the ECS Thesis style by Steve Gunn
-\graphicspath{{Figures/}}  % Location of the graphics files (set up for graphics to be in PDF format)
+%%[inserting images of PostScript, JPEG, PNG and so on]
+%% choose and comment-out the following packages
+\usepackage{graphicx} % for \includegraphics[width=3cm]{sample.eps}
+%\usepackage{epsfig} % for \psfig{file=sample.eps,width=3cm}
+%%\usepackage{epsf} % for \epsfile{file=sample.eps,scale=0.6}
+%\usepackage{epsbox} % for \epsfile{file=sample.eps,scale=0.6}
 
-% Include any extra LaTeX packages required
-\usepackage[square, numbers, comma, sort&compress]{natbib}  % Use the "Natbib" style for the references in the Bibliography
-\usepackage{verbatim}  % Needed for the "comment" environment to make LaTeX comments
-\usepackage{vector}  % Allows "\bvec{}" and "\buvec{}" for "blackboard" style bold vectors in maths
-\hypersetup{urlcolor=blue, colorlinks=true}  % Colours hyperlinks in blue, but this can be distracting if there are many links.
+%% You may use dvipdfm for directly creating PDF from DVI.
+%\usepackage[dvipdfm]{color,graphicx}
+%% bookmarking with dvipdfm
+%\usepackage[dvipdfm,bookmarks=true,bookmarksnumbered=true,bookmarkstype=toc]{hyperref}
 
-%% ----------------------------------------------------------------
+%\usepackage{times} % use Times Font instead of Computer Modern
+
+\setcounter{tocdepth}{3}
+\setcounter{page}{-1}
+
+\setlength{\oddsidemargin}{0.1in}
+\setlength{\evensidemargin}{0.1in} 
+\setlength{\topmargin}{0in}
+\setlength{\textwidth}{6in} 
+%\setlength{\textheight}{10.1in}
+\setlength{\parskip}{0em}
+\setlength{\topsep}{0em}
+
+%\newcommand{\fig}[1]{{\bf Fig.\ref{#1}}}
+
+%% [IMPORTANT] package for title generation (english version)
+\usepackage{sie-en}
+
+%% title of thesis
+%% DON'T PUT \\ AT THE END OF THE TITLE. IT CAUSES ERROR!!
+\title{Visualization of Viewing Fields of Surveillance Cameras by Using Mixed Reality}
+%% name of author
+\author{Dao Ngoc Thanh}
+%% name of advisor
+\advisor{Yuichi Ohta}
+
+%% major and degree and date (chooose one)
+%% [NOTICE] Month varies with majors. (submitted date)
+%\majorfield{Policy and Planning Science} \degree{Economics} \yearandmonth{January 2002}
+%\majorfield{Policy and Planning Science} \degree{Policy and Planning Sciences} \yearandmonth{January 2002}
+%\majorfield{Policy and Planning Science} \degree{Engineering} \yearandmonth{January 2002}
+%\majorfield{Quantitative Finance and Management} \degree{Finance} \yearandmonth{January 2002}
+%\majorfield{Quantitative Finance and Management} \degree{Management} \yearandmonth{January 2002}
+%\majorfield{Quantitative Finance and Management} \degree{Policy and Planning Sciences} \yearandmonth{January 2002}
+%\majorfield{Computer Science} \degree{Engineering} \yearandmonth{February 2002}
+%\majorfield{Advanced Engineering Systems} \degree{Engineering} \yearandmonth{February 2002}
+%\majorfield{Engineering Mechanics and Energy} \degree{Engineering} \yearandmonth{February 2002}
+%\majorfield{Risk Engineering} \degree{Engineering} \yearandmonth{2002}
+%\majorfield{Risk Engineering} \degree{Policy and Planning Sciences} \yearandmonth{2002}
+
+\majorfield{Advanced Engineering Systems} \degree{Engineering} \yearandmonth{January 2009}
+
 \begin{document}
-\frontmatter	  % Begin Roman style (i, ii, iii, iv...) page numbering
-
-% Set up the Title Page
-\title  {Visualization of Viewing Fields of Surveillance Cameras by Using Mixed Reality}
-\authors  {\texorpdfstring
-            {\href{ngocdaothanh@image.esys.tsukuba.ac.jp}{Dao Ngoc Thanh}}
-            {Dao Ngoc Thanh}
-            {\\ Yuichi Ohta \\ Yoshinari Kameda \\ Itaru Kitahara}
-            }
-
-\addresses  {\groupname\\\deptname\\\univname}  % Do not change this here, instead these must be set in the "Thesis.cls" file, please look through it instead
-\date       {\today}
-\subject    {}
-\keywords   {}
-
 \maketitle
-%% ----------------------------------------------------------------
+\thispagestyle{empty}
+\newpage
 
-\setstretch{1.3}  % It is better to have smaller font and larger line spacing than the other way round
-
-% Define the page headers using the FancyHdr package and set up for one-sided printing
-\fancyhead{}  % Clears all page headers and footers
-\rhead{\thepage}  % Sets the right side header to show the page number
-\lhead{}  % Clears the left side page header
-
-\pagestyle{fancy}  % Finally, use the "fancy" page style to implement the FancyHdr headers
-
-
-% The Abstract Page
-\addtotoc{Abstract}  % Add the "Abstract" page entry to the Contents
-\abstract{
-\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
-
+\thispagestyle{empty}
+\vspace*{20pt plus 1fil}
+%\parindent=1zw
+\noindent
+%%
+%% Abstract
+%%
+\begin{center}
+{\bf Abstract}
+\vspace{5mm}
+\end{center}
 This research lies in the domain of Outdoor Mixed Reality. It aims to visualize the viewing fields of outdoor surveillance cameras on the screen of mobile devices. In an outdoor environment where cameras on mobile devices can be used, it is required that users can easily understands the visualized viewing fields of surrounding surveillance cameras. Moreover, the visualization system must provide realtime video with no human-sensible delay.
 
 In this research, we study five visualization methods and propose a prototype implementation based on server-side PTAM. The prototype requires no GPS or gyrocompass devices.
@@ -61,32 +84,18 @@ Structure of this thesis:
 	\item Chapter \ref{Chapter5} summarizes this research and proposes future directions.
 \end{itemize} 
 
-\clearpage  % Abstract ended, start a new page
-%% ----------------------------------------------------------------
+%%%%%
+\par
+\vspace{0pt plus 1fil}
+\newpage
 
-\pagestyle{fancy}  %The page style headers have been "empty" all this time, now use the "fancy" headers as defined before to bring them back
+\pagenumbering{roman} % I, II, III, IV 
+\tableofcontents
+\listoffigures
+%\listoftables
 
-
-%% ----------------------------------------------------------------
-\lhead{\emph{Contents}}  % Set the left side page header to "Contents"
-\tableofcontents  % Write out the Table of Contents
-
-%% ----------------------------------------------------------------
-\lhead{\emph{List of Figures}}  % Set the left side page header to "List if Figures"
-\listoffigures  % Write out the List of Figures
-
-%% ----------------------------------------------------------------
-\lhead{\emph{List of Tables}}  % Set the left side page header to "List of Tables"
-\listoftables  % Write out the List of Tables
-
-\addtocontents{toc}{\vspace{2em}}  % Add a gap in the Contents, for aesthetics
-
-%% ----------------------------------------------------------------
-\mainmatter	  % Begin normal, numeric (1,2,3...) page numbering
-\pagestyle{fancy}  % Return the page headers back to the "fancy" style
-
-% Include the chapters of the thesis, as separate files
-% Just uncomment the lines as you write the chapters
+\pagebreak \setcounter{page}{1}
+\pagenumbering{arabic} % 1,2,3
 
 \input{./Chapters/Chapter1}
 \input{./Chapters/Chapter2}
@@ -94,25 +103,10 @@ Structure of this thesis:
 \input{./Chapters/Chapter4}
 \input{./Chapters/Chapter5}
 
-%% ----------------------------------------------------------------
-\clearpage
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{\numberline{}Acknowledgements}
 
-\setstretch{1.3}  % Reset the line-spacing to 1.3 for body text (if it has changed)
-
-% The Acknowledgements page, for thanking everyone
-\acknowledgements{
-\addtocontents{toc}{\vspace{1em}}  % Add a gap in the Contents, for aesthetics
-
-% The acknowledgements and the people to thank go here, don't forget to include your project advisors\ldots
-
-}
-\clearpage  % End of the Acknowledgements
-%% ----------------------------------------------------------------
-
-%% ----------------------------------------------------------------
-% Now begin the Appendices, including them as separate files
-
-\addtocontents{toc}{\vspace{2em}} % Add a gap in the Contents, for aesthetics
+\newpage
 
 \appendix % Cue to tell LaTeX that the following 'chapters' are Appendices
 
@@ -121,14 +115,15 @@ Structure of this thesis:
 \input{./Appendices/AppendixC}
 \input{./Appendices/AppendixD}
 
-\addtocontents{toc}{\vspace{2em}}  % Add a gap in the Contents, for aesthetics
-\backmatter
+%% Bibliography
+\addcontentsline{toc}{chapter}{\numberline{}Bibliography}
+\renewcommand{\bibname}{Bibliography}
+% use bibtex
+\bibliographystyle{unsrt}
+%\bibliography{samplebib}
+%% [compile] bibtex sample-en; platex sample-en; platex sample-en;
 
-%% ----------------------------------------------------------------
-\label{Bibliography}
-\lhead{\emph{Bibliography}}  % Change the left side page header to "Bibliography"
-\bibliographystyle{unsrtnat}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
+%\bibliographystyle{unsrtnat}  % Use the "unsrtnat" BibTeX style for formatting the Bibliography
 \bibliography{Bibliography}  % The references (bibliography) information are stored in the file named "Bibliography.bib"
 
-\end{document}  % The End
-%% ----------------------------------------------------------------
+\end{document}
