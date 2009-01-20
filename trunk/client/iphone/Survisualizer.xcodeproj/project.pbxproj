@@ -15,6 +15,10 @@
 		28FD14FE0DC6FC130079059D /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28FD14FD0DC6FC130079059D /* EAGLView.m */; };
 		28FD15000DC6FC520079059D /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD14FF0DC6FC520079059D /* OpenGLES.framework */; };
 		28FD15080DC6FC5B0079059D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD15070DC6FC5B0079059D /* QuartzCore.framework */; };
+		E2CA3E510F2611E90063CBC7 /* Surface.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E4C0F2611E90063CBC7 /* Surface.m */; };
+		E2CA3E520F2611E90063CBC7 /* SurfaceAccelerator.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E4E0F2611E90063CBC7 /* SurfaceAccelerator.m */; };
+		E2CA3E530F2611E90063CBC7 /* TCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E500F2611E90063CBC7 /* TCPServer.m */; };
+		E2CA3E760F2613BA0063CBC7 /* Net.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E750F2613BA0063CBC7 /* Net.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +35,14 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Survisualizer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Survisualizer_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E2CA3E4B0F2611E90063CBC7 /* Surface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Surface.h; sourceTree = "<group>"; };
+		E2CA3E4C0F2611E90063CBC7 /* Surface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Surface.m; sourceTree = "<group>"; };
+		E2CA3E4D0F2611E90063CBC7 /* SurfaceAccelerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SurfaceAccelerator.h; sourceTree = "<group>"; };
+		E2CA3E4E0F2611E90063CBC7 /* SurfaceAccelerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SurfaceAccelerator.m; sourceTree = "<group>"; };
+		E2CA3E4F0F2611E90063CBC7 /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
+		E2CA3E500F2611E90063CBC7 /* TCPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TCPServer.m; sourceTree = "<group>"; };
+		E2CA3E740F2613BA0063CBC7 /* Net.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Net.h; sourceTree = "<group>"; };
+		E2CA3E750F2613BA0063CBC7 /* Net.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Net.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +63,14 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E2CA3E740F2613BA0063CBC7 /* Net.h */,
+				E2CA3E750F2613BA0063CBC7 /* Net.m */,
+				E2CA3E4B0F2611E90063CBC7 /* Surface.h */,
+				E2CA3E4C0F2611E90063CBC7 /* Surface.m */,
+				E2CA3E4D0F2611E90063CBC7 /* SurfaceAccelerator.h */,
+				E2CA3E4E0F2611E90063CBC7 /* SurfaceAccelerator.m */,
+				E2CA3E4F0F2611E90063CBC7 /* TCPServer.h */,
+				E2CA3E500F2611E90063CBC7 /* TCPServer.m */,
 				28FD14FC0DC6FC130079059D /* EAGLView.h */,
 				28FD14FD0DC6FC130079059D /* EAGLView.m */,
 				1D3623240D0F684500981E51 /* SurvisualizerAppDelegate.h */,
@@ -164,6 +184,10 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* SurvisualizerAppDelegate.m in Sources */,
 				28FD14FE0DC6FC130079059D /* EAGLView.m in Sources */,
+				E2CA3E510F2611E90063CBC7 /* Surface.m in Sources */,
+				E2CA3E520F2611E90063CBC7 /* SurfaceAccelerator.m in Sources */,
+				E2CA3E530F2611E90063CBC7 /* TCPServer.m in Sources */,
+				E2CA3E760F2613BA0063CBC7 /* Net.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
