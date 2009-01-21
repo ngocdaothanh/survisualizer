@@ -7,19 +7,49 @@ In this chapter, we use the prototype implemented in chapter \ref{Chapter3} to c
 
 \section{Evaluation Condition}
 
-Ten users of about 20--30 years old are invited to use the system with the five visualization methods. After that, each user are asked to rank each visualization method in the following categories in five levels:
+Students of about 20--30 years old are invited to use the system with the five visualization methods. After that, each user are asked to rank each visualization method in the following categories in five levels of ranking points (1: worst, 5: best):
 
 \begin{itemize}
-	\item Understandability
+	\item Understandability (for this category, a user must give unique ranking points across all methods)
 	\item Realtimeness
 	\item Accuracy
 	\item Robustness to the disturbance of passers-by and handshaking movement of the mobile device
 \end{itemize}
 
-3D model:The system does not use a server or any real surveillance camera. In place of those, 3D model of the building of the College of International Studies and the gymnasium (Figure [cite]), together with the hard coded geometry information about the virtual surveillance cameras are used.
+We wanted conduct the experiment around the area of College of International Studies and a gymnasium nearby, their 3D model is in figure \ref{fig:VAIOGPSGyro}. However because of time limit, we could only invite three users and conduct at a wall within a small area of about 2x2m of the above area:
+
+\begin{itemize}
+	\item Use the ``control the two keyframes'' method \ref{MapInitializing} to initialize the PTAM map.
+	\item Each user points the VAIO's camera at the wall and see the visualized viewing field of a virtual camera. The user can change the position and/or orientation of the VAIO. They can also walk around the area.
+	\item For the robustness category, when each user is using the VAIO, a person will walk by to partly temporarily occlude the camera.
+\end{itemize}
 
 %------------------------------------------------------------------------------
 
 \section{Result and Discussion}
 
-%A good visualization method is the one in which CG objects used to visualize the viewing fields do not occlude the original scene. Moving objects do not occlude the scene over time, thus
+The result is shown in table \ref{tb:ExperimentResult}. The numbers inside parentheses are points given by the users. The outside numbers are the average of the inside numbers.
+
+\begin{table}[tb]
+	\begin{center}
+		\caption{Result of the evaluation experiment of visualization methods}
+		\label{tb:ExperimentResult}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			Method    & Understandability & Realtimeness & Accuracy & Robustness \\
+			\hline
+			Volume    & 1.0 (1 1 1) & 3.7 (3 4 4) & 4.7 (4 5 4) & 5.0 (5 5 5) \\
+			Shadow    & 3.0 (3 4 2) & 4.0 (3 5 4) & 4.0 (4 4 4) & 5.0 (5 5 5) \\
+			Contour   & 2.7 (2 2 4) & 4.0 (3 5 4) & 5.0 (5 5 5) & 5.0 (5 5 5) \\
+			Vector    & 3.3 (4 3 3) & 3.7 (3 4 4) & 4.7 (5 4 5) & 5.0 (5 5 5) \\
+			Animation & 5.0 (5 5 5) & 4.0 (3 5 4) & 4.7 (5 5 4) & 5.0 (5 5 5) \\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+The winner of understandability is the animation method. A good visualization method is the one in which CG objects used to visualize the viewing fields do not occlude the scene. Moving objects do not occlude the scene over time, hence the animation method gives the best understandability. Moreover, this method also points out where the surveillance camera. On the contrary, viewing field visualized by the volume method is the worst because the CG object usually occlude large parts of the screen.
+
+The ranking points of other categories are about the same. This is because they are based on the same prototype system, hence they should share the same characteristics specified by each category. Moreover, the users have evaluated the system as very good. We have only conducted the experiment in a small outdoor area. More extensive experiments in various conditions, such as larger areas, different lighting conditions etc. should be conducted before more solid conclusion could be made. In those conditions, methods with non-animated CG objects may be of less understandability because the CG objects may have similar color with the color of the texture of the real scene.
+
+A good gene is usually a mixture of pure gene or other mixed gene. Likewise a good visualization can be a combination of various methods. In the future we should try to combine the methods to find ones better than the current animation method.

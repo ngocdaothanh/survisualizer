@@ -7,11 +7,9 @@ In this chapter, we implement a prototype based on PTAM \cite{Reference12}. The 
 
 \section{System Architecture}
 
-The mobile device used in the prototype is a Sony VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dual core CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook (figure \ref{fig:VAIOMacBookPro}).
+The mobile device used in the prototype is a Sony VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dualcore CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook (figure \ref{fig:VAIOMacBookPro}).
 
-The VAIO and the MacBook are connected by a 11Mbps wireless network. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed.
-
-The MacBook may run at 54Mbps, but the VAIO's built-in wireless network card can only run at 11Mbps. The 11Mbps is sufficient for the current prototype. For faster network speed, we can attach a 54Mbps auxiliary wireless network card for the VAIO. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
+The programs on both VAIO and MacBook Pro run on Microsoft Windows XP SP2 operating system. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed. The VAIO and the MacBook are connected by a 11Mbps wireless network. The network interfaces on both VAIO and MacBook Pro are able to work at 54Mbps, but for some reason of Windows they can only work at 11Mbps. This is an unexpected problem which lowers the speed, and consequently the accuracy and stability of the prototype system. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
 
 %------------------------------------------------------------------------------
 
@@ -34,7 +32,7 @@ As the above explanation suggests, we use ``push'' instead of ``pull'', one side
 	\label{fig:MailboxRPC}
 \end{figure}
 
-Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. There are serveral optimizations to further improve the frame rate sent to the MacBook:
+Because PTAM only need grayscale frames, instead of sending all the three RGB color channels of the frames, the VAIO only need to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. There are several optimizations to further improve the frame rate sent to the MacBook:
 
 \begin{itemize}
 	\item Send G color channel instead of Y, because G affects Y the most as in the above common equation. This does not affect PTAM. This optimization enormously improves the frame rate because when we send Y, if the image size is 320x240, we must apply the above equation 76800 times for each frame!
@@ -47,7 +45,7 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 		\label{tb:FrameRates}
 		\begin{tabular}{|c|c|c|r|}
 			\hline
-			Size (only G color channel) & Compressed & With PTAM processing & FPS   \\
+			Size (only green color channel) & Compressed & With PTAM processing & FPS   \\
 			\hline
 			320x240 & NO         & NO                   &  8.01 \\
 			320x240 & YES        & NO                   & 10.67 \\
@@ -62,7 +60,7 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 	\end{center}
 \end{table}
 
-The prototype uses frame size of 320x240. This gives smooth frame rate with be above system architecture and optimizations. Bigger frame size allows PTAM to find more feature points, but the following drawbacks pop up:
+However, as table \ref{tb:FrameRates} suggests, we should use 320x240 frame size with uncompressed green color channel. This gives smooth frame rate with be above system architecture and optimizations. Bigger frame size allows PTAM to find more feature points, but the following drawbacks pop up:
 
 \begin{itemize}
 	\item Data for each frame gets bigger. This increases data transmission time for each frame.
@@ -83,6 +81,7 @@ To make the CG objects look more ``real'', we may also use a rough 3D model of t
 %------------------------------------------------------------------------------
 
 \section{Map Initializing and 3D Model Registering}
+\label{MapInitializing}
 
 PTAM continuously builds and maintains a 3D map by adding stable feature points and removing unstable ones taken from the frames (figure \ref{fig:Map}). The problem is the 3D model must be in match with this map. When the scene is unchanged, the map may be rotated or translated but relative positions among the feature points are preserved. Thus we have the following workflow:
 
