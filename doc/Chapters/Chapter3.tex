@@ -9,9 +9,9 @@ In this chapter, we implement a prototype based on PTAM \cite{Reference12}. The 
 
 The mobile device used in the prototype is a Sony VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dual core CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook (figure \ref{fig:VAIOMacBookPro}).
 
-The VAIO and the MacBook are connected by a 11 Mbps wireless network. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed.
+The VAIO and the MacBook are connected by a 11Mbps wireless network. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed.
 
-The MacBook may run at 54 Mbps, but the VAIO's built-in wireless network card can only run at 11 Mbps. The 11 Mbps is sufficient for the current prototype. For faster network speed, we can attach a 54 Mbps auxiliary wireless network card for the VAIO. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
+The MacBook may run at 54Mbps, but the VAIO's built-in wireless network card can only run at 11Mbps. The 11Mbps is sufficient for the current prototype. For faster network speed, we can attach a 54Mbps auxiliary wireless network card for the VAIO. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
 
 %------------------------------------------------------------------------------
 
@@ -43,6 +43,8 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 
 \begin{table}[tb]
 	\begin{center}
+		\caption{Frame rates of various conditions}
+		\label{tb:FrameRates}
 		\begin{tabular}{|c|c|c|r|}
 			\hline
 			Size (only G color channel) & Compressed & With PTAM processing & FPS   \\
@@ -57,7 +59,6 @@ Because PTAM only need grayscale frames, instead of sending all the three RGB co
 			640x480 & YES        & YES                  &  1.69 \\
 			\hline
 		\end{tabular}
-		\caption{Frame rates of various conditions}
 	\end{center}
 \end{table}
 
@@ -202,6 +203,8 @@ Keypads on mobile devices are usually hard to use, especially when the users use
 
 \begin{table}[tb]
 	\begin{center}
+		\caption{Using gyrocompass for navigation}
+		\label{tb:GyrocompassNavigation}
 		\begin{tabular}{|c|l|l|}
 			\hline
 			Degree-of-freedom variable & Usage                     \\
@@ -211,8 +214,6 @@ Keypads on mobile devices are usually hard to use, especially when the users use
 			Roll                       & In/out zooming            \\
 			\hline
 		\end{tabular}
-		\label{tb:GyrocompassNavigation}
-		\caption{Using gyrocompass for navigation}
 	\end{center}
 \end{table}
 
