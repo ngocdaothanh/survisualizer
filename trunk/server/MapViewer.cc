@@ -150,8 +150,8 @@ void MapViewer::DrawMap(SE3 se3CamFromWorld)
 	DrawGrid();
 	DrawMapDots();
 	DrawCamera(se3CamFromWorld);
-	for(size_t i=0; i<mMap.vpKeyFrames.size(); i++)
-		DrawCamera(mMap.vpKeyFrames[i]->se3CfromW, true);
+	//for(size_t i=0; i<mMap.vpKeyFrames.size(); i++)
+	//	DrawCamera(mMap.vpKeyFrames[i]->se3CfromW, true);
 	glDisable(GL_DEPTH_TEST);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

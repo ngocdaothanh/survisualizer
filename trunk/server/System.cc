@@ -64,7 +64,7 @@ void System::Run()
 		// and one RGB, for drawing.
 
 		// Grab new video frame...
-		mVideoSource.GetAndFillFrameBWandRGB(mimFrameBW);  
+		mVideoSource.GetAndFillFrameBW(mimFrameBW);  
 		static bool bFirstFrame = true;
 		if(bFirstFrame)
 		{
@@ -85,13 +85,14 @@ void System::Run()
 		bool bDrawMap = mpMap->IsGood() && *gvnDrawMap;
 		bool bDrawAR = mpMap->IsGood() && *gvnDrawAR;
 
-		mpTracker->TrackFrame(mimFrameBW, !bDrawAR && !bDrawMap);
+		mpTracker->TrackFrame(mimFrameBW, true);//!bDrawAR && !bDrawMap);
 
 		TooN::SE3 pose = mpTracker->GetCurrentPose();
 		if(bDrawMap)
 			mpMapViewer->DrawMap(pose);
 		else if(bDrawAR)
 			mpARDriver->Render(mimFrameBW, pose);
+		mpTracker->TrackFrame(mimFrameBW, true);
 
 		// Send pose to remote camera
 		if (mpMap->IsGood()) {
@@ -102,8 +103,8 @@ void System::Run()
 			stream << pose.get_rotation() << endl;
 			
 			string buf = stream.str();
-			Client::get_instance()->send_int(buf.length());
-			Client::get_instance()->send_bytes(buf.c_str(), buf.length());
+			//Client::get_instance()->send_int(buf.length());
+			//Client::get_instance()->send_bytes(buf.c_str(), buf.length());
 		}
 
 		//      mGLWindow.GetMousePoseUpdate();

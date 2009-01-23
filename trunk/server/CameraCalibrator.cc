@@ -76,7 +76,7 @@ void CameraCalibrator::Run()
       Image<byte>  imFrameBW(mVideoSource.Size());
       
       // Grab new video frame...
-      mVideoSource.GetAndFillFrameBWandRGB(imFrameBW);  
+      mVideoSource.GetAndFillFrameBW(imFrameBW);  
       
       // Set up openGL
       mGLWindow.SetupViewport();
