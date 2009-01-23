@@ -11,12 +11,13 @@ using namespace std;
 
 VideoSource::VideoSource()
 {
-	/*mirSize.x = Client::get_instance()->recv_int();
+	mirSize.x = Client::get_instance()->recv_int();
 	mirSize.y = Client::get_instance()->recv_int();
-	compress  = Client::get_instance()->recv_int();*/
-		mirSize.x = 304;
+	compress  = Client::get_instance()->recv_int();
+/*		mirSize.x = 304;
 		mirSize.y = 400;
 		compress  = false;
+*/
 };
 
 /**
@@ -25,24 +26,24 @@ VideoSource::VideoSource()
  *
  * Because Y = 0.3*Red + 0.59*Green + 0.11*Blue, to speedup more, the server send Green channel instead of Y!
  */
-void VideoSource::GetAndFillFrameBWandRGB(Image<CVD::byte> &imBW)
+void VideoSource::GetAndFillFrameBW(Image<CVD::byte> &imBW)
 {
 	unsigned char *image;
+	uLongf image_size = mirSize.area();
 	if (compress) {
-		image = new unsigned char[mirSize.area()];
+		image = new unsigned char[image_size];
 
 		// Get size in header
-		int size = Client::get_instance()->recv_int();
+		int compressed_size = Client::get_instance()->recv_int();
 
 		// Get image
-		char *compressed_image = Client::get_instance()->recv_bytes(size);
-		uLongf image_size;
-		uncompress((Bytef *) image, &image_size, (Bytef *) compressed_image, size);
+		char *compressed_image = Client::get_instance()->recv_bytes(compressed_size);
+		uncompress((Bytef *) image, &image_size, (const Bytef *) compressed_image, compressed_size);
 		delete[] compressed_image;
 	} else {
-		image = (unsigned char *) Client::get_instance()->recv_bytes(mirSize.x*mirSize.y);
+		image = (unsigned char *) Client::get_instance()->recv_bytes(image_size);
 	}
-	BasicImage<byte> bi(image, imBW.size());
+	BasicImage<byte> bi(image, mirSize);
 	imBW.copy_from(bi);
 	delete[] image;
 }

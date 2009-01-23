@@ -23,8 +23,8 @@ void ARDriver::Init()
 	glGenTextures(1, &mnFrameTex);
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,mnFrameTex);
 	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 
-		GL_RGBA, mirFrameSize.x, mirFrameSize.y, 0, 
-		GL_RGBA, GL_UNSIGNED_BYTE, NULL); 
+		GL_LUMINANCE, mirFrameSize.x, mirFrameSize.y, 0, 
+		GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL); 
 	MakeFrameBuffer();
 	mGame.Init();
 };

@@ -740,7 +740,9 @@ void Tracker::TrackMap()
 			unsigned int nMoreCoarseNeeded = nCoarseMax - vNextToSearch.size();
 			if(avPVS[LEVELS-2].size() <= nMoreCoarseNeeded)
 			{
-				vNextToSearch = avPVS[LEVELS-2];
+				for (unsigned int i = 0; i < avPVS[LEVELS-2].size(); i++)
+					vNextToSearch.push_back(avPVS[LEVELS-2][i]);
+
 				avPVS[LEVELS-2].clear();
 			}
 			else
