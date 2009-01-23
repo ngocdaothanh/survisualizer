@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@class EAGLView;
+#import "EAGLView.h"
 
 @interface SurvisualizerAppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;
@@ -9,5 +9,4 @@
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet EAGLView *glView;
-
 @end

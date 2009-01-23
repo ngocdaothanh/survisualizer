@@ -75,7 +75,7 @@
 
 	NSInputStream * istreams[count];
     NSOutputStream * ostreams[count];
-	CFDictionaryGetKeysAndValues(connections, (void **) istreams, (void **) ostreams);
+	CFDictionaryGetKeysAndValues(connections, (const void **) istreams, (const void **) ostreams);
 	for (int i = 0; i < count; i++) {
 		int bytesWritten = 0;
 		while (bytesWritten < bufferSize) {

@@ -1,36 +1,51 @@
 #import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/EAGLDrawable.h>
 
+//------------------------------------------------------------------------------
+
 #import "EAGLView.h"
+#import "Surface.h"
+#import "SurfaceAccelerator.h"
 
 #define USE_DEPTH_BUFFER 0
 
 // A class extension to declare private methods
 @interface EAGLView ()
-
 @property (nonatomic, retain) EAGLContext *context;
-@property (nonatomic, assign) NSTimer *animationTimer;
 
 - (BOOL) createFramebuffer;
 - (void) destroyFramebuffer;
 
+- (void)setupNet;
+- (void)setupView;
 @end
+
+//------------------------------------------------------------------------------
+
+static FUNC_camera_callback original_camera_callback = NULL;
+static EAGLView *glView = NULL;
+
+static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfaceBufferRef coreSurfaceBuffer, int b) {
+	if (coreSurfaceBuffer) {
+		Surface *surface = [[Surface alloc]initWithCoreSurfaceBuffer:coreSurfaceBuffer];
+		[surface lock];
+		[glView drawView:surface.baseAddress withWidth:surface.width withHeight:surface.height];
+		[surface unlock];
+		[surface release];
+	}
+	return (*original_camera_callback)(cameraDevice, a, coreSurfaceBuffer, b);
+}
 
 //------------------------------------------------------------------------------
 
 @implementation EAGLView
 
 @synthesize context;
-@synthesize animationTimer;
-@synthesize animationInterval;
 
-
-// You must implement this method
 + (Class)layerClass {
     return [CAEAGLLayer class];
 }
 
-// The GL view is stored in the nib file. When it's unarchived it's sent -initWithCoder:
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
         // Get the layer
@@ -41,37 +56,130 @@
                                         [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
         
         context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
-        
         if (!context || ![EAGLContext setCurrentContext:context]) {
             [self release];
             return nil;
         }
+
+		[self setupNet];
+		[self setupView];
     }
     return self;
 }
 
-- (void)drawView {
-    [EAGLContext setCurrentContext:context];
-    
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
-    glViewport(0, 0, backingWidth, backingHeight);
+- (void)setupNet {
+	net = [[Net alloc] init];
+	[net setPort:1225];
+    NSError * startError = nil;
+    [net setType:@"_survisualizer._tcp."];
+    if (![net start:&startError] ) {
+        NSLog(@"Error starting server: %@", startError);
+    } else {
+        NSLog(@"Started server on port %d", [net port]);
+    }
+}
+
+- (void)setupView {
+	// Texture dimensions must be a power of 2. If you write an application that allows users to supply an image,
+	// you'll want to add code that checks the dimensions and takes appropriate action if they are not a power of 2.
+	backgroundTextureWidth = 512;
+	backgroundTextureHeight = 512;
+	backgroundPixels = malloc(backgroundTextureWidth*backgroundTextureHeight*4);
+	
+	glGenTextures(1, &backgroundTexture);
+	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+}
+
+/**
+ * Called by SurvisualizerAppDelegate's applicationDidFinishLaunching because
+ * PLCameraController is only available after UIImagePickerController has been
+ * loaded.
+ */
+- (void)installCameraCallbackHook {
+	glView = self;
+
+	id cameraController = [objc_getClass("PLCameraController") sharedInstance];
+	char *p = NULL;
+	object_getInstanceVariable(cameraController, "_camera", (void**) &p);
+	if (!p) return;
+	
+	if (!original_camera_callback) {
+		FUNC_camera_callback *funcP = (FUNC_camera_callback*) p;
+		original_camera_callback = *(funcP+37);
+		(funcP + 37)[0] = __camera_callbackHook;
+	}
+}
+
+/**
+ * Called by the camera hook.
+ */
+- (void)drawView:(uint8_t *)pixels withWidth:(int)width withHeight:(int) height {
+	[EAGLContext setCurrentContext:context];
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	
+	// Draw background ---------------------------------------------------------
+	double w2h = 1.0*width/height;
+	GLfloat backgroundVertices[] = {
+		0, 0,
+		w2h, 0,
+		0, 1,
+		w2h, 1
+	};
+	GLfloat backgroundTexcoords[] = {
+		0, 0,
+		w2h, 0,
+		0, 1,
+		w2h, 1,
+	};
+	
+	glTexCoordPointer(2, GL_FLOAT, 0, backgroundTexcoords);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
+	glEnable(GL_TEXTURE_2D);	                                       // Enable use of the texture
+	
+	// Background doesn't need blending
+	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);                       // Set a blending function to use
+	//glEnable(GL_BLEND);                                                // Enable blending
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+	glViewport(0, 0, backingWidth, backingWidth/w2h);
+    glOrthof(0, w2h*w2h, 0, w2h, -1, 1);
 
     glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
+	for (int j = 0; j < height; j++) {
+		memcpy(backgroundPixels + j*backgroundTextureWidth*4, pixels + ((height - 1) - j)*width*4, width*4);
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backgroundTextureWidth, backgroundTextureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, backgroundPixels);
+	
+	
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glVertexPointer(2, GL_FLOAT, 0, backgroundVertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+	// Refresh screen ----------------------------------------------------------
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+	
+	// Send  Green channel to remote machines ----------------------------------
+	uint8_t image[width*height];
+	for (unsigned int j = 0; j < height; j++) {
+		for (int i = 0; i < width; i++) {
+			image[j*width + i] = pixels[(j*width + i)*4 + 1];  //
+		}
+	}
+	[net broadcast:image size:width*height];
 }
 
 - (void)layoutSubviews {
     [EAGLContext setCurrentContext:context];
     [self destroyFramebuffer];
     [self createFramebuffer];
-    [self drawView];
 }
 
 - (BOOL)createFramebuffer {
@@ -94,7 +202,7 @@
     }
     
     if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+        NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
         return NO;
     }
     
@@ -117,8 +225,9 @@
     if ([EAGLContext currentContext] == context) {
         [EAGLContext setCurrentContext:nil];
     }
-    
-    [context release];  
+    [context release];
+	context = nil;
+	free(backgroundPixels);
     [super dealloc];
 }
 
