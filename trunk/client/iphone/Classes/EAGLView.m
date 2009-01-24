@@ -198,8 +198,10 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	uint8_t *valid = [net readBytes:istream length:1];
 	if (*valid == 1) {
 		float *numbers = (float *) [net readBytes:istream length:28*sizeof(float)];
-		[[glView getPose] validate:numbers];
+		[pose validate:numbers];
 		free(numbers);
+	} else {
+		[pose invalidate];
 	}
 	free(valid);
 }

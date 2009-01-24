@@ -12,6 +12,10 @@
 	return self;
 }
 
+- (void)invalidate {
+	valid = false;
+}
+
 - (BOOL)isValid {
 	return valid;
 }
