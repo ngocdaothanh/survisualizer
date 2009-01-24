@@ -14,7 +14,7 @@ typedef int (*FUNC_camera_callback)(CameraDeviceRef,int,CoreSurfaceBufferRef,int
 	CameraDeviceRef cameraDevice;
 }
 
-@property (nonatomic,readonly) 	CoreSurfaceAcceleratorRef coreSurfaceAccelerator;
+@property (nonatomic,readonly)	CoreSurfaceAcceleratorRef coreSurfaceAccelerator;
 
 + (bool)dynamicLoad;
 + (CFStringRef)kCoreSurfaceAcceleratorSymmetricTransformKey;

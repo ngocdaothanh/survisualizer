@@ -403,7 +403,7 @@ void Tracker::RenderGrid()
 		glColor4f(0,0,0,0.6);
 
 	// The grid is projected manually, i.e. GL receives projected 2D coords to draw.
-	int nHalfCells = 8;
+	int nHalfCells = 5;
 	int nTot = nHalfCells * 2 + 1;
 	Image<Vector<2> >  imVertices(ImageRef(nTot,nTot));
 	for(int i=0; i<nTot; i++)

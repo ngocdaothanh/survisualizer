@@ -1,10 +1,9 @@
 == Requirements
 
-* Windows XP+
+* MacOS X (for video binding based on VideoSource_OSX.cc of the reference
+implementation of PTAM to work)
 * Ruby 1.9.1+
 * ruby-opengl 0.60.0+
-* InterSense tracker (gyro compass)
-* NMEA GPS device connected to a COM port (use GpsGate to emulate if your GPS device has only USB port)
 
 == Running
 

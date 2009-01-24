@@ -9,19 +9,19 @@
 NSString * const TCPServerErrorDomain;
 
 typedef enum {
-    kTCPServerCouldNotBindToIPv4Address = 1,
-    kTCPServerNoSocketsAvailable = 2,
+	kTCPServerCouldNotBindToIPv4Address = 1,
+	kTCPServerNoSocketsAvailable = 2,
 } TCPServerErrorCode;
 
 @interface TCPServer : NSObject {
 @private
-    id delegate;
-    NSString *domain;
-    NSString *name;
-    NSString *type;
-    uint16_t port;
-    CFSocketRef ipv4socket;
-    NSNetService *netService;
+	id delegate;
+	NSString *domain;
+	NSString *name;
+	NSString *type;
+	uint16_t port;
+	CFSocketRef ipv4socket;
+	NSNetService *netService;
 }
 
 - (id)delegate;
@@ -51,7 +51,7 @@ typedef enum {
 
 @interface TCPServer (TCPServerDelegateMethods)
 /**
- * If the delegate implements this method, it is called when a new  
+ * If the delegate implements this method, it is called when a new	
  * connection comes in; a subclass may, of course, change that behavior
  */
 - (void)TCPServer:(TCPServer *)server didReceiveConnectionFromAddress:(NSData *)addr inputStream:(NSInputStream *)istr outputStream:(NSOutputStream *)ostr;

@@ -85,29 +85,60 @@ void System::Run()
 		bool bDrawMap = mpMap->IsGood() && *gvnDrawMap;
 		bool bDrawAR = mpMap->IsGood() && *gvnDrawAR;
 
-		mpTracker->TrackFrame(mimFrameBW, true);//!bDrawAR && !bDrawMap);
+		mpTracker->TrackFrame(mimFrameBW, !bDrawAR && !bDrawMap);
 
 		TooN::SE3 pose = mpTracker->GetCurrentPose();
 		if(bDrawMap)
 			mpMapViewer->DrawMap(pose);
 		else if(bDrawAR)
 			mpARDriver->Render(mimFrameBW, pose);
-		mpTracker->TrackFrame(mimFrameBW, true);
 
-		// Send pose to remote camera
-		if (mpMap->IsGood()) {
-			// See ARDriver::Render
-			ostringstream stream;
-			stream << mpCamera->MakeUFBLinearFrustumMatrix(0.005, 100) << endl;
-			stream << pose.get_translation() << endl;
-			stream << pose.get_rotation() << endl;
-			
-			string buf = stream.str();
-			//Client::get_instance()->send_int(buf.length());
-			//Client::get_instance()->send_bytes(buf.c_str(), buf.length());
+		// For some reason (maybe because of PTAM) Leopard cannot display 320x240 frame with feature points
+		// This hack is to force the display
+		if (mimFrameBW.size().area() == 320*240) {
+			mpTracker->TrackFrame(mimFrameBW, true);
 		}
 
-		//      mGLWindow.GetMousePoseUpdate();
+		// Send pose to remote camera, see ARDriver::Render
+		char valid;
+		if (mpMap->IsGood()) {
+			float numbers[28];
+			int i, j;
+
+			// Frustom
+			Matrix<4> opengl_frustum = mpCamera->MakeUFBLinearFrustumMatrix(0.005, 100).T();
+			for (i = 0; i < 4; i++) {
+				Vector<4> row = opengl_frustum[i];
+				for (j = 0; j < 4; j++) {
+					numbers[i*4 + j] = row[j];
+				}
+			}
+
+			// Translation
+			Vector<3> translation = pose.get_translation();
+			for (j = 0; j < 3; j++) {
+				numbers[16 + j] = translation[j];
+			}
+
+			// Rotation
+			Matrix<3> opengl_rotation = pose.get_rotation().get_matrix().T();
+			for (i = 0; i < 3; i++) {
+				Vector<3> row = opengl_rotation[i];
+				for (j = 0; j < 3; j++) {
+					numbers[16 + 3 + i*3 + j] = row[j];
+				}
+			}
+
+			valid = 1;
+			Client::get_instance()->send_bytes(&valid, 1);
+			Client::get_instance()->send_bytes((char *) numbers, 28*sizeof(float));
+		} else {
+			// Notify that the pose is not valid any more
+			valid = 0;
+			Client::get_instance()->send_bytes(&valid, 1);
+		}
+
+		// mGLWindow.GetMousePoseUpdate();
 		string sCaption;
 		if(bDrawMap)
 			sCaption = mpMapViewer->GetMessageForUser();
