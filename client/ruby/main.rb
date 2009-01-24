@@ -21,8 +21,6 @@ EPSILON = 0.00000001  # Very small number
 $:.unshift('./camera')
 $:.unshift('./model')
 $:.unshift('./visualizer')
-$:.unshift('./rewclib')
-$:.unshift('./winter_sense')
 
 require 'vector'
 require 'ray'
@@ -39,15 +37,14 @@ require 'grid'
 require 'grid_visualizer'
 require 'vector_visualizer'
 
-require 'rewclib'
-require 'winter_sense'
-
 require 'config'
 
 $model = nil
 
 class Main
   def initialize
+    $model = Model.new(CONFIG[:to_meter_ratio])
+
     # Load config
     @window_width  = CONFIG[:video_width]
     @window_height = CONFIG[:video_height]
@@ -57,34 +54,29 @@ class Main
       camera
     end
 
-    @winter_sense = WinterSense.new
-    @winter_sense = nil unless @winter_sense.open
-
-    @server = TCPServer.new(CONFIG[:port])
-    puts 'Waiting for client to connect...'
-    begin
-      @socket = @server.accept
-    rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
-      IO.select([@server])
-      retry
-    end
-    puts 'Client connected'
-
-    # Send video config
-    @socket.send([CONFIG[:video_width]].pack('I!'), 0)
-    @socket.send([CONFIG[:video_height]].pack('I!'), 0)
-    @socket.send([(CONFIG[:video_compress])? 1 : 0].pack('I!'), 0)
-
     Thread.new do
+      @server = TCPServer.new(CONFIG[:port])
+      puts 'Waiting for client to connect...'
+      begin
+        @socket = @server.accept
+      rescue Errno::EAGAIN, Errno::ECONNABORTED, Errno::EPROTO, Errno::EINTR
+        IO.select([@server])
+        retry
+      end
+      puts 'Client connected'
+
+      # Send video config
+      @socket.send([CONFIG[:video_width]].pack('I!'), 0)
+      @socket.send([CONFIG[:video_height]].pack('I!'), 0)
+      @socket.send([(CONFIG[:video_compress])? 1 : 0].pack('I!'), 0)
+
       loop do
         recv_pose
       end
     end
 
-    $model = Model.new(CONFIG[:to_meter_ratio])
-
-    @webcam = Rewclib.new
-    @webcam.open(CONFIG[:video_width], CONFIG[:video_height], CONFIG[:video_fps])
+#    @webcam = Rewclib.new
+#    @webcam.open(CONFIG[:video_width], CONFIG[:video_height], CONFIG[:video_fps])
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
@@ -111,8 +103,7 @@ class Main
 
     glutMainLoop
 
-    @winter_sense.close if @winter_sense
-    @webcam.close
+#    @webcam.close
   end
 
   def recv_bytes(size)
@@ -120,7 +111,7 @@ class Main
     ret << @socket.recvfrom(size - ret.size)[0] while ret.size < size
     ret
   end
-  
+
   def recv_int
     recv_bytes(4).unpack('I!')[0]
   end
@@ -137,7 +128,7 @@ class Main
         @frustum[4*col + row] = numbers[4*row + col]
       end
     end
-    
+
     # Translation
     @translation = numbers[16..18]
 
@@ -222,7 +213,7 @@ class Main
     glRotatef(@angle_y, 0, 1, 0)
     glRotatef(@angle_z, 0, 0, 1)
     glTranslatef(-@position_x, -@position_y, -@position_z)
-    
+
     # Visualize
     $model.visualize
     @cameras.each { |c| c.visualize }
@@ -231,26 +222,24 @@ class Main
     glReadBuffer(GL_BACK)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
     foreground = glReadPixels(0, 0, CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE)
-  
+
     # Blend it with the webcam
-    blended = @webcam.blend(foreground, 0.5)
-    glDrawPixels(CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
+    #blended = @webcam.blend(foreground, 0.5)
+    #glDrawPixels(CONFIG[:video_width], CONFIG[:video_height], GL_RGB, GL_UNSIGNED_BYTE, blended)
 
     # Swap buffers for display
     glutSwapBuffers
   end
 
   def idle
-    @angle_x, @angle_y, @angle_z = @winter_sense.angles if @winter_sense
-
-    image = @webcam.image(false, 1)  # Not upsidedown, Green
-    if CONFIG[:video_compress]
-      compressed_image = Zlib::Deflate.deflate(image)
-      @socket.send([compressed_image.size].pack('I!'), 0)
-      @socket.send(compressed_image, 0)
-    else
-      @socket.send(image, 0)
-    end
+    #image = @webcam.image(false, 1)  # Not upsidedown, Green
+    #if CONFIG[:video_compress]
+    #  compressed_image = Zlib::Deflate.deflate(image)
+    #  @socket.send([compressed_image.size].pack('I!'), 0)
+    #  @socket.send(compressed_image, 0)
+    #else
+    #  @socket.send(image, 0)
+    #end
 
     glutPostRedisplay
   end

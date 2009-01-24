@@ -101,7 +101,7 @@ static int (*__CoreSurfaceAcceleratorTransferSurface)(CoreSurfaceAcceleratorRef 
 	if (cameraDevice) {
 		CFRelease(cameraDevice);
 	}
-    [super dealloc];
+	[super dealloc];
 }
 
 @end

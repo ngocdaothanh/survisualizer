@@ -2,13 +2,13 @@
 #import "Surface.h"
 
 /* Keys for the CoreSurfaceBufferCreate dictionary. */
-static CFStringRef *__kCoreSurfaceBufferGlobal = NULL;        /* CFBoolean */
+static CFStringRef *__kCoreSurfaceBufferGlobal = NULL;		  /* CFBoolean */
 static CFStringRef *__kCoreSurfaceBufferMemoryRegion = NULL;  /* CFStringRef */
-static CFStringRef *__kCoreSurfaceBufferPitch = NULL;         /* CFNumberRef */
-static CFStringRef *__kCoreSurfaceBufferWidth = NULL;         /* CFNumberRef */
-static CFStringRef *__kCoreSurfaceBufferHeight = NULL;        /* CFNumberRef */
-static CFStringRef *__kCoreSurfaceBufferPixelFormat = NULL;   /* CFNumberRef (fourCC) */
-static CFStringRef *__kCoreSurfaceBufferAllocSize = NULL;     /* CFNumberRef */
+static CFStringRef *__kCoreSurfaceBufferPitch = NULL;		  /* CFNumberRef */
+static CFStringRef *__kCoreSurfaceBufferWidth = NULL;		  /* CFNumberRef */
+static CFStringRef *__kCoreSurfaceBufferHeight = NULL;		  /* CFNumberRef */
+static CFStringRef *__kCoreSurfaceBufferPixelFormat = NULL;	  /* CFNumberRef (fourCC) */
+static CFStringRef *__kCoreSurfaceBufferAllocSize = NULL;	  /* CFNumberRef */
 static CFStringRef *__kCoreSurfaceBufferClientAddress = NULL; /* CFNumberRef */
 
 static CoreSurfaceBufferRef (*__CoreSurfaceBufferCreate)(CFDictionaryRef dict) = NULL;
@@ -217,7 +217,7 @@ static void *(*__CoreSurfaceBufferGetBaseAddress)(CoreSurfaceBufferRef surface) 
 	if (coreSurfaceBuffer) {
 		CFRelease(coreSurfaceBuffer);
 	}
-    [super dealloc];
+	[super dealloc];
 }
 
 @end
