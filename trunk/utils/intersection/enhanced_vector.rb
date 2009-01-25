@@ -1,3 +1,6 @@
+require 'mathn'
+require 'matrix'
+
 Vector.class_eval do
   def []=(i, x)
     @elements[i] = x
@@ -63,8 +66,8 @@ if __FILE__ == $0
 
   v3 = v1.clone
   v3.rotate!(Vector[0, 0, 1], pi)
-  puts "#{v1} --180--> #{v3}"
+  puts "#{v1} -180-> #{v3}"
 
   v4 = v1.cross_product(v2)
-  puts "#{v1}x#{v2} = #{v4}"
+  puts "#{v1} x #{v2} -> #{v4}"
 end
