@@ -13,23 +13,42 @@
  */
 @interface EAGLView : UIView {	  
 @private
-	/* The pixel dimensions of the backbuffer */
+	BOOL textureInitialized;
+
+	// The pixel dimensions of the backbuffer
 	GLint backingWidth;
 	GLint backingHeight;
-	
+
 	EAGLContext *context;
 	GLuint viewRenderbuffer, viewFramebuffer;
 	GLuint depthRenderbuffer;
-	
-	GLuint backgroundTexture;
-	int backgroundTextureWidth, backgroundTextureHeight;
-	uint8_t *backgroundPixels;
-	
+
+	GLuint texture;
+	int textureWidth, textureHeight;
+	GLshort textureVertices[8];
+	GLfloat textureCoords[8];
+	uint8_t *texturePixels;
+
 	Net *net;
 	Pose *pose;
+
+	int iVisualizationMethod;
 }
 
 - (void)installCameraCallbackHook;
-- (void)drawView:(uint8_t *)pixels withWidth:(int)width withHeight:(int)height;
+- (void)drawView;
 - (void)onPose:(NSInputStream *)istream;
+
+- (void)visualizeVolume;
+- (void)visualizeShadow;
+- (void)visualizeContour;
+- (void)visualizeVector;
+- (void)visualizeAnimation;
+
+@property (nonatomic, retain) IBOutlet UIButton *m1;
+@property (nonatomic, retain) IBOutlet UIButton *m2;
+@property (nonatomic, retain) IBOutlet UIButton *m3;
+@property (nonatomic, retain) IBOutlet UIButton *m4;
+@property (nonatomic, retain) IBOutlet UIButton *m5;
+- (IBAction)changeVisualizationMethod:(id)sender;
 @end

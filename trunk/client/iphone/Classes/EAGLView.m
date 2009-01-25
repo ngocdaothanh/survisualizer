@@ -10,8 +10,6 @@
 #define USE_DEPTH_BUFFER 0
 
 @interface EAGLView()
-@property (nonatomic, retain) EAGLContext *context;
-
 - (BOOL)createFramebuffer;
 - (void)destroyFramebuffer;
 @end
@@ -19,13 +17,24 @@
 //------------------------------------------------------------------------------
 
 static FUNC_camera_callback original_camera_callback = NULL;
-static EAGLView *glView = NULL;
+
+static uint8_t *frame  = NULL;
+static int frameWidth  = 0;
+static int frameHeight = 0;
 
 static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfaceBufferRef coreSurfaceBuffer, int b) {
 	if (coreSurfaceBuffer) {
 		Surface *surface = [[Surface alloc]initWithCoreSurfaceBuffer:coreSurfaceBuffer];
 		[surface lock];
-		[glView drawView:surface.baseAddress withWidth:surface.width withHeight:surface.height];
+
+		//[glView drawView:surface.baseAddress withWidth:surface.width withHeight:surface.height];
+		if (!frame) {
+			frameWidth  = surface.width;
+			frameHeight = surface.height;
+			frame = malloc(frameWidth*frameHeight*4);
+		}
+		memcpy(frame, surface.baseAddress, frameWidth*frameHeight*4);
+
 		[surface unlock];
 		[surface release];
 	}
@@ -36,7 +45,11 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 @implementation EAGLView
 
-@synthesize context;
+@synthesize m1;
+@synthesize m2;
+@synthesize m3;
+@synthesize m4;
+@synthesize m5;
 
 + (Class)layerClass {
 	return [CAEAGLLayer class];
@@ -46,7 +59,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	if ((self = [super initWithCoder:coder])) {
 		// Get the layer
 		CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
-		
+
 		eaglLayer.opaque = YES;
 		eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
 										[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
@@ -58,7 +71,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 
 		pose = [[Pose alloc] init];
-		
+
 		// Setup net
 		net = [[Net alloc] initWithView:self];
 		[net setPort:1225];
@@ -83,8 +96,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
  * loaded.
  */
 - (void)installCameraCallbackHook {
-	glView = self;
-
 	id cameraController = [objc_getClass("PLCameraController") sharedInstance];
 	char *p = NULL;
 	object_getInstanceVariable(cameraController, "_camera", (void**) &p);
@@ -95,51 +106,61 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		original_camera_callback = *(funcP+37);
 		(funcP + 37)[0] = __camera_callbackHook;
 	}
+
+	// __camera_callbackHook runs in the application's main thread. If we
+	// run the OpenGL drawing in this thread, the touch screen will become
+	// unresponsive.
+	textureInitialized = NO;
+	backingWidth  = 0;
+	backingHeight = 0;
+	[NSThread detachNewThreadSelector:@selector(drawViewLoop:) toTarget:self withObject:nil];
 }
 
-- (void)drawView:(uint8_t *)pixels withWidth:(int)width withHeight:(int)height {
-	static BOOL initialized = NO;
-	static int zoomedWidth;
-	static int zoomedHeight;
-	static GLfloat backgroundVertices[8];
-	static GLfloat backgroundTexcoords[8];
-	
-	// Things that only need to set once is set here
-	// They are here because we need width and height, which do not change over time
-	if (!initialized) {
-		// Texture dimensions must be a power of 2. If you write an application that allows users to supply an image,
-		// you'll want to add code that checks the dimensions and takes appropriate action if they are not a power of 2.
-		backgroundTextureWidth  = 512;
-		backgroundTextureHeight = 512;
-		backgroundPixels = malloc(backgroundTextureWidth*backgroundTextureHeight*4);
-		glGenTextures(1, &backgroundTexture);
-		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-		
-		zoomedWidth = backingWidth;
-		zoomedHeight = (float) height*backingWidth/width;
+- (void)drawViewLoop:(id)object {
+	while (TRUE) {
+		if (!textureInitialized && backingWidth != 0 && backingHeight != 0 && frameWidth != 0 && frameHeight != 0) {
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
 
-		backgroundVertices[0] = 0;            backgroundVertices[1] = 0;
-		backgroundVertices[2] = zoomedWidth;  backgroundVertices[3] = 0;
-		backgroundVertices[4] = 0;            backgroundVertices[5] = zoomedHeight;
-		backgroundVertices[6] = zoomedWidth;  backgroundVertices[7] = zoomedHeight;
-		
-		backgroundTexcoords[0] = 0;                                       backgroundTexcoords[1] = 0;
-		backgroundTexcoords[2] = (GLfloat) width/backgroundTextureWidth;  backgroundTexcoords[3] = 0;
-		backgroundTexcoords[4] = 0;                                       backgroundTexcoords[5] = (GLfloat) height/backgroundTextureHeight;
-		backgroundTexcoords[6] = (GLfloat) width/backgroundTextureWidth;  backgroundTexcoords[7] = (GLfloat) height/backgroundTextureHeight;
-		
-		glViewport(0, 0, zoomedWidth, zoomedHeight);
-		
-		initialized = YES;
+			// Texture dimensions must be a power of 2
+			textureWidth  = 512;
+			textureHeight = 512;
+			texturePixels = malloc(textureWidth*textureHeight*4);
+			textureInitialized = YES;
+
+			textureVertices[0] = 0;             textureVertices[1] = 0;
+			textureVertices[2] = backingWidth;  textureVertices[3] = 0;
+			textureVertices[4] = 0;             textureVertices[5] = backingHeight;
+			textureVertices[6] = backingWidth;  textureVertices[7] = backingHeight;
+			
+			textureCoords[0] = 0;                                  textureCoords[1] = 0;
+			textureCoords[2] = (GLfloat) frameWidth/textureWidth;  textureCoords[3] = 0;
+			textureCoords[4] = 0;                                  textureCoords[5] = (GLfloat) frameHeight/textureHeight;
+			textureCoords[6] = (GLfloat) frameWidth/textureWidth;  textureCoords[7] = (GLfloat) frameHeight/textureHeight;
+			
+			textureInitialized = YES;
+		}
+
+		if (frame) {
+			NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
+			[self drawView];
+			[pool release];
+		}
 	}
+	[NSThread exit];
+}
 
+- (void)drawView {
 	[EAGLContext setCurrentContext:context];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
-	
+
+	// Viewport must be called everytime, don't know why
+	glViewport(0, 0, backingWidth, backingHeight);
+
 	// Draw background ---------------------------------------------------------
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrthof(0, zoomedWidth, 0, zoomedHeight, -1, 1);
+	glOrthof(0, backingWidth, 0, backingHeight, -1, 1);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -147,15 +168,15 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
 	glEnable(GL_TEXTURE_2D);										   // Enable use of the texture
 	glDisable(GL_BLEND);                                               // Background doesn't need blending
-	glTexCoordPointer(2, GL_FLOAT, 0, backgroundTexcoords);
+	glTexCoordPointer(2, GL_FLOAT, 0, textureCoords);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	for (int j = 0; j < height; j++) {
-		memcpy(backgroundPixels + j*backgroundTextureWidth*4, pixels + ((height - 1) - j)*width*4, width*4);
+	for (int j = 0; j < frameHeight; j++) {
+		memcpy(texturePixels + j*textureWidth*4, frame + ((frameHeight - 1) - j)*frameWidth*4, frameWidth*4);
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, backgroundTextureWidth, backgroundTextureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, backgroundPixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
 	
 	glDisableClientState(GL_COLOR_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, backgroundVertices);
+	glVertexPointer(2, GL_SHORT, 0, textureVertices);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
@@ -167,32 +188,93 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	// Visualize
 	if ([pose isValid]) {
 		[pose apply];
-		[self visualize];
+		switch (iVisualizationMethod) {
+			case 0:
+				[self visualizeVolume];
+				break;
+			case 1:
+				[self visualizeShadow];
+				break;
+			case 2:
+				[self visualizeContour];
+				break;
+			case 3:
+				[self visualizeVector];
+				break;
+			case 4:
+				[self visualizeAnimation];
+				break;
+		}
+	} else {
 	}
 	
 	// Refresh screen ----------------------------------------------------------
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
-	
+
 	// Send Green channel to remote machines -----------------------------------
 	if ([net connected]) {
 		static BOOL sentInfo = FALSE;
 		if (!sentInfo) {
-			[net sendInt:width];
-			[net sendInt:height];
+			[net sendInt:frameWidth];
+			[net sendInt:frameHeight];
 			[net sendInt:0];  // Uncompressed
 			sentInfo = TRUE;
 		}
-
-		uint8_t image[width*height];
-		for (unsigned int j = 0; j < height; j++) {
-			for (int i = 0; i < width; i++) {
-				image[j*width + i] = pixels[(j*width + i)*4 + 1];
+		
+		uint8_t image[frameWidth*frameHeight];
+		for (unsigned int j = 0; j < frameHeight; j++) {
+			for (int i = 0; i < frameWidth; i++) {
+				image[j*frameWidth + i] = frame[(j*frameWidth + i)*4 + 1];
 			}
 		}
-		[net sendBytes:image length:width*height];
+		[net sendBytes:image length:frameWidth*frameHeight];
 	}
 }
+
+//------------------------------------------------------------------------------
+
+- (void)visualizeVolume {
+	const GLfloat squareVertices[] = {
+        -0.5f, -0.5f,
+        0.5f,  -0.5f,
+        -0.5f,  0.5f,
+        0.5f,   0.5f,
+    };
+    const GLubyte squareColors[] = {
+        255, 255,   0, 255,
+        0,   255, 255, 255,
+        0,     0,   0,   0,
+        255,   0, 255, 255,
+    };
+	
+    glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+    
+    //glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT);
+	
+    glVertexPointer(2, GL_FLOAT, 0, squareVertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glColorPointer(4, GL_UNSIGNED_BYTE, 0, squareColors);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+- (void)visualizeShadow {
+}
+
+- (void)visualizeContour {
+}
+
+- (void)visualizeVector {
+}
+
+- (void)visualizeAnimation {
+}
+
+//------------------------------------------------------------------------------
 
 - (void)onPose:(NSInputStream *)istream {
 	uint8_t *valid = [net readBytes:istream length:1];
@@ -206,32 +288,25 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	free(valid);
 }
 
-- (void)visualize {
-	const GLfloat squareVertices[] = {
-        -0.5f, -0.5f,
-        0.5f,  -0.5f,
-        -0.5f,  0.5f,
-        0.5f,   0.5f,
-    };
-    const GLubyte squareColors[] = {
-        255, 255,   0, 255,
-        0,   255, 255, 255,
-        0,     0,   0,   0,
-        255,   0, 255, 255,
-    };
+- (IBAction)changeVisualizationMethod:(id)sender {
+	NSMutableArray *buttons = [[NSMutableArray alloc] init];
+	[buttons addObject:self.m1];
+	[buttons addObject:self.m2];
+	[buttons addObject:self.m3];
+	[buttons addObject:self.m4];
+	[buttons addObject:self.m5];
 
-    glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-    
-    //glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
+	for (int i = 0; i < 5; i++) {
+		id button = [buttons objectAtIndex:i];
+		if (sender == button) {
+			iVisualizationMethod = i;
+			[button setBackgroundColor:[UIColor magentaColor]];
+		} else {
+			[button setBackgroundColor:[UIColor whiteColor]];
+		}
+	}
 
-    glVertexPointer(2, GL_FLOAT, 0, squareVertices);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, squareColors);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	[buttons release];
 }
 
 - (void)layoutSubviews {
@@ -285,7 +360,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	}
 	[context release];
 	context = nil;
-	free(backgroundPixels);
+	free(texturePixels);
 	[super dealloc];
 }
 
