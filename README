@@ -1,0 +1,26 @@
+h2. PTAM server
+
+
+
+h2. iPhone client
+
+See CameraTest at http://github.com/ngocdaothanh/iphonetest/tree/master for
+example how to get video from iPhone.
+
+h2. Ruby client
+
+Requirements:
+* MacOS X (for video binding based on VideoSource_OSX.cc of the reference
+implementation of PTAM to work)
+* Ruby 1.9.1+
+* ruby-opengl 0.60.0+
+
+Running:
+* Edit config.rb if neccessary
+* Run main.rb
+
+h2. Utilities
+
+* intersection: Caculate intersections of surveillance cameras and a model,
+which is a collection of triangles. The result is serialized to a file in "data"
+directory.

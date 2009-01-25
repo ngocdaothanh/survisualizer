@@ -8,7 +8,7 @@ Vector.class_eval do
     Math.acos(cos)
   end
 
-  # Rotate arount a vetor by an angle.
+  # Rotate around the vetor by the angle.
   def rotate!(vector, angle)
     # Normalize
     r = vector.r

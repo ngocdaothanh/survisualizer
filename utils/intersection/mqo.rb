@@ -1,7 +1,7 @@
 require 'stringio'
 
-# .mqo (Metasequoia) file loader.
-# Based on http://d.hatena.ne.jp/ousttrue/20070429/1177805677
+# Metasequoia (.mqo) file loader.
+# See http://d.hatena.ne.jp/ousttrue/20070429/1177805677
 class Mqo
   # to_meter_ratio: The ratio to convert distance to meter unit
   def initialize(file_name, to_meter_ratio)
