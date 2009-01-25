@@ -17,6 +17,8 @@
 		28FD15080DC6FC5B0079059D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD15070DC6FC5B0079059D /* QuartzCore.framework */; };
 		E25B822D0F29F5080016023E /* Pose.m in Sources */ = {isa = PBXBuildFile; fileRef = E25B822C0F29F5080016023E /* Pose.m */; };
 		E25E28E10F29789A009CEDD0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E25E28E00F29789A009CEDD0 /* CoreGraphics.framework */; };
+		E2A25EEB0F2C2DF500E82E09 /* ViewingField.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A25EEA0F2C2DF500E82E09 /* ViewingField.m */; };
+		E2A25EEE0F2C339100E82E09 /* Visualizer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A25EED0F2C339100E82E09 /* Visualizer.m */; };
 		E2CA3E510F2611E90063CBC7 /* Surface.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E4C0F2611E90063CBC7 /* Surface.m */; };
 		E2CA3E520F2611E90063CBC7 /* SurfaceAccelerator.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E4E0F2611E90063CBC7 /* SurfaceAccelerator.m */; };
 		E2CA3E530F2611E90063CBC7 /* TCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2CA3E500F2611E90063CBC7 /* TCPServer.m */; };
@@ -40,6 +42,10 @@
 		E25B822B0F29F5080016023E /* Pose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pose.h; sourceTree = "<group>"; };
 		E25B822C0F29F5080016023E /* Pose.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pose.m; sourceTree = "<group>"; };
 		E25E28E00F29789A009CEDD0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		E2A25EE90F2C2DF500E82E09 /* ViewingField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewingField.h; sourceTree = "<group>"; };
+		E2A25EEA0F2C2DF500E82E09 /* ViewingField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewingField.m; sourceTree = "<group>"; };
+		E2A25EEC0F2C339100E82E09 /* Visualizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Visualizer.h; sourceTree = "<group>"; };
+		E2A25EED0F2C339100E82E09 /* Visualizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Visualizer.m; sourceTree = "<group>"; };
 		E2CA3E4B0F2611E90063CBC7 /* Surface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Surface.h; sourceTree = "<group>"; };
 		E2CA3E4C0F2611E90063CBC7 /* Surface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Surface.m; sourceTree = "<group>"; };
 		E2CA3E4D0F2611E90063CBC7 /* SurfaceAccelerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SurfaceAccelerator.h; sourceTree = "<group>"; };
@@ -83,6 +89,10 @@
 				1D3623250D0F684500981E51 /* SurvisualizerAppDelegate.m */,
 				E25B822B0F29F5080016023E /* Pose.h */,
 				E25B822C0F29F5080016023E /* Pose.m */,
+				E2A25EE90F2C2DF500E82E09 /* ViewingField.h */,
+				E2A25EEA0F2C2DF500E82E09 /* ViewingField.m */,
+				E2A25EEC0F2C339100E82E09 /* Visualizer.h */,
+				E2A25EED0F2C339100E82E09 /* Visualizer.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -198,6 +208,8 @@
 				E2CA3E530F2611E90063CBC7 /* TCPServer.m in Sources */,
 				E2CA3E760F2613BA0063CBC7 /* Net.m in Sources */,
 				E25B822D0F29F5080016023E /* Pose.m in Sources */,
+				E2A25EEB0F2C2DF500E82E09 /* ViewingField.m in Sources */,
+				E2A25EEE0F2C339100E82E09 /* Visualizer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

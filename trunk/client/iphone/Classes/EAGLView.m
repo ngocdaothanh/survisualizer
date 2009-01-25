@@ -12,6 +12,9 @@
 @interface EAGLView()
 - (BOOL)createFramebuffer;
 - (void)destroyFramebuffer;
+
+- (void)onViewingField:(NSInputStream *)istream;
+- (void)onPose:(NSInputStream *)istream;
 @end
 
 //------------------------------------------------------------------------------
@@ -84,10 +87,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 	}
 	return self;
-}
-
-- (Pose *)getPose {
-	return pose;
 }
 
 /**
@@ -188,24 +187,9 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	// Visualize
 	if ([pose isValid]) {
 		[pose apply];
-		switch (iVisualizationMethod) {
-			case 0:
-				[self visualizeVolume];
-				break;
-			case 1:
-				[self visualizeShadow];
-				break;
-			case 2:
-				[self visualizeContour];
-				break;
-			case 3:
-				[self visualizeVector];
-				break;
-			case 4:
-				[self visualizeAnimation];
-				break;
-		}
+		[visualizer visualize:iVisualizationMethod];
 	} else {
+		// TODO: notify that pose is invalid
 	}
 	
 	// Refresh screen ----------------------------------------------------------
@@ -234,47 +218,22 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 //------------------------------------------------------------------------------
 
-- (void)visualizeVolume {
-	const GLfloat squareVertices[] = {
-        -0.5f, -0.5f,
-        0.5f,  -0.5f,
-        -0.5f,  0.5f,
-        0.5f,   0.5f,
-    };
-    const GLubyte squareColors[] = {
-        255, 255,   0, 255,
-        0,   255, 255, 255,
-        0,     0,   0,   0,
-        255,   0, 255, 255,
-    };
-	
-    glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-    
-    //glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT);
-	
-    glVertexPointer(2, GL_FLOAT, 0, squareVertices);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, 0, squareColors);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+- (void)onBytes:(NSInputStream *)istream {
+	static BOOL viewingFieldReceived = FALSE;
+	if (!viewingFieldReceived) {
+		[self onViewingField:istream];
+		viewingFieldReceived = YES;
+	} else {
+		[self onPose:istream];
+	}
 }
 
-- (void)visualizeShadow {
+- (void)onViewingField:(NSInputStream *)istream {
+	int length = [net readInt:istream];
+	char *bytes = [net readBytes:istream length:length];
+	visualizer = [[Visualizer alloc] initWithBytes:bytes];
+	free(bytes);
 }
-
-- (void)visualizeContour {
-}
-
-- (void)visualizeVector {
-}
-
-- (void)visualizeAnimation {
-}
-
-//------------------------------------------------------------------------------
 
 - (void)onPose:(NSInputStream *)istream {
 	uint8_t *valid = [net readBytes:istream length:1];
@@ -287,6 +246,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	}
 	free(valid);
 }
+
+//------------------------------------------------------------------------------
 
 - (IBAction)changeVisualizationMethod:(id)sender {
 	NSMutableArray *buttons = [[NSMutableArray alloc] init];
