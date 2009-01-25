@@ -5,6 +5,7 @@
 
 #import "Net.h"
 #import "Pose.h"
+#import "Visualizer.h"
 
 /**
  * This class wraps the CAEAGLLayer from CoreAnimation into a convenient UIView subclass.
@@ -33,17 +34,12 @@
 	Pose *pose;
 
 	int iVisualizationMethod;
+	Visualizer *visualizer;
 }
 
 - (void)installCameraCallbackHook;
 - (void)drawView;
-- (void)onPose:(NSInputStream *)istream;
-
-- (void)visualizeVolume;
-- (void)visualizeShadow;
-- (void)visualizeContour;
-- (void)visualizeVector;
-- (void)visualizeAnimation;
+- (void)onBytes:(NSInputStream *)istream;
 
 @property (nonatomic, retain) IBOutlet UIButton *m1;
 @property (nonatomic, retain) IBOutlet UIButton *m2;

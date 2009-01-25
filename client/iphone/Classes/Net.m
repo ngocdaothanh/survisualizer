@@ -42,19 +42,19 @@
 }
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)streamEvent {
-	NSInputStream * istream;
-	NSOutputStream * ostream;
+	NSInputStream *istream;
+	NSOutputStream *ostream;
 	
 	switch (streamEvent) {
 		case NSStreamEventHasBytesAvailable:			
 			istream = (NSInputStream *) aStream;
-			[glView onPose:istream];
+			[glView onBytes:istream];
 			break;
 			
 		case NSStreamEventEndEncountered:
-			istream = (NSInputStream *)aStream;
+			istream = (NSInputStream *) aStream;
 			ostream = nil;
-			if (CFDictionaryGetValueIfPresent(connections, istream, (const void **)&ostream)) {
+			if (CFDictionaryGetValueIfPresent(connections, istream, (const void **) &ostream)) {
 				[self shutdownInputStream:istream outputStream:ostream];
 			}
 			break;
