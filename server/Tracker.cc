@@ -317,7 +317,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 		}
 		*/
 
-		if (mnLostFrames < 3)  // .. but only if we're not lost!
+		if (!isFrameLost())  // .. but only if we're not lost!
 		{
 			if(mbUseSBIInit)
 				CalcSBIRotation();

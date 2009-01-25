@@ -47,10 +47,12 @@ public:
 	// TrackFrame is the main working part of the tracker: call this every frame.
 	void TrackFrame(CVD::Image<CVD::byte> &imFrame, bool bDraw); 
 
-	inline SE3 GetCurrentPose() { return mse3CamFromWorld;}
+	inline SE3 GetCurrentPose() { return mse3CamFromWorld; }
 
 	// Gets messages to be printed on-screen for the user.
 	std::string GetMessageForUser();
+
+	inline bool isFrameLost() { return mnLostFrames > 3; }
 
 protected:
 	KeyFrame mCurrentKF;            // The current working frame as a keyframe struct

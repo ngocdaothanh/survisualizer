@@ -101,7 +101,7 @@ void System::Run()
 
 		// Send pose to remote camera, see ARDriver::Render
 		char valid;
-		if (mpMap->IsGood()) {
+		if (mpMap->IsGood() && !mpTracker->isFrameLost()) {
 			float numbers[28];
 			int i, j;
 
