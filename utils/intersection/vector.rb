@@ -59,6 +59,11 @@ Vector.class_eval do
 end
 
 if __FILE__ == $0
+  v1 = Vector[0, 0, 1]
+  v2 = Vector[0, 0, -1]
+  pi = v1.angle(v2)
+  puts "PI = #{pi}"
+
   v1 = Vector[ 1, 1, 0]
   v2 = Vector[-1, 1, 0]
   pi = v1.angle(v2)*2

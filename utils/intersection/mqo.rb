@@ -1,28 +1,31 @@
 require 'stringio'
+require 'triangle'
 
 # Metasequoia (.mqo) file loader.
 # See http://d.hatena.ne.jp/ousttrue/20070429/1177805677
 class Mqo
-  # to_meter_ratio: The ratio to convert distance to meter unit
+  # to_meter_ratio: The ratio to convert the logical distance in the .mqo file
+  # to the physical metrical distance.
   def initialize(file_name, to_meter_ratio)
     @file_name = file_name
     @to_meter_ratio = to_meter_ratio
   end
 
-  # Returns array of objects.
-  def load_objects
+  # Returns array of objects, each is an array of triangles.
+  def objects
+    return @objects if @objects
+
+    @objects = []
     lines = File.read(@file_name)
     @io = StringIO.new(lines)
-
-    ret = []
     begin
       while true
         line = @io.readline.strip
-        ret << load_object if line =~ /^Object\s*"([^"]+)"\s+\{/
+        @objects << load_object if line =~ /^Object\s*"([^"]+)"\s+\{/
       end
     rescue EOFError
     end
-    ret
+    @objects
   end
 
   private
@@ -92,7 +95,6 @@ class Mqo
 end
 
 if __FILE__ == $0
-  m = Mqo.new('./models/scene.mqo')
-  a = m.load_objects
-  p a.size
+  m = Mqo.new('./../../data/scene.mqo', 0.1)
+  p m.objects.size
 end

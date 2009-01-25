@@ -1,4 +1,7 @@
-# Assumption: Surveillance camera is not tilted.
+require 'vector'
+
+# Model for surveillance cameras.
+# Assumption: the cameras are not rolled.
 #
 # +---width---+
 # |           |
@@ -8,60 +11,58 @@
 #
 # +
 # |
-# |<---focal_vector---+ position
+# |<-focus-+ position
 # |
 # +
 class Camera
-  attr_reader :position, :focal_vector, :width, :height
-  attr_reader :segments_per_edge, :intersection_calculator
+  attr_reader :position, :focus, :width, :height
 
-  def initialize(position, focal_vector, width, height, segments_per_edge)
-    @position     = position
-    @focal_vector = focal_vector
-    @width        = width
-    @height       = height
-
-    @segments_per_edge       = segments_per_edge
-    @intersection_calculator = IntersectionCalculator.new(self)
+  def initialize(position, focus, width, height)
+    @position = position
+    @focus    = focus
+    @width    = width
+    @height   = height
   end
 
   # Returns an array containing 4 position vectors of the lens rectangle.
   def rectangle
-    return @rectangle unless @rectangle.nil?
+    return @rectangle if @rectangle
 
-    # Assume that the focal vector is Vector[0, 0, @focal_vector.r]
-    assumed = Vector[0, 0, @focal_vector.r]
+    # Assume that the focal vector is Vector[0, 0, @focus.r]
+    assumed = Vector[0, 0, @focus.r]
     @rectangle = [
-      Vector[-@width/2,  @height/2, @focal_vector.r],
-      Vector[ @width/2,  @height/2, @focal_vector.r],
-      Vector[ @width/2, -@height/2, @focal_vector.r],
-      Vector[-@width/2, -@height/2, @focal_vector.r]
+      Vector[-@width/2,  @height/2, @focus.r],
+      Vector[ @width/2,  @height/2, @focus.r],
+      Vector[ @width/2, -@height/2, @focus.r],
+      Vector[-@width/2, -@height/2, @focus.r]
     ]
 
-    # The projection of focal vector to Oxz
-    oxz_focal_vector = Vector[@focal_vector[0], 0, @focal_vector[2]]
-
-    # Rotate about Oy
-    normal = assumed.cross_product(oxz_focal_vector)
-    angle = assumed.angle(oxz_focal_vector)
-    @rectangle = @rectangle.map { |v| v.rotate!(normal, angle) } if normal.r > EPSILON && angle > EPSILON
-
-    # Rotate about an axis which lies in Oxz
-    normal = oxz_focal_vector.cross_product(@focal_vector)
-    angle = oxz_focal_vector.angle(@focal_vector)
+    # Rotate assumed to @focus
+    normal = assumed.cross_product(@focus)
+    if normal.r < EPSILON       # assumed and @focus lie on a same line
+      normal = Vector[1, 0, 0]  # The camera is not rolled
+    end
+    angle = assumed.angle(@focus)
     @rectangle = @rectangle.map { |v| v.rotate!(normal, angle) } if normal.r > EPSILON && angle > EPSILON
 
     # Translate
-    @rectangle = @rectangle.map { |v| v + @position}
+    @rectangle = @rectangle.map { |v| v + @position }
 
     @rectangle
   end
+end
 
-  def visualizer=(visualizer_class)
-    @visualizer = visualizer_class.new(self)
-  end
+if __FILE__ == $0
+  EPSILON = 0.00000001
+  w = 4*2
+  h = 3*2
+  p = Vector[0, 0, 0]
 
-  def visualize
-    @visualizer.visualize unless @visualizer.nil?
-  end
+  f = Vector[0, 0, -1]
+  c = Camera.new(p, f, w, h)
+  p c.rectangle
+
+  f = Vector[0, -1, -1]
+  c = Camera.new(p, f, w, h)
+  p c.rectangle
 end

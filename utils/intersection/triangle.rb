@@ -1,18 +1,20 @@
+require 'ray'
+
 # See http://www.cppblog.com/zmj/archive/2008/08/26/60039.aspx
 class Triangle
-  attr_reader :p0, :p1, :p2
+  attr_reader :vertex1, :vertex2, :vertex3
 
-  def initialize(p0, p1, p2)
-    @p0, @p1, @p2 = p0, p1, p2
+  def initialize(vertex1, vertex2, vertex3)
+    @vertex1, @vertex2, @vertex3 = vertex1, vertex2, vertex3
   end
 
   def intersection_with_ray(ray)
-    u = @p1 - @p0
-    v = @p2 - @p0
+    u = @vertex2 - @vertex1
+    v = @vertex3 - @vertex1
     n = u.cross_product(v)
     return nil if n.r < EPSILON
 
-    w0 = ray.root - @p0
+    w0 = ray.root - @vertex1
     a = -n.inner_product(w0)
     b = n.inner_product(ray.direction)
     return nil if b.abs < EPSILON  # Parallel
@@ -26,7 +28,7 @@ class Triangle
     uu = u.inner_product(u)
     uv = u.inner_product(v)
     vv = v.inner_product(v)
-    w = intersection - @p0
+    w = intersection - @vertex1
     wu = w.inner_product(u)
     wv = w.inner_product(v)
     d = uv*uv - uu*vv
@@ -43,6 +45,5 @@ if __FILE__ == $0
   EPSILON = 0.00000001
   t = Triangle.new(Vector[10, 0, 0], Vector[0, 10, 0], Vector[-10, -10, 0])
   r = Ray.new(Vector[0, 0, 2], Vector[0, 0, -1])
-  h = t.intersection_with_ray(r)
-  p h
+  p t.intersection_with_ray(r)
 end
