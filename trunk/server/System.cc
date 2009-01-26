@@ -9,7 +9,7 @@
 #include "ARDriver.h"
 #include "MapViewer.h"
 
-#include "Client.h"
+#include "Net.h"
 
 using namespace CVD;
 using namespace std;
@@ -99,6 +99,29 @@ void System::Run()
 			mpTracker->TrackFrame(mimFrameBW, true);
 		}
 
+		// Send viewing fields only once
+		static bool viewingFieldsSent = false;
+		if (!viewingFieldsSent) {
+			FILE *fp;
+			fp = fopen("viewing_fields.vf", "rb");
+			if (!fp) {
+				printf("Could not open viewing_fields.vf\n");
+				exit(-1);
+			}
+
+			fseek(fp, 0, SEEK_END);
+			int length = ftell(fp);
+			rewind(fp);
+
+			char *buffer = (char *) malloc(length);
+			fread(buffer, length, 1, fp);
+			fclose(fp);
+
+			Net::get_instance()->send_bytes(buffer, length);
+			free(buffer);
+			viewingFieldsSent = true;
+		}
+
 		// Send pose to remote camera, see ARDriver::Render
 		char valid;
 		if (mpMap->IsGood() && !mpTracker->isFrameLost()) {
@@ -130,12 +153,12 @@ void System::Run()
 			}
 
 			valid = 1;
-			Client::get_instance()->send_bytes(&valid, 1);
-			Client::get_instance()->send_bytes((char *) numbers, 28*sizeof(float));
+			Net::get_instance()->send_bytes(&valid, 1);
+			Net::get_instance()->send_bytes((char *) numbers, 28*sizeof(float));
 		} else {
 			// Notify that the pose is not valid any more
 			valid = 0;
-			Client::get_instance()->send_bytes(&valid, 1);
+			Net::get_instance()->send_bytes(&valid, 1);
 		}
 
 		// mGLWindow.GetMousePoseUpdate();

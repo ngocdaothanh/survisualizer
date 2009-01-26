@@ -1,9 +1,9 @@
-#ifndef __CLIENT__
-#define __CLIENT__
+#ifndef __NET__
+#define __NET__
 
-class Client {
+class Net {
 public:
-	static Client *get_instance();
+	static Net *get_instance();
 
 	char *recv_bytes(int size);
 	int recv_int();
@@ -12,8 +12,8 @@ public:
 	void send_int(int value);
 
 private:
-	Client();
-	~Client();
+	Net();
+	~Net();
 
 private:
 	int m_socket;
