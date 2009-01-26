@@ -13,9 +13,26 @@
 - (id)initWithView:(EAGLView *)glView;
 - (void)handleNewConnectionFromAddress:(NSData *)addr inputStream:(NSInputStream *)istr outputStream:(NSOutputStream *)ostr;
 
-- (BOOL)connected;
-- (uint8_t *)readBytes:(NSInputStream *)istream length:(NSUInteger)length;
-- (int)readInt:(NSInputStream *)istream;
+- (BOOL)isConnected;
+- (NSOutputStream *)ostream;
+
+@end
+
+// -----------------------------------------------------------------------------
+
+@interface NSInputStream(Receive)
+
+- (char *)receiveBytes:(int)length;
+- (int)receiveInt;
+- (float)receiveFloat;
+
+@end
+
+// -----------------------------------------------------------------------------
+
+@interface NSOutputStream(Send)
+
 - (void)sendBytes:(uint8_t *)bytes length:(unsigned int)length;
 - (void)sendInt:(int)value;
+
 @end

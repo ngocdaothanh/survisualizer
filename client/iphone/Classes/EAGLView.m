@@ -197,12 +197,14 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 
 	// Send Green channel to remote machines -----------------------------------
-	if ([net connected]) {
+	if ([net isConnected]) {
+		NSOutputStream *ostream = [net ostream];
+
 		static BOOL sentInfo = FALSE;
 		if (!sentInfo) {
-			[net sendInt:frameWidth];
-			[net sendInt:frameHeight];
-			[net sendInt:0];  // Uncompressed
+			[ostream sendInt:frameWidth];
+			[ostream sendInt:frameHeight];
+			[ostream sendInt:0];  // Uncompressed
 			sentInfo = TRUE;
 		}
 		
@@ -212,13 +214,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 				image[j*frameWidth + i] = frame[(j*frameWidth + i)*4 + 1];
 			}
 		}
-		[net sendBytes:image length:frameWidth*frameHeight];
+		[ostream sendBytes:image length:frameWidth*frameHeight];
 	}
 }
 
 //------------------------------------------------------------------------------
 
-- (void)onBytes:(NSInputStream *)istream {
+- (void)onReceive:(NSInputStream *)istream {
 	static BOOL viewingFieldReceived = FALSE;
 	if (!viewingFieldReceived) {
 		[self onViewingField:istream];
@@ -229,16 +231,22 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 }
 
 - (void)onViewingField:(NSInputStream *)istream {
-	int length = [net readInt:istream];
-	char *bytes = [net readBytes:istream length:length];
-	visualizer = [[Visualizer alloc] initWithBytes:bytes];
-	free(bytes);
+	int segmentPerEdge = [istream receiveInt];
+	int numViewingFields = [istream receiveInt];
+
+	viewingFields = [[NSMutableArray alloc] init];
+	for (int i = 0; i < numViewingFields; i++) {
+		ViewingField *viewingField = [[ViewingField alloc] initWithSegmentPerEdge:segmentPerEdge AndInputStream:istream];
+		[viewingFields addObject:viewingField];
+	}
+
+	visualizer = [[Visualizer alloc] initWithViewingFields:viewingFields];
 }
 
 - (void)onPose:(NSInputStream *)istream {
-	uint8_t *valid = [net readBytes:istream length:1];
+	char *valid = [istream receiveBytes:1];
 	if (*valid == 1) {
-		float *numbers = (float *) [net readBytes:istream length:28*sizeof(float)];
+		float *numbers = (float *) [istream receiveBytes:28*sizeof(float)];
 		[pose validate:numbers];
 		free(numbers);
 	} else {
@@ -322,6 +330,14 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[context release];
 	context = nil;
 	free(texturePixels);
+
+	for (ViewingField *vf in viewingFields) {
+		[vf release];
+	}
+	[viewingFields release];
+
+	[visualizer release];
+
 	[super dealloc];
 }
 

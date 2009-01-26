@@ -4,11 +4,11 @@ typedef struct {
 
 @interface ViewingField : NSObject {
 	Point3D position[3];
-	Point3D cameraRectangle[4];
 	int segmentsPerEdge;
-	Point3D *intersections;
+	Point3D *headsOnCamera;
+	Point3D *headsOnTriangles;
 }
 
-- (id)initWithBytes:(char *)bytes;
+- (id)initWithSegmentPerEdge:(int)segmentPerEdge AndInputStream:(NSInputStream *)istream;
 
 @end
