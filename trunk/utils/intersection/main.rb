@@ -36,8 +36,8 @@ segments_per_edge = CONFIG[:segments_per_edge]
 viewing_fields = cameras.map { |c| ViewingField.new(c, triangles, segments_per_edge) }
 
 string = ''
-string << segments_per_edge
-string << viewing_fields.size
+string << [segments_per_edge].pack('I!')
+string << [viewing_fields.size].pack('I!')
 viewing_fields.each do |vf|
   string << vf.serialize
 end
