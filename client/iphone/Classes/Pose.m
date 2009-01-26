@@ -7,13 +7,13 @@
 
 - (id)init {
 	if (self = [super init]) {
-		valid = false;
+		valid = NO;
 	}
 	return self;
 }
 
 - (void)invalidate {
-	valid = false;
+	valid = NO;
 }
 
 - (BOOL)isValid {
@@ -42,7 +42,7 @@
 	rotation[4*3 + 2] = 0;
 	rotation[4*3 + 3] = 1;
 	
-	valid = TRUE;
+	valid = YES;
 }
 
 - (void)apply {

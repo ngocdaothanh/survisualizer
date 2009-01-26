@@ -116,6 +116,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 }
 
 - (void)drawViewLoop:(id)object {
+	NSLog(@"3");
 	while (TRUE) {
 		if (!textureInitialized && backingWidth != 0 && backingHeight != 0 && frameWidth != 0 && frameHeight != 0) {
 			glGenTextures(1, &texture);
@@ -150,6 +151,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 }
 
 - (void)drawView {
+	NSLog(@"1");
 	[EAGLContext setCurrentContext:context];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 
@@ -162,11 +164,14 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glOrthof(0, backingWidth, 0, backingHeight, -1, 1);
 	
 	glMatrixMode(GL_MODELVIEW);
+	glClearColorx(255, 255, 255, 255);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
 	glEnable(GL_TEXTURE_2D);										   // Enable use of the texture
 	glDisable(GL_BLEND);                                               // Background doesn't need blending
+	
 	glTexCoordPointer(2, GL_FLOAT, 0, textureCoords);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	for (int j = 0; j < frameHeight; j++) {
@@ -181,8 +186,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	
 	// Do not apply the background texture to other things
 	glDisable(GL_TEXTURE_2D);
-	//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);						 // Set a blending function to use
-	//glEnable(GL_BLEND);												 // Enable blending
 	
 	// Visualize
 	if ([pose isValid]) {
@@ -216,6 +219,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 		[ostream sendBytes:image length:frameWidth*frameHeight];
 	}
+	NSLog(@"2");
 }
 
 //------------------------------------------------------------------------------
@@ -239,7 +243,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		ViewingField *viewingField = [[ViewingField alloc] initWithSegmentsPerEdge:segmentsPerEdge AndInputStream:istream];
 		[viewingFields addObject:viewingField];
 	}
-	NSLog(@"vf: %d  %d", segmentsPerEdge, numViewingFields);
 
 	visualizer = [[Visualizer alloc] initWithViewingFields:viewingFields];
 }
