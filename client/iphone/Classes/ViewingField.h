@@ -9,6 +9,6 @@ typedef struct {
 	Point3D *headsOnTriangles;
 }
 
-- (id)initWithSegmentPerEdge:(int)segmentPerEdge AndInputStream:(NSInputStream *)istream;
+- (id)initWithSegmentsPerEdge:(int)segmentsPerEdge AndInputStream:(NSInputStream *)istream;
 
 @end
