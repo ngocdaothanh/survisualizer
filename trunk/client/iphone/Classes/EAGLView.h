@@ -33,13 +33,15 @@
 	Net *net;
 	Pose *pose;
 
+	NSMutableArray *viewingFields;
+
 	int iVisualizationMethod;
 	Visualizer *visualizer;
 }
 
 - (void)installCameraCallbackHook;
 - (void)drawView;
-- (void)onBytes:(NSInputStream *)istream;
+- (void)onReceive:(NSInputStream *)istream;
 
 @property (nonatomic, retain) IBOutlet UIButton *m1;
 @property (nonatomic, retain) IBOutlet UIButton *m2;

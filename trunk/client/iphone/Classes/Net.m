@@ -11,6 +11,11 @@
 	return self;
 }
 
+- (void)dealloc {
+	[glView autorelease];
+	[super dealloc];
+}
+
 - (void)setupInputStream:(NSInputStream *)istream outputStream:(NSOutputStream *)ostream {
 	[istream retain];
 	[ostream retain];
@@ -48,7 +53,7 @@
 	switch (streamEvent) {
 		case NSStreamEventHasBytesAvailable:			
 			istream = (NSInputStream *) aStream;
-			[glView onBytes:istream];
+			[glView onReceive:istream];
 			break;
 			
 		case NSStreamEventEndEncountered:
@@ -68,61 +73,77 @@
 	}
 }
 
-- (BOOL)connected {
+- (BOOL)isConnected {
 	int count = CFDictionaryGetCount(connections);
 	return (count > 0);
 }
 
-- (uint8_t *)readBytes:(NSInputStream *)istream length:(NSUInteger)length {
-	uint8_t *ret = malloc(length);
+- (NSOutputStream *)ostream {	
+	int count = CFDictionaryGetCount(connections);
+	NSInputStream *istreams[count];
+	NSOutputStream *ostreams[count];
+	CFDictionaryGetKeysAndValues(connections, (const void **) istreams, (const void **) ostreams);
+	return ostreams[0];
+}
+
+@end
+
+// -----------------------------------------------------------------------------
+
+@implementation NSInputStream(Receive)	
+
+- (char *)receiveBytes:(int)length {
+	char *ret = malloc(length);
 	
 	NSUInteger read = 0;
 	while (read < length) {
 		uint8_t *tmp = malloc(length - read);
-		NSUInteger actuallyRead = [istream read:tmp maxLength:(length - read)];
+		NSUInteger actuallyRead = [self read:tmp maxLength:(length - read)];
 		memcpy(ret + read, tmp, actuallyRead);
 		free(tmp);
 		read += actuallyRead;
 	}
 	
-	return ret;
+	return ret;	
 }
 
-- (int)readInt:(NSInputStream *)istream {
-	uint8_t *bytes = [self readBytes:istream length:sizeof(int)];
+- (int)receiveInt {
+	char *bytes = [self receiveBytes:sizeof(int)];
 	int ret;
 	char *p = (char *) &ret;
 	for (int i = 0; i <  sizeof(int); i++) {
 		p[i] = bytes[i];
 	}
 	free(bytes);
-	return ret;
+	return ret;	
 }
+
+- (float)receiveFloat {
+	char *bytes = [self receiveBytes:sizeof(float)];
+	float ret;
+	char *p = (char *) &ret;
+	for (int i = 0; i <  sizeof(float); i++) {
+		p[i] = bytes[i];
+	}
+	free(bytes);
+	return ret;		
+}
+
+@end
+
+// -----------------------------------------------------------------------------
+
+@implementation NSOutputStream(Send)
 
 - (void)sendInt:(int)value {
 	[self sendBytes:(uint8_t *) &value length:sizeof(int)];
 }
 
 - (void)sendBytes:(uint8_t *)bytes length:(NSUInteger)length {
-	int count = CFDictionaryGetCount(connections);
-	if (!count) {
-		return;
+	int bytesWritten = 0;
+	while (bytesWritten < length) {
+		bytesWritten += [self write:(bytes + bytesWritten) maxLength:(length - bytesWritten)];
 	}
-	
-	NSInputStream * istreams[count];
-	NSOutputStream * ostreams[count];
-	CFDictionaryGetKeysAndValues(connections, (const void **) istreams, (const void **) ostreams);
-	for (int i = 0; i < count; i++) {
-		int bytesWritten = 0;
-		while (bytesWritten < length) {
-			bytesWritten += [ostreams[i] write:(bytes + bytesWritten) maxLength:(length - bytesWritten)];
-		}
-	}
-}
-
-- (void)dealloc {
-	[glView autorelease];
-	[super dealloc];
 }
 
 @end

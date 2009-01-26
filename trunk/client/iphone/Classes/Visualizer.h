@@ -5,10 +5,10 @@
 #import "ViewingField.h"
 
 @interface Visualizer : NSObject {
-	ViewingField *viewingField;
+	NSMutableArray *viewingFields;
 }
 
-- (id)initWithViewingField:(ViewingField *)viewingField;
+- (id)initWithViewingFields:(NSMutableArray *)viewingFields;
 - (void)visualize:(int)imethod;
 
 @end

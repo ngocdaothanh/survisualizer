@@ -1,22 +1,39 @@
 #import "ViewingField.h"
+#import "Net.h"
 
 @implementation ViewingField
 
-- (id)initWithBytes:(char *)bytes {
+- (id)initWithSegmentPerEdge:(int)spe AndInputStream:(NSInputStream *)istream {
 	if (self = [super init]) {
-		int num = (segmentsPerEdge + 1)*(segmentsPerEdge + 1);
-		intersections = (Point3D *) malloc(num*sizeof(Point3D));
+		segmentsPerEdge = spe;
+		int numHeads = (segmentsPerEdge + 1)*(segmentsPerEdge + 1);
+		
+		char *bytes;
+		int length;
 
-		memcpy(position, bytes, 3*sizeof(Point3D));
-		memcpy(cameraRectangle, bytes, 4*sizeof(Point3D));
-		memcpy((char *) segmentsPerEdge, bytes, sizeof(int));
-		memcpy(intersections, bytes, num*sizeof(Point3D));		
+		length = 3*sizeof(float);
+		bytes = [istream receiveBytes:length];
+		memcpy(position, bytes, length);
+		free(bytes);
+
+		length = numHeads*sizeof(3*sizeof(float));
+		bytes = [istream receiveBytes:length];
+		headsOnCamera = (Point3D *) malloc(sizeof(Point3D));
+		memcpy(headsOnCamera, bytes, length);
+		free(bytes);
+
+		length = numHeads*sizeof(3*sizeof(float));
+		bytes = [istream receiveBytes:length];
+		headsOnTriangles = (Point3D *) malloc(sizeof(Point3D));
+		memcpy(headsOnTriangles, bytes, length);
+		free(bytes);
 	}
 	return self;
 }
 
 - (void)dealloc {
-	free(intersections);
+	free(headsOnCamera);
+	free(headsOnTriangles);
 	[super dealloc];
 }
 

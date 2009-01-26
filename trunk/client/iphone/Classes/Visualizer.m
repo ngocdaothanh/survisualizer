@@ -10,15 +10,15 @@
 
 @implementation Visualizer
 
-- (id)initWithViewingField:(ViewingField *)field {
+- (id)initWithViewingFields:(NSMutableArray *)fields {
 	if (self = [super init]) {
-		viewingField = [field retain];
+		viewingFields = [fields retain];
 	}
 	return self;
 }
 
 - (void)dealloc {
-	[viewingField autorelease];
+	[viewingFields autorelease];
 	[super dealloc];
 }
 
