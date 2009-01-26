@@ -10,16 +10,16 @@ class Ray
 
   # Returns the direction vector.
   def direction
-    @direction ||= @head - @root
+    @direction ||= (@head - @root)
   end
 
   # Cuts the ray into num_segments segments and returns an array of
   # num_segments + 1 vectors comming from the root to the head.
   def cut(num_segments)
-    v = direction*(1.0/num_segments)
+    t = direction*(1.0/num_segments)
     ret = [@root]
     num_segments.times do |i|
-      ret << @root + v*(i + 1)
+      ret << @root + t*(i + 1)
     end
     ret
   end

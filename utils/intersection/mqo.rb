@@ -28,6 +28,13 @@ class Mqo
     @objects
   end
 
+  def triangles
+    return @triangles if @triangles
+
+    @triangles = objects.inject([]) { |tmp, triangles| tmp.concat(triangles) }
+    @triangles
+  end
+
   private
 
   # Returns array of trianalges.
@@ -97,4 +104,5 @@ end
 if __FILE__ == $0
   m = Mqo.new('./../../data/scene.mqo', 0.1)
   p m.objects.size
+  p m.triangles.size
 end

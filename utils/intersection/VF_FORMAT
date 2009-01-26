@@ -1,0 +1,16 @@
+.vf file is used for storing viewing fields. It is structured to be easily
+deserialized by C/C++/Objective-C programs, and the file size is not optimized
+to be small.
+
+| segment-per-edge         | sizeof(int)                                        |
+| number of viewing fields | sizeof(int)                                        |
+| viewing fields           | number of viewing fields x sizeof(a viewing field) |
+
+A viewing field:
+
+| camera position    | 3 x sizeof(float)     |
+| heads on camera    | 4 x 3 x sizeof(float) |
+| heads on triangles |
+
+
+intersections      | number of cameras x (segment-per-edge + 1) x (segment-per-edge + 1) x 3 x sizeof(float)
