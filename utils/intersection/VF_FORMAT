@@ -8,9 +8,6 @@ to be small.
 
 A viewing field:
 
-| camera position    | 3 x sizeof(float)     |
-| heads on camera    | 4 x 3 x sizeof(float) |
-| heads on triangles |
-
-
-intersections      | number of cameras x (segment-per-edge + 1) x (segment-per-edge + 1) x 3 x sizeof(float)
+| camera position    | 3 x sizeof(float)                                                   |
+| heads on camera    | (segment-per-edge + 1) x (segment-per-edge + 1) x 3 x sizeof(float) |
+| heads on triangles | (segment-per-edge + 1) x (segment-per-edge + 1) x 3 x sizeof(float) |

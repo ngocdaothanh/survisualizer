@@ -42,4 +42,4 @@ viewing_fields.each do |vf|
   string << vf.serialize
 end
 
-File.open('output.vf', 'wb') { |f| f.write(string) }
+File.open('viewing_fields.vf', 'wb') { |f| f.write(string) }
