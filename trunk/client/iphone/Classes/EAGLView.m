@@ -13,7 +13,7 @@
 - (BOOL)createFramebuffer;
 - (void)destroyFramebuffer;
 
-- (void)onViewingField:(NSInputStream *)istream;
+- (void)onViewingFields:(NSInputStream *)istream;
 - (void)onPose:(NSInputStream *)istream;
 @end
 
@@ -221,24 +221,25 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 //------------------------------------------------------------------------------
 
 - (void)onReceive:(NSInputStream *)istream {
-	static BOOL viewingFieldReceived = FALSE;
-	if (!viewingFieldReceived) {
-		[self onViewingField:istream];
-		viewingFieldReceived = YES;
+	static BOOL viewingFieldsReceived = FALSE;
+	if (!viewingFieldsReceived) {
+		[self onViewingFields:istream];
+		viewingFieldsReceived = YES;
 	} else {
 		[self onPose:istream];
 	}
 }
 
-- (void)onViewingField:(NSInputStream *)istream {
-	int segmentPerEdge = [istream receiveInt];
+- (void)onViewingFields:(NSInputStream *)istream {
+	int segmentsPerEdge = [istream receiveInt];
 	int numViewingFields = [istream receiveInt];
-
+	
 	viewingFields = [[NSMutableArray alloc] init];
 	for (int i = 0; i < numViewingFields; i++) {
-		ViewingField *viewingField = [[ViewingField alloc] initWithSegmentPerEdge:segmentPerEdge AndInputStream:istream];
+		ViewingField *viewingField = [[ViewingField alloc] initWithSegmentsPerEdge:segmentsPerEdge AndInputStream:istream];
 		[viewingFields addObject:viewingField];
 	}
+	NSLog(@"vf: %d  %d", segmentsPerEdge, numViewingFields);
 
 	visualizer = [[Visualizer alloc] initWithViewingFields:viewingFields];
 }

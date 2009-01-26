@@ -3,11 +3,11 @@
 
 @implementation ViewingField
 
-- (id)initWithSegmentPerEdge:(int)spe AndInputStream:(NSInputStream *)istream {
+- (id)initWithSegmentsPerEdge:(int)spe AndInputStream:(NSInputStream *)istream {
 	if (self = [super init]) {
 		segmentsPerEdge = spe;
 		int numHeads = (segmentsPerEdge + 1)*(segmentsPerEdge + 1);
-		
+
 		char *bytes;
 		int length;
 
@@ -16,15 +16,15 @@
 		memcpy(position, bytes, length);
 		free(bytes);
 
-		length = numHeads*sizeof(3*sizeof(float));
+		length = numHeads*3*sizeof(float);
 		bytes = [istream receiveBytes:length];
-		headsOnCamera = (Point3D *) malloc(sizeof(Point3D));
+		headsOnCamera = (Point3D *) malloc(length);
 		memcpy(headsOnCamera, bytes, length);
 		free(bytes);
 
-		length = numHeads*sizeof(3*sizeof(float));
+		length = numHeads*3*sizeof(float);
 		bytes = [istream receiveBytes:length];
-		headsOnTriangles = (Point3D *) malloc(sizeof(Point3D));
+		headsOnTriangles = (Point3D *) malloc(length);
 		memcpy(headsOnTriangles, bytes, length);
 		free(bytes);
 	}
