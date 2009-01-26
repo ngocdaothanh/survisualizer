@@ -7,8 +7,7 @@ require 'socket'
 require 'gl'
 require 'glu'
 require 'glut'
-require 'mathn'
-require 'matrix'
+
 require 'zlib'
 
 include Gl
@@ -17,20 +16,7 @@ include Glut
 
 EPSILON = 0.00000001  # Very small number
 
-# The order of loading is important
-$:.unshift('./camera')
-$:.unshift('./model')
 $:.unshift('./visualizer')
-
-require 'vector'
-require 'ray'
-require 'triangle'
-
-require 'mqo'
-require 'model'
-
-require 'intersection_calculator'
-require 'camera'
 
 require 'visualizer'
 require 'grid'
@@ -39,11 +25,9 @@ require 'vector_visualizer'
 
 require 'config'
 
-$model = nil
-
 class Main
   def initialize
-    $model = Model.new(CONFIG[:to_meter_ratio])
+    @model = Model.new(CONFIG[:model], CONFIG[:to_meter_ratio])
 
     # Load config
     @window_width  = CONFIG[:video_width]
@@ -215,7 +199,7 @@ class Main
     glTranslatef(-@position_x, -@position_y, -@position_z)
 
     # Visualize
-    $model.visualize
+    @model.visualize
     @cameras.each { |c| c.visualize }
 
     # Take out the foreground
