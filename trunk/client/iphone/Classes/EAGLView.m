@@ -176,7 +176,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		memcpy(texturePixels + j*textureWidth*4, frame + ((frameHeight - 1) - j)*frameWidth*4, frameWidth*4);
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
-	
+
+	glColor4ub(255, 255, 255, 255);  // Must be put before glDisableClientState or error will occur
 	glDisableClientState(GL_COLOR_ARRAY);
 	glVertexPointer(2, GL_SHORT, 0, textureVertices);
 	glEnableClientState(GL_VERTEX_ARRAY);

@@ -29,6 +29,7 @@
 
 - (void)visualize:(int)imethod {
 	for (ViewingField *vf in viewingFields) {
+		[self enableBlend];
 		switch (imethod) {
 			case 0:
 				[self visualizeContour:vf];
@@ -56,15 +57,13 @@
 	Point3D *vertices = [self headsOnContour:vf];
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_VERTEX_ARRAY);			
-	glDrawArrays(GL_LINE_STRIP, 0, vf.segmentsPerEdge*4);
+	glDrawArrays(GL_LINE_LOOP, 0, vf.segmentsPerEdge*4);
 	free(vertices);
 }
 
 //------------------------------------------------------------------------------
 
 - (void)visualizeVolume:(ViewingField *)vf {
-	[self enableBlend];
-	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	Point3D vertices[1 + vf.segmentsPerEdge*4 + 1];
 	
@@ -83,9 +82,7 @@
 
 //------------------------------------------------------------------------------
 
-- (void)visualizeShadow:(ViewingField *)vf {
-	[self enableBlend];
-	
+- (void)visualizeShadow:(ViewingField *)vf {	
 	for (int j = 0; j < vf.segmentsPerEdge; j++) {
 		for (int i = 0; i < vf.segmentsPerEdge; i++) {
 			int iV1 = j*(vf.segmentsPerEdge + 1) + i;
@@ -208,6 +205,7 @@
 		vf.headsOnTriangles[iV4].x, vf.headsOnTriangles[iV4].y, vf.headsOnTriangles[iV4].z
 	};
 
+	glColor4ub(255, 0, 0, 255);
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_VERTEX_ARRAY);		
 	glDrawArrays(GL_LINES, 0, 2*4);
@@ -216,15 +214,7 @@
 - (void)enableBlend {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	
-	const GLubyte colors[] = {
-        255, 255, 0, 127,
-        255, 255, 0, 127,
-        255, 255, 0, 127,
-		255, 255, 0, 127
-    };
-	glColorPointer(4, GL_UNSIGNED_BYTE, 0, colors);
-    glEnableClientState(GL_COLOR_ARRAY);
+	glColor4ub(255, 255, 0, 127);
 }
 
 - (Point3D *)headsOnContour:(ViewingField *)vf {
