@@ -9,19 +9,19 @@
 #include <unistd.h>
 
 
-#include "Client.h"
+#include "Net.h"
 #include "Config.h"
 
-static Client *client_instance;
+static Net *net_instance;
 
-Client *Client::get_instance() {
-	if (!client_instance) {
-		client_instance = new Client();
+Net *Net::get_instance() {
+	if (!net_instance) {
+		net_instance = new Net();
 	}
-	return client_instance;
+	return net_instance;
 }
 
-Client::Client() {
+Net::Net() {
 	m_socket = socket(AF_INET, SOCK_STREAM, 0);
 
 	struct hostent *host;
@@ -37,12 +37,12 @@ Client::Client() {
 	}
 }
 
-Client::~Client()
+Net::~Net()
 {
 	close(m_socket);
 }
 
-char *Client::recv_bytes(int size)
+char *Net::recv_bytes(int size)
 {
 	int total = 0;
 	char *ret = new char[size];
@@ -61,14 +61,14 @@ char *Client::recv_bytes(int size)
 	return ret;
 }
 
-int Client::recv_int() {
+int Net::recv_int() {
 	unsigned char *bytes = (unsigned char *) recv_bytes(4);
 	int ret = bytes[0] + bytes[1]*256 + bytes[2]*256*256 + bytes[3]*256*256*256;
 	delete[] bytes;
 	return ret;
 }
 
-void Client::send_bytes(const char *bytes, int size) {
+void Net::send_bytes(const char *bytes, int size) {
 	int sent_bytes = 0;
 	while (sent_bytes < size) {
 		int ret = send(m_socket, bytes + sent_bytes, (size - sent_bytes), 0);
@@ -80,7 +80,7 @@ void Client::send_bytes(const char *bytes, int size) {
 	}
 }
 
-void Client::send_int(int value) {
+void Net::send_int(int value) {
 	char *bytes = (char *) &value;
 	send_bytes(bytes, 4);
 }

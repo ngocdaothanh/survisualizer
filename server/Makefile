@@ -9,7 +9,7 @@ LINKFLAGS = -framework OpenGL -framework VecLib -lGVars3 -lcvd -lz
 
 OBJECTS=	main.o\
 		VideoSource_TCP.o\
-		Client.o\
+		Net.o\
 		GLWindow2.o\
 		GLWindowMenu.o\
 		System.o \
@@ -33,7 +33,7 @@ OBJECTS=	main.o\
 CALIB_OBJECTS=	GLWindow2.o\
 		GLWindowMenu.o\
 		VideoSource_TCP.o\
-		Client.o\
+		Net.o\
 		CalibImage.o \
 		CalibCornerPatch.o\
 		ATANCamera.o \

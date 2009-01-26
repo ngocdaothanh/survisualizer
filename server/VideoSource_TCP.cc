@@ -2,7 +2,7 @@
 #include <zlib.h>
 
 #include "VideoSource.h"
-#include "Client.h"
+#include "Net.h"
 
 using namespace CVD;
 using namespace std;
@@ -11,9 +11,9 @@ using namespace std;
 
 VideoSource::VideoSource()
 {
-	mirSize.x = Client::get_instance()->recv_int();
-	mirSize.y = Client::get_instance()->recv_int();
-	compress  = Client::get_instance()->recv_int();
+	mirSize.x = Net::get_instance()->recv_int();
+	mirSize.y = Net::get_instance()->recv_int();
+	compress  = Net::get_instance()->recv_int();
 };
 
 /**
@@ -30,14 +30,14 @@ void VideoSource::GetAndFillFrameBW(Image<CVD::byte> &imBW)
 		image = new unsigned char[image_size];
 
 		// Get size in header
-		int compressed_size = Client::get_instance()->recv_int();
+		int compressed_size = Net::get_instance()->recv_int();
 
 		// Get image
-		char *compressed_image = Client::get_instance()->recv_bytes(compressed_size);
+		char *compressed_image = Net::get_instance()->recv_bytes(compressed_size);
 		uncompress((Bytef *) image, &image_size, (const Bytef *) compressed_image, compressed_size);
 		delete[] compressed_image;
 	} else {
-		image = (unsigned char *) Client::get_instance()->recv_bytes(image_size);
+		image = (unsigned char *) Net::get_instance()->recv_bytes(image_size);
 	}
 	BasicImage<byte> bi(image, mirSize);
 	imBW.copy_from(bi);
