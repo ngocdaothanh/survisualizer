@@ -14,8 +14,8 @@ class ViewingField
     return @heads_on_camera if @heads_on_camera
 
     rectangle = @camera.rectangle
-    points12 = Ray.new(rectangle[1], rectangle[2]).cut(@segments_per_edge)
     points03 = Ray.new(rectangle[0], rectangle[3]).cut(@segments_per_edge)
+    points12 = Ray.new(rectangle[1], rectangle[2]).cut(@segments_per_edge)
 
     @heads_on_camera = []
     points03.each_with_index do |p, i|
@@ -30,7 +30,9 @@ class ViewingField
     @heads_on_triangles = []
     heads_on_camera.each do |h|
       ray = Ray.new(@camera.position, h)
-      @heads_on_triangles << nearest_intersection_with_ray(ray)
+      head = nearest_intersection_with_ray(ray)
+      puts 'A head is nil (the ray does not cut any trianlge of the model)' unless head
+      @heads_on_triangles << head
     end
     @heads_on_triangles
   end

@@ -56,7 +56,7 @@
 	Point3D *vertices = [self headsOnContour:vf];
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_VERTEX_ARRAY);			
-	glDrawArrays(GL_LINE_LOOP, 0, vf.segmentsPerEdge*4);
+	glDrawArrays(GL_LINE_STRIP, 0, vf.segmentsPerEdge*4);
 	free(vertices);
 }
 
@@ -229,28 +229,25 @@
 
 - (Point3D *)headsOnContour:(ViewingField *)vf {
 	Point3D *ret = malloc(vf.segmentsPerEdge*4*sizeof(Point3D));
-	
-	int nextIndex = 0;
 
 	// Top (not including the right-most element)
-	memcpy(ret + nextIndex, vf.headsOnTriangles, vf.segmentsPerEdge*sizeof(Point3D));
-	nextIndex = vf.segmentsPerEdge;
-	
+	memcpy(ret, vf.headsOnTriangles, vf.segmentsPerEdge*sizeof(Point3D));
+
+	int nextIndex = vf.segmentsPerEdge;
+
 	// Right (not including the bottom element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		memcpy(ret + nextIndex, &(vf.headsOnTriangles[(i + 1)*(vf.segmentsPerEdge + 1) - 1]), sizeof(Point3D));
+		ret[nextIndex] = vf.headsOnTriangles[(i + 1)*(vf.segmentsPerEdge + 1) - 1];
 	}
-	nextIndex += vf.segmentsPerEdge;
 	
 	// Bottom (not including the left-most element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		memcpy(ret + nextIndex, &(vf.headsOnTriangles[(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1) - 1 - i]), sizeof(Point3D));
+		ret[nextIndex] = vf.headsOnTriangles[(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1) - 1 - i];
 	}
-	nextIndex += vf.segmentsPerEdge;
 
 	// Left (not including the top element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		memcpy(ret + nextIndex, &(vf.headsOnTriangles[(vf.segmentsPerEdge - i)*(vf.segmentsPerEdge + 1)]), sizeof(Point3D));
+		ret[nextIndex] = vf.headsOnTriangles[(vf.segmentsPerEdge - i)*(vf.segmentsPerEdge + 1)];
 	}
 	
 	return ret;
