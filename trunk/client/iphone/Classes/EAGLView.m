@@ -116,7 +116,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 }
 
 - (void)drawViewLoop:(id)object {
-	NSLog(@"3");
 	while (TRUE) {
 		if (!textureInitialized && backingWidth != 0 && backingHeight != 0 && frameWidth != 0 && frameHeight != 0) {
 			glGenTextures(1, &texture);
@@ -151,7 +150,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 }
 
 - (void)drawView {
-	NSLog(@"1");
 	[EAGLContext setCurrentContext:context];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 
@@ -219,7 +217,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 		[ostream sendBytes:image length:frameWidth*frameHeight];
 	}
-	NSLog(@"2");
 }
 
 //------------------------------------------------------------------------------
