@@ -37,6 +37,14 @@ class ViewingField
     @heads_on_triangles
   end
 
+  def serialize
+    ret = ''
+    ret << @camera.position.serialize
+    heads_on_camera.each { |h| ret << h.serialize }
+    heads_on_triangles.each { |h| ret << h.serialize }
+    ret
+  end
+
   private
 
   def nearest_intersection_with_ray(ray)

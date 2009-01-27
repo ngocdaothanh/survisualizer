@@ -2,5 +2,5 @@
 deserialized and used by C/C++/Objective-C programs. File size is not optimized
 to be small.
 
-| number of triangles | sizeof(int)                             |
-| triangles           | number of triangles x 3 x sizeof(float) |
+| number of triangles | sizeof(int)                                 |
+| triangles           | number of triangles x 3 x 3 x sizeof(float) |
