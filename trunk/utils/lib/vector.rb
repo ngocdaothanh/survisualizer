@@ -56,6 +56,14 @@ Vector.class_eval do
       @elements[0]*vector[1] - @elements[1]*vector[0]
     ]
   end
+
+  def serialize
+    ret = ''
+    (0..2).each do |i|
+      ret << [self[i]].pack('F')
+    end
+    ret
+  end
 end
 
 if __FILE__ == $0

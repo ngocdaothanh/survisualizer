@@ -1,29 +1,9 @@
+$:.unshift(File.dirname(__FILE__) + '/../lib')
+
 require 'mqo'
 require 'camera'
 require 'viewing_field'
 require 'config'
-
-# Reopen classes to inject serialize method ------------------------------------
-
-Vector.class_eval do
-  def serialize
-    ret = ''
-    (0..2).each do |i|
-      ret << [self[i]].pack('F')
-    end
-    ret
-  end
-end
-
-ViewingField.class_eval do
-  def serialize
-    ret = ''
-    ret << @camera.position.serialize
-    heads_on_camera.each { |h| ret << h.serialize }
-    heads_on_triangles.each { |h| ret << h.serialize }
-    ret
-  end
-end
 
 # Main program -----------------------------------------------------------------
 
@@ -35,11 +15,7 @@ segments_per_edge = CONFIG[:segments_per_edge]
 
 viewing_fields = cameras.map { |c| ViewingField.new(c, triangles, segments_per_edge) }
 
-string = ''
-string << [segments_per_edge].pack('I!')
-string << [viewing_fields.size].pack('I!')
-viewing_fields.each do |vf|
-  string << vf.serialize
-end
+string = [segments_per_edge].pack('I!') + [viewing_fields.size].pack('I!')
+string = viewing_fields.inject(string) { |tmp, vf| tmp << vf.serialize }
 
 File.open('viewing_fields.vf', 'wb') { |f| f.write(string) }
