@@ -1,5 +1,5 @@
 .vf file is used for storing viewing fields. It is structured to be easily
-deserialized by C/C++/Objective-C programs, and the file size is not optimized
+deserialized and used by C/C++/Objective-C programs. File size is not optimized
 to be small.
 
 | segment-per-edge         | sizeof(int)                                        |
