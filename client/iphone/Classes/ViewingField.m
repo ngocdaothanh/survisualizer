@@ -33,7 +33,7 @@
 		memcpy(headsOnTriangles, bytes, length);
 		free(bytes);
 
-		float s = 0.01;
+		float s = 0.05;
 		position.x *= s;
 		position.y *= s;
 		position.z *= s;

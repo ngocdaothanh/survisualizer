@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="8"/>
+			<integer value="27"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -59,7 +59,7 @@
 							<object class="IBUIButton" id="682015696">
 								<reference key="NSNextResponder" ref="1002181740"/>
 								<int key="NSvFlags">1316</int>
-								<string key="NSFrame">{{20, 0}, {40, 57}}</string>
+								<string key="NSFrame">{{8, 1}, {40, 57}}</string>
 								<reference key="NSSuperview" ref="1002181740"/>
 								<object class="NSColor" key="IBUIBackgroundColor">
 									<int key="NSColorSpace">1</int>
@@ -91,7 +91,7 @@
 							<object class="IBUIButton" id="883788082">
 								<reference key="NSNextResponder" ref="1002181740"/>
 								<int key="NSvFlags">1316</int>
-								<string key="NSFrame">{{80, 0}, {40, 57}}</string>
+								<string key="NSFrame">{{61, 1}, {40, 57}}</string>
 								<reference key="NSSuperview" ref="1002181740"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -112,7 +112,7 @@
 							<object class="IBUIButton" id="1070106898">
 								<reference key="NSNextResponder" ref="1002181740"/>
 								<int key="NSvFlags">1316</int>
-								<string key="NSFrame">{{140, 0}, {40, 57}}</string>
+								<string key="NSFrame">{{113, 1}, {40, 57}}</string>
 								<reference key="NSSuperview" ref="1002181740"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -133,7 +133,7 @@
 							<object class="IBUIButton" id="424873688">
 								<reference key="NSNextResponder" ref="1002181740"/>
 								<int key="NSvFlags">1316</int>
-								<string key="NSFrame">{{200, 0}, {40, 57}}</string>
+								<string key="NSFrame">{{166, 1}, {40, 57}}</string>
 								<reference key="NSSuperview" ref="1002181740"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -154,7 +154,7 @@
 							<object class="IBUIButton" id="225025708">
 								<reference key="NSNextResponder" ref="1002181740"/>
 								<int key="NSvFlags">1316</int>
-								<string key="NSFrame">{{260, 0}, {40, 57}}</string>
+								<string key="NSFrame">{{218, 1}, {40, 57}}</string>
 								<reference key="NSSuperview" ref="1002181740"/>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -166,6 +166,27 @@
 								<string key="IBUIDisabledTitle">5</string>
 								<string key="IBUISelectedTitle">5</string>
 								<string key="IBUINormalTitle">5</string>
+								<reference key="IBUIHighlightedTitleColor" ref="635424326"/>
+								<object class="NSColor" key="IBUINormalTitleColor">
+									<int key="NSColorSpace">1</int>
+									<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
+								</object>
+							</object>
+							<object class="IBUIButton" id="309314791">
+								<reference key="NSNextResponder" ref="1002181740"/>
+								<int key="NSvFlags">1316</int>
+								<string key="NSFrame">{{272, 1}, {40, 57}}</string>
+								<reference key="NSSuperview" ref="1002181740"/>
+								<bool key="IBUIOpaque">NO</bool>
+								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+								<int key="IBUIContentHorizontalAlignment">0</int>
+								<int key="IBUIContentVerticalAlignment">0</int>
+								<reference key="IBUIFont" ref="131276393"/>
+								<int key="IBUIButtonType">1</int>
+								<string key="IBUIHighlightedTitle">M</string>
+								<string key="IBUIDisabledTitle">M</string>
+								<string key="IBUISelectedTitle">M</string>
+								<string key="IBUINormalTitle">M</string>
 								<reference key="IBUIHighlightedTitleColor" ref="635424326"/>
 								<object class="NSColor" key="IBUINormalTitleColor">
 									<int key="NSColorSpace">1</int>
@@ -317,6 +338,23 @@
 					</object>
 					<int key="connectionID">77</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">changeVisualizationMethod:</string>
+						<reference key="source" ref="309314791"/>
+						<reference key="destination" ref="773737154"/>
+						<int key="IBEventType">7</int>
+					</object>
+					<int key="connectionID">79</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">mm</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="309314791"/>
+					</object>
+					<int key="connectionID">80</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -379,6 +417,7 @@
 							<reference ref="424873688"/>
 							<reference ref="225025708"/>
 							<reference ref="682015696"/>
+							<reference ref="309314791"/>
 						</object>
 						<reference key="parent" ref="380026005"/>
 					</object>
@@ -412,6 +451,11 @@
 						<reference key="object" ref="682015696"/>
 						<reference key="parent" ref="1002181740"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">78</int>
+						<reference key="object" ref="309314791"/>
+						<reference key="parent" ref="1002181740"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -434,6 +478,7 @@
 					<string>62.IBPluginDependency</string>
 					<string>63.IBPluginDependency</string>
 					<string>74.IBPluginDependency</string>
+					<string>78.IBPluginDependency</string>
 					<string>8.CustomClassName</string>
 					<string>8.IBPluginDependency</string>
 				</object>
@@ -457,6 +502,7 @@
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>SurvisualizerAppDelegate</string>
+					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -487,7 +533,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">77</int>
+			<int key="maxID">80</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -508,9 +554,11 @@
 							<string>m3</string>
 							<string>m4</string>
 							<string>m5</string>
+							<string>mm</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIButton</string>
 							<string>UIButton</string>
 							<string>UIButton</string>
 							<string>UIButton</string>
