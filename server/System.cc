@@ -55,6 +55,29 @@ System::System()
 	mbDone = false;
 }
 
+static void sendFile(const char *fileName)
+{
+	FILE *fp;
+	char *buffer;
+	int length;
+
+	fp = fopen(fileName, "rb");
+	if (!fp) {
+		char msg[100];
+		sprintf(msg, "Could not open %s\n", fileName);
+		printf(msg);
+		exit(-1);
+	}
+	fseek(fp, 0, SEEK_END);
+	length = ftell(fp);
+	rewind(fp);
+	buffer = (char *) malloc(length);
+	fread(buffer, length, 1, fp);
+	fclose(fp);
+	Net::get_instance()->send_bytes(buffer, length);
+	free(buffer);
+}
+
 void System::Run()
 {
 	while(!mbDone)
@@ -100,26 +123,11 @@ void System::Run()
 		}
 
 		// Send viewing fields only once
-		static bool viewingFieldsSent = false;
-		if (!viewingFieldsSent) {
-			FILE *fp;
-			fp = fopen("viewing_fields.vf", "rb");
-			if (!fp) {
-				printf("Could not open viewing_fields.vf\n");
-				exit(-1);
-			}
-
-			fseek(fp, 0, SEEK_END);
-			int length = ftell(fp);
-			rewind(fp);
-
-			char *buffer = (char *) malloc(length);
-			fread(buffer, length, 1, fp);
-			fclose(fp);
-
-			Net::get_instance()->send_bytes(buffer, length);
-			free(buffer);
-			viewingFieldsSent = true;
+		static bool modelAndViewingFieldsSent = false;
+		if (!modelAndViewingFieldsSent) {
+			sendFile("data/triangles.tr");
+			sendFile("data/viewing_fields.vf");
+			modelAndViewingFieldsSent = true;
 		}
 
 		// Send pose to remote camera, see ARDriver::Render

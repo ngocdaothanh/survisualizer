@@ -4,7 +4,7 @@
 # Edit the lines below to point to any needed include and link paths
 # Or to change the compiler's optimization flags
 CC = g++ -g -O3
-COMPILEFLAGS = -I /Users/ngocdt/tmp/PTAM -D_OSX -D_REENTRANT -D CVD_HAVE_TOON -D NDEBUG
+COMPILEFLAGS = -D_OSX -D_REENTRANT -D CVD_HAVE_TOON -D NDEBUG
 LINKFLAGS = -framework OpenGL -framework VecLib -lGVars3 -lcvd -lz
 
 OBJECTS=	main.o\
