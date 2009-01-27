@@ -48,5 +48,6 @@
 @property (nonatomic, retain) IBOutlet UIButton *m3;
 @property (nonatomic, retain) IBOutlet UIButton *m4;
 @property (nonatomic, retain) IBOutlet UIButton *m5;
+@property (nonatomic, retain) IBOutlet UIButton *mm;
 - (IBAction)changeVisualizationMethod:(id)sender;
 @end

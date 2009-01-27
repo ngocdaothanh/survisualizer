@@ -21,7 +21,8 @@
 
 static FUNC_camera_callback original_camera_callback = NULL;
 
-static uint8_t *frame  = NULL;
+static uint8_t *frameBGRA = NULL;
+static uint8_t *frameG    = NULL;
 static int frameWidth  = 0;
 static int frameHeight = 0;
 
@@ -30,13 +31,19 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		Surface *surface = [[Surface alloc]initWithCoreSurfaceBuffer:coreSurfaceBuffer];
 		[surface lock];
 
-		//[glView drawView:surface.baseAddress withWidth:surface.width withHeight:surface.height];
-		if (!frame) {
+		if (!frameBGRA) {
 			frameWidth  = surface.width;
 			frameHeight = surface.height;
-			frame = malloc(frameWidth*frameHeight*4);
+
+			frameBGRA = malloc(frameWidth*frameHeight*4);
+			frameG    = malloc(frameWidth*frameHeight);
 		}
-		memcpy(frame, surface.baseAddress, frameWidth*frameHeight*4);
+		memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
+		for (unsigned int j = 0; j < frameHeight; j++) {
+			for (int i = 0; i < frameWidth; i++) {
+				frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
+			}
+		}
 
 		[surface unlock];
 		[surface release];
@@ -53,6 +60,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 @synthesize m3;
 @synthesize m4;
 @synthesize m5;
+@synthesize mm;
 
 + (Class)layerClass {
 	return [CAEAGLLayer class];
@@ -140,7 +148,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			textureInitialized = YES;
 		}
 
-		if (frame) {
+		if (frameBGRA) {
 			NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
 			[self drawView];
 			[pool release];
@@ -173,7 +181,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glTexCoordPointer(2, GL_FLOAT, 0, textureCoords);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	for (int j = 0; j < frameHeight; j++) {
-		memcpy(texturePixels + j*textureWidth*4, frame + ((frameHeight - 1) - j)*frameWidth*4, frameWidth*4);
+		memcpy(texturePixels + j*textureWidth*4, frameBGRA + ((frameHeight - 1) - j)*frameWidth*4, frameWidth*4);
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
 
@@ -210,13 +218,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			sentInfo = TRUE;
 		}
 		
-		uint8_t image[frameWidth*frameHeight];
-		for (unsigned int j = 0; j < frameHeight; j++) {
-			for (int i = 0; i < frameWidth; i++) {
-				image[j*frameWidth + i] = frame[(j*frameWidth + i)*4 + 1];
-			}
-		}
-		[ostream sendBytes:image length:frameWidth*frameHeight];
+		[ostream sendBytes:frameG length:frameWidth*frameHeight];
 	}
 }
 
@@ -259,6 +261,9 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 //------------------------------------------------------------------------------
 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+}
+
 - (IBAction)changeVisualizationMethod:(id)sender {
 	NSMutableArray *buttons = [[NSMutableArray alloc] init];
 	[buttons addObject:self.m1];
@@ -266,8 +271,9 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[buttons addObject:self.m3];
 	[buttons addObject:self.m4];
 	[buttons addObject:self.m5];
+	[buttons addObject:self.mm];
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		id button = [buttons objectAtIndex:i];
 		if (sender == button) {
 			iVisualizationMethod = i;
