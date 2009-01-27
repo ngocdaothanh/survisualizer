@@ -33,21 +33,32 @@
 	Net *net;
 	Pose *pose;
 
+	// Model
+	int numTriangles;
+	Point3D *triangles;
+
 	NSMutableArray *viewingFields;
 
+	BOOL    mapMode;
+	float   mapX, mapY, mapZ;
+	CGPoint mapLastPoint;   // Drag
+	float   mapLastDistance;  // Zoom
+	
 	int iVisualizationMethod;
 	Visualizer *visualizer;
 }
 
 - (void)installCameraCallbackHook;
-- (void)drawView;
 - (void)onReceive:(NSInputStream *)istream;
 
-@property (nonatomic, retain) IBOutlet UIButton *m1;
-@property (nonatomic, retain) IBOutlet UIButton *m2;
-@property (nonatomic, retain) IBOutlet UIButton *m3;
-@property (nonatomic, retain) IBOutlet UIButton *m4;
-@property (nonatomic, retain) IBOutlet UIButton *m5;
-@property (nonatomic, retain) IBOutlet UIButton *mm;
+@property (nonatomic, retain) IBOutlet UIButton *bMethod1;
+@property (nonatomic, retain) IBOutlet UIButton *bMethod2;
+@property (nonatomic, retain) IBOutlet UIButton *bMethod3;
+@property (nonatomic, retain) IBOutlet UIButton *bMethod4;
+@property (nonatomic, retain) IBOutlet UIButton *bMethod5;
+@property (nonatomic, retain) IBOutlet UIButton *bMapMode;
+
+- (IBAction)toggleMapMethod:(id)sender;
 - (IBAction)changeVisualizationMethod:(id)sender;
+
 @end

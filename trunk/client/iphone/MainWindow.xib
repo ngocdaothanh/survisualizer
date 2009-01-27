@@ -254,14 +254,6 @@
 					<int key="connectionID">9</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">m2</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="883788082"/>
-					</object>
-					<int key="connectionID">66</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">changeVisualizationMethod:</string>
 						<reference key="source" ref="883788082"/>
@@ -269,14 +261,6 @@
 						<int key="IBEventType">7</int>
 					</object>
 					<int key="connectionID">67</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">m3</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="1070106898"/>
-					</object>
-					<int key="connectionID">68</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
@@ -288,14 +272,6 @@
 					<int key="connectionID">69</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">m4</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="424873688"/>
-					</object>
-					<int key="connectionID">70</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">changeVisualizationMethod:</string>
 						<reference key="source" ref="424873688"/>
@@ -303,14 +279,6 @@
 						<int key="IBEventType">7</int>
 					</object>
 					<int key="connectionID">71</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">m5</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="225025708"/>
-					</object>
-					<int key="connectionID">72</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
@@ -322,14 +290,6 @@
 					<int key="connectionID">73</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">m1</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="682015696"/>
-					</object>
-					<int key="connectionID">75</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
 						<string key="label">changeVisualizationMethod:</string>
 						<reference key="source" ref="682015696"/>
@@ -339,21 +299,61 @@
 					<int key="connectionID">77</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMethod1</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="682015696"/>
+					</object>
+					<int key="connectionID">88</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMethod2</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="883788082"/>
+					</object>
+					<int key="connectionID">89</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMethod3</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="1070106898"/>
+					</object>
+					<int key="connectionID">90</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMethod4</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="424873688"/>
+					</object>
+					<int key="connectionID">91</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMethod5</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="225025708"/>
+					</object>
+					<int key="connectionID">92</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">bMapMode</string>
+						<reference key="source" ref="773737154"/>
+						<reference key="destination" ref="309314791"/>
+					</object>
+					<int key="connectionID">93</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchEventConnection" key="connection">
-						<string key="label">changeVisualizationMethod:</string>
+						<string key="label">toggleMapMethod:</string>
 						<reference key="source" ref="309314791"/>
 						<reference key="destination" ref="773737154"/>
 						<int key="IBEventType">7</int>
 					</object>
-					<int key="connectionID">79</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">mm</string>
-						<reference key="source" ref="773737154"/>
-						<reference key="destination" ref="309314791"/>
-					</object>
-					<int key="connectionID">80</int>
+					<int key="connectionID">94</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -416,14 +416,17 @@
 							<reference ref="1070106898"/>
 							<reference ref="424873688"/>
 							<reference ref="225025708"/>
-							<reference ref="682015696"/>
 							<reference ref="309314791"/>
+							<reference ref="682015696"/>
 						</object>
 						<reference key="parent" ref="380026005"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">8</int>
 						<reference key="object" ref="773737154"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+						</object>
 						<reference key="parent" ref="380026005"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -447,13 +450,13 @@
 						<reference key="parent" ref="1002181740"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">74</int>
-						<reference key="object" ref="682015696"/>
+						<int key="objectID">78</int>
+						<reference key="object" ref="309314791"/>
 						<reference key="parent" ref="1002181740"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">78</int>
-						<reference key="object" ref="309314791"/>
+						<int key="objectID">74</int>
+						<reference key="object" ref="682015696"/>
 						<reference key="parent" ref="1002181740"/>
 					</object>
 				</object>
@@ -533,7 +536,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">80</int>
+			<int key="maxID">94</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -542,19 +545,28 @@
 					<string key="className">EAGLView</string>
 					<string key="superclassName">UIView</string>
 					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">changeVisualizationMethod:</string>
-						<string key="NS.object.0">id</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSMutableArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>changeVisualizationMethod:</string>
+							<string>toggleMapMethod:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>m1</string>
-							<string>m2</string>
-							<string>m3</string>
-							<string>m4</string>
-							<string>m5</string>
-							<string>mm</string>
+							<string>bMapMode</string>
+							<string>bMethod1</string>
+							<string>bMethod2</string>
+							<string>bMethod3</string>
+							<string>bMethod4</string>
+							<string>bMethod5</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>

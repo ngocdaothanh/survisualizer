@@ -13,8 +13,12 @@
 - (BOOL)createFramebuffer;
 - (void)destroyFramebuffer;
 
-- (void)onViewingFields:(NSInputStream *)istream;
-- (void)onPose:(NSInputStream *)istream;
+- (void)receiveModel:(NSInputStream *)istream;
+- (void)receiveViewingFields:(NSInputStream *)istream;
+- (void)receivePose:(NSInputStream *)istream;
+
+- (void)drawMapMode;
+- (void)drawRealMode;
 @end
 
 //------------------------------------------------------------------------------
@@ -55,12 +59,12 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 @implementation EAGLView
 
-@synthesize m1;
-@synthesize m2;
-@synthesize m3;
-@synthesize m4;
-@synthesize m5;
-@synthesize mm;
+@synthesize bMethod1;
+@synthesize bMethod2;
+@synthesize bMethod3;
+@synthesize bMethod4;
+@synthesize bMethod5;
+@synthesize bMapMode;
 
 + (Class)layerClass {
 	return [CAEAGLLayer class];
@@ -120,11 +124,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	textureInitialized = NO;
 	backingWidth  = 0;
 	backingHeight = 0;
-	[NSThread detachNewThreadSelector:@selector(drawViewLoop:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(drawViewAndSendVideoLoop:) toTarget:self withObject:nil];
 }
 
-- (void)drawViewLoop:(id)object {
+- (void)drawViewAndSendVideoLoop:(id)object {
 	while (TRUE) {
+		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
+
 		if (!textureInitialized && backingWidth != 0 && backingHeight != 0 && frameWidth != 0 && frameHeight != 0) {
 			glGenTextures(1, &texture);
 			glBindTexture(GL_TEXTURE_2D, texture);
@@ -149,29 +155,74 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 
 		if (frameBGRA) {
-			NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
-			[self drawView];
-			[pool release];
+			[EAGLContext setCurrentContext:context];
+			glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+			glViewport(0, 0, backingWidth, backingHeight);  // Viewport must be called everytime, don't know why
+			glClearColor(255, 255, 255, 255);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			if (mapMode) {
+				[self drawMapMode];
+			} else {
+				[self drawRealMode];
+			}
+			glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
+			
+			// Send Green channel to remote machines -----------------------------------
+			if ([net isConnected]) {
+				NSOutputStream *ostream = [net ostream];
+				
+				static BOOL sentInfo = FALSE;
+				if (!sentInfo) {
+					[ostream sendInt:frameWidth];
+					[ostream sendInt:frameHeight];
+					[ostream sendInt:0];  // Uncompressed
+					sentInfo = TRUE;
+				}
+				
+				[ostream sendBytes:frameG length:frameWidth*frameHeight];
+			}
 		}
+
+		[pool release];
 	}
 	[NSThread exit];
 }
 
-- (void)drawView {
-	[EAGLContext setCurrentContext:context];
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+- (void)drawMapMode {
+	if (!triangles) {
+		return;
+	}
 
-	// Viewport must be called everytime, don't know why
-	glViewport(0, 0, backingWidth, backingHeight);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrthof(0, mapY, 0, mapY*backingHeight/backingWidth, -1000, 1000);
 
-	// Draw background ---------------------------------------------------------
+	glRotatef(90, 1, 0, 0);
+	glTranslatef(mapX, 0, mapZ);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4ub(0, 0, 0, 15);
+
+	glVertexPointer(3, GL_FLOAT, 0, triangles);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
+
+	if (visualizer) {
+		[visualizer visualize:iVisualizationMethod];
+	}
+}
+
+- (void)drawRealMode {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrthof(0, backingWidth, 0, backingHeight, -1, 1);
 	
 	glMatrixMode(GL_MODELVIEW);
-	glClearColorx(255, 255, 255, 255);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
@@ -193,48 +244,38 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	
 	// Do not apply the background texture to other things
 	glDisable(GL_TEXTURE_2D);
-	
-	// Visualize
-	if ([pose isValid]) {
+
+	if ([pose isValid] && visualizer) {
 		[pose apply];
 		[visualizer visualize:iVisualizationMethod];
-	} else {
-		// TODO: notify that pose is invalid
-	}
-	
-	// Refresh screen ----------------------------------------------------------
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
-
-	// Send Green channel to remote machines -----------------------------------
-	if ([net isConnected]) {
-		NSOutputStream *ostream = [net ostream];
-
-		static BOOL sentInfo = FALSE;
-		if (!sentInfo) {
-			[ostream sendInt:frameWidth];
-			[ostream sendInt:frameHeight];
-			[ostream sendInt:0];  // Uncompressed
-			sentInfo = TRUE;
-		}
-		
-		[ostream sendBytes:frameG length:frameWidth*frameHeight];
 	}
 }
 
 //------------------------------------------------------------------------------
 
 - (void)onReceive:(NSInputStream *)istream {
-	static BOOL viewingFieldsReceived = FALSE;
-	if (!viewingFieldsReceived) {
-		[self onViewingFields:istream];
-		viewingFieldsReceived = YES;
+	static BOOL modelAndViewingFieldsReceived = NO;
+
+	if (modelAndViewingFieldsReceived) {
+		[self receivePose:istream];
 	} else {
-		[self onPose:istream];
+		[self receiveModel:istream];
+		[self receiveViewingFields:istream];
+		modelAndViewingFieldsReceived = YES;
 	}
 }
 
-- (void)onViewingFields:(NSInputStream *)istream {
+- (void)receiveModel:(NSInputStream *)istream {
+	numTriangles = [istream receiveInt];
+	triangles = (Point3D *) [istream receiveBytes:numTriangles*3*sizeof(Point3D)];
+	
+	// TODO: calculate
+	mapX = 60;
+	mapY = backingWidth/3;
+	mapZ = -120;
+}
+
+- (void)receiveViewingFields:(NSInputStream *)istream {
 	int segmentsPerEdge = [istream receiveInt];
 	int numViewingFields = [istream receiveInt];
 	
@@ -247,7 +288,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	visualizer = [[Visualizer alloc] initWithViewingFields:viewingFields];
 }
 
-- (void)onPose:(NSInputStream *)istream {
+- (void)receivePose:(NSInputStream *)istream {
 	char *valid = [istream receiveBytes:1];
 	if (*valid == 1) {
 		float *numbers = (float *) [istream receiveBytes:28*sizeof(float)];
@@ -261,19 +302,69 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 //------------------------------------------------------------------------------
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+- (IBAction)toggleMapMethod:(id)sender {
+	mapMode = !mapMode;
+
+	if (mapMode) {
+		[self.bMapMode setBackgroundColor:[UIColor magentaColor]];
+	} else {
+		[self.bMapMode setBackgroundColor:[UIColor whiteColor]];
+	}
 }
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	if (!mapMode) {
+		return;
+	}
+
+	mapLastPoint = [[touches anyObject] locationInView:self];
+	mapLastDistance = -1;  // Mark that this distance is invalid
+}
+
+- (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
+	if (!mapMode) {
+		return;
+	}
+
+	NSSet *allTouches = [event allTouches];	
+	int count = [allTouches count];
+	if (count == 1) {         // Move
+		UITouch *touch = [[allTouches allObjects] objectAtIndex:0];
+		CGPoint p = [touch locationInView:self];
+		mapX += (p.x - mapLastPoint.x)*mapY/backingWidth;
+		mapZ += (p.y - mapLastPoint.y)*mapY/backingWidth;
+		mapLastPoint = p;
+	} else if (count == 2) {  // Zoom
+		UITouch *touch1 = [[allTouches allObjects] objectAtIndex:0];
+		UITouch *touch2 = [[allTouches allObjects] objectAtIndex:1];
+		
+		CGPoint p1 = [touch1 locationInView:self];
+		CGPoint p2 = [touch2 locationInView:self];
+
+		float dx = p1.x - p2.x;
+		float dy = p1.y - p2.y;
+		float d = sqrt(dx*dx + dy*dy);
+		if (mapLastDistance > 0) {
+			mapY -= d - mapLastDistance;
+			if (mapY < 10) {  // Too low
+				mapY = 10;
+			}
+		}
+		mapLastDistance = d;
+	}
+}
+
+//------------------------------------------------------------------------------
 
 - (IBAction)changeVisualizationMethod:(id)sender {
 	NSMutableArray *buttons = [[NSMutableArray alloc] init];
-	[buttons addObject:self.m1];
-	[buttons addObject:self.m2];
-	[buttons addObject:self.m3];
-	[buttons addObject:self.m4];
-	[buttons addObject:self.m5];
-	[buttons addObject:self.mm];
+	[buttons addObject:self.bMethod1];
+	[buttons addObject:self.bMethod2];
+	[buttons addObject:self.bMethod3];
+	[buttons addObject:self.bMethod4];
+	[buttons addObject:self.bMethod5];
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 5; i++) {
 		id button = [buttons objectAtIndex:i];
 		if (sender == button) {
 			iVisualizationMethod = i;
@@ -285,6 +376,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 	[buttons release];
 }
+
+//------------------------------------------------------------------------------
 
 - (void)layoutSubviews {
 	[EAGLContext setCurrentContext:context];
@@ -338,6 +431,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[context release];
 	context = nil;
 	free(texturePixels);
+
+	free(triangles);
 
 	for (ViewingField *vf in viewingFields) {
 		[vf release];

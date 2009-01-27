@@ -205,7 +205,7 @@
 		vf.headsOnTriangles[iV4].x, vf.headsOnTriangles[iV4].y, vf.headsOnTriangles[iV4].z
 	};
 
-	glColor4ub(255, 0, 0, 255);
+	glColor4ub(255, 0, 0, 127);
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_VERTEX_ARRAY);		
 	glDrawArrays(GL_LINES, 0, 2*4);
