@@ -16,7 +16,7 @@ int main()
 	cout << "  Copyright (C) Isis Innovation Limited 2008 " << endl;  
 	cout << endl;
 	cout << "  Parsing settings.cfg ...." << endl;
-	GUI.LoadFile("settings.cfg");
+	GUI.LoadFile("data/settings.cfg");
 
 	GUI.StartParserThread(); // Start parsing of the console input
 	atexit(GUI.StopParserThread); 
