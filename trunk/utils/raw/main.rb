@@ -21,9 +21,6 @@ class Main
     @height = recv_bytes(4).unpack('I!')[0]
     @compress = recv_bytes(4).unpack('I!')[0] == 1
 
-    @iframe = 1
-    @t = Time.now
-
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
     glutInitWindowSize(@width, @height)
@@ -39,7 +36,7 @@ class Main
     init_window
 
     puts "Image: #{@width} x #{@height}"
-    puts 'Press [Enter] to capture to file, [Esc] to exit'
+    puts 'Press [Enter] to begin capture to files, [Esc] to exit'
 
     glutMainLoop
   end
@@ -88,21 +85,21 @@ class Main
       @image = Zlib::Inflate.inflate(compressed_image)
     else
       @image = recv_bytes(@width*@height)
-    end
-
-    if @iframe < NUM_FRAMES
-      @iframe += 1
-      if @iframe == NUM_FRAMES
-        dt = Time.now - @t
-        fps = NUM_FRAMES/dt
-        puts "#{fps} FPS"
-      end
+      save_image if @begin_save_image
     end
 
     glDrawPixels(@width, @height, GL_LUMINANCE, GL_UNSIGNED_BYTE, @image)
 
     # Swap buffers for display
     glutSwapBuffers
+  end
+
+  def save_image
+    base = sprintf('%03d', @iframe)
+    File.open("#{base}.raw", 'wb') { |f| f.write(@image) }
+    File.open("#{base}.pgm", 'wb') { |f| f.write("P5\n#{@width} #{@height}\n255\n"); f.write(@image) }
+    print "#{@iframe} "
+    @iframe += 1
   end
 
   def idle
@@ -112,25 +109,32 @@ class Main
   def keyboard(key, x, y)
     case key
       when "\r"  # Enter
-        unless @icaptured
-          @icaptured = 0
+        unless @begin_save_image
           FileUtils.rm(Dir.glob('./*.{raw,pgm}'))
+          @begin_save_image = true
+          @iframe = 0
+          @begin_time = Time.now
         end
-
-        File.open("#{@icaptured}.raw", 'wb') { |f| f.write(@image) }
-        File.open("#{@icaptured}.pgm", 'wb') { |f| f.write("P5\n#{@width} #{@height}\n255\n"); f.write(@image) }
-        puts "Captured image #{@icaptured}"
-        @icaptured += 1
 
       when "\e"  # ESC
         glutDestroyWindow(@window) if @window
+
+        # Calculate FPS
+        dt = Time.now - @begin_time
+        fps = @iframe/dt
+
+        puts
+        puts "FPS: #{fps}"
+        puts 'To convert the images to movie using ImageMagick and ffmpeg:'
+        puts "ffmpeg -r #{fps.round} -i %03d.pgm movie.avi"
+
         exit(0)
     end
   end
 end
 
 if ARGV.size != 2
-  puts "Usage: client.rb <host> <port>\n"
+  puts 'Usage: client.rb <host> <port>'
   exit(-1)
 end
 
