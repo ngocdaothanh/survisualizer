@@ -48,8 +48,6 @@
 }
 
 - (void)apply {
-	glMatrixMode(GL_PROJECTION);  
-	glLoadIdentity();
 	glMultMatrixf(frustum);
 	glTranslatef(translation.x, translation.y, translation.z);
 	glMultMatrixf(rotation);

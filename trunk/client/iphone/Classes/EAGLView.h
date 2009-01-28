@@ -6,6 +6,7 @@
 #import "Net.h"
 #import "Pose.h"
 #import "Visualizer.h"
+#import "CameraAdjustorView.h"
 
 /**
  * This class wraps the CAEAGLLayer from CoreAnimation into a convenient UIView subclass.
@@ -46,10 +47,14 @@
 	
 	int iVisualizationMethod;
 	Visualizer *visualizer;
+
+    CameraAdjustorView *caView;
 }
 
 - (void)installCameraCallbackHook;
 - (void)onReceive:(NSInputStream *)istream;
+
+@property (nonatomic, retain) CameraAdjustorView *caView;
 
 @property (nonatomic, retain) IBOutlet UIButton *bMethod1;
 @property (nonatomic, retain) IBOutlet UIButton *bMethod2;

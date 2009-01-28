@@ -5,6 +5,8 @@
 	Point3D translation;
 	float rotation[16];
 	BOOL valid;
+	
+	Point3D deltaRotation;
 }
 
 @property (readonly) Point3D translation;
