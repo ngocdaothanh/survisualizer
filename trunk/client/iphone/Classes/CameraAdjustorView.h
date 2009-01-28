@@ -2,7 +2,7 @@
 
 #import "Point3D.h"
 
-@interface CameraAdjustorView : UIView {
+@interface CameraAdjustorView : UIView <UIAccelerometerDelegate> {
 	Point3D position;
 	Point3D rotation;
 }

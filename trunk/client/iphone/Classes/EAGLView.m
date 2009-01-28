@@ -42,13 +42,16 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			frameBGRA = malloc(frameWidth*frameHeight*4);
 			frameG    = malloc(frameWidth*frameHeight);
 		}
-		memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
-		for (unsigned int j = 0; j < frameHeight; j++) {
-			for (int i = 0; i < frameWidth; i++) {
-				frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
+#ifndef LAST_STORED_VIDEO
+		if (!mapMode) {
+			memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
+			for (unsigned int j = 0; j < frameHeight; j++) {
+				for (int i = 0; i < frameWidth; i++) {
+					frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
+				}
 			}
 		}
-
+#endif
 		[surface unlock];
 		[surface release];
 	}
@@ -157,6 +160,40 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 
 		if (frameBGRA) {
+#ifdef LAST_STORED_VIDEO
+			static int storedVideo = 0;
+			static BOOL increasingDirection = YES;
+
+			NSString *fileName = [[NSString alloc] initWithFormat:@"/private/var/mobile/Surveillance/%03d.raw", storedVideo];
+			NSData *data = [NSData dataWithContentsOfFile:fileName];
+			memcpy(frameG, [data bytes], [data length]);
+			//[data autorelease];
+			[fileName release];
+			
+			// TODO: use BGRA for stored video
+			for (int j = 0; j < frameHeight; j++) {
+				for (int i = 0; i < frameWidth; i++) {
+					memset(&(frameBGRA[(j*frameWidth + i)*4]), frameG[j*frameWidth + i], 4);
+				}
+			}
+			
+			if (increasingDirection) {
+				// Only use the first frame then wait until the map has been created on the PTAM side
+				if (storedVideo != 0 || [pose isValid]) {
+					storedVideo++;
+					if (storedVideo > LAST_STORED_VIDEO) {
+						storedVideo = LAST_STORED_VIDEO;
+						increasingDirection = NO;
+					}
+				}
+			} else {
+				storedVideo--;
+				if (storedVideo < 0) {
+					storedVideo = 0;
+					increasingDirection = YES;
+				}
+			}
+#endif
 			[EAGLContext setCurrentContext:context];
 			glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 			glViewport(0, 0, backingWidth, backingHeight);  // Viewport must be called everytime, don't know why
@@ -171,7 +208,11 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 			
 			// Send Green channel to remote machines -----------------------------------
-			if ([net isConnected] && !mapMode) {
+			if ([net isConnected]
+#ifndef LAST_STORED_VIDEO
+					&& !mapMode
+#endif
+					) {
 				NSOutputStream *ostream = [net ostream];
 
 				static BOOL sentInfo = FALSE;
@@ -229,7 +270,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		translation.y += position.y;
 		translation.z += position.z;
 
-		glPointSize(5);
+		glPointSize(7);
 		glColor4ub(0, 255, 0, 127);
 		glVertexPointer(3, GL_FLOAT, 0, &translation);
 		glDrawArrays(GL_POINTS, 0, 1);
@@ -354,10 +395,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 	mapLastPoint = [[touches anyObject] locationInView:self];
 	mapLastDistance = -1;  // Mark that this distance is invalid
-	
-	NSSet *allTouches = [event allTouches];	
-	int count = [allTouches count];
-	NSLog(@"%d", count);
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {

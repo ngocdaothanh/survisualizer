@@ -69,8 +69,15 @@ void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 	glMultMatrix(se3CfromW);
 
 	DrawFadingGrid();
+	
+	// Draw 0xyz
+	glBegin(GL_LINES);
+	glColor3f(1, 0, 0); glVertex3f(0, 0, 0); glVertex3f(1, 0, 0);
+	glColor3f(0, 1, 0); glVertex3f(0, 0, 0); glVertex3f(0, 1, 0);
+	glColor3f(0, 0, 1); glVertex3f(0, 0, 0); glVertex3f(0, 0, 1);
+	glEnd();
 
-	mGame.DrawStuff(se3CfromW.inverse().get_translation());
+	//mGame.DrawStuff(se3CfromW.inverse().get_translation());
 
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -245,8 +252,8 @@ void ARDriver::DrawFadingGrid()
 	dStrength = (60 - mnCounter) / 30.0;
 
 	glColor4f(1,1,1,dStrength);
-	int nHalfCells = 8;
-	if(mnCounter < 8)
+	int nHalfCells = 5;
+	if(mnCounter < 5)
 		nHalfCells = mnCounter + 1;
 	int nTot = nHalfCells * 2 + 1;
 	Vector<3>  aaVertex[17][17];
