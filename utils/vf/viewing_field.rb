@@ -9,6 +9,31 @@ class ViewingField
 
   # Returns heads of rays whose:
   # * root: camera position
+  # * head: point on the model triangles
+  def heads
+    return @heads if @heads
+
+    @heads = []
+    heads_on_camera.each do |h|
+      ray = Ray.new(@camera.position, h)
+      head = nearest_intersection_with_ray(ray)
+      puts 'A head is nil (the ray does not cut any trianlge of the model)' unless head
+      @heads << head
+    end
+    @heads
+  end
+
+  def serialize
+    ret = ''
+    ret << @camera.position.serialize
+    heads.each { |h| ret << h.serialize }
+    ret
+  end
+
+  private
+
+  # Returns heads of rays whose:
+  # * root: camera position
   # * head: point on the camera rectangle
   def heads_on_camera
     return @heads_on_camera if @heads_on_camera
@@ -23,29 +48,6 @@ class ViewingField
     end
     @heads_on_camera
   end
-
-  def heads_on_triangles
-    return @heads_on_triangles if @heads_on_triangles
-
-    @heads_on_triangles = []
-    heads_on_camera.each do |h|
-      ray = Ray.new(@camera.position, h)
-      head = nearest_intersection_with_ray(ray)
-      puts 'A head is nil (the ray does not cut any trianlge of the model)' unless head
-      @heads_on_triangles << head
-    end
-    @heads_on_triangles
-  end
-
-  def serialize
-    ret = ''
-    ret << @camera.position.serialize
-    heads_on_camera.each { |h| ret << h.serialize }
-    heads_on_triangles.each { |h| ret << h.serialize }
-    ret
-  end
-
-  private
 
   def nearest_intersection_with_ray(ray)
     intersections = []
@@ -87,7 +89,6 @@ if __FILE__ == $0
   segments_per_edge = 10
 
   viewing_field = ViewingField.new(camera, triangles, segments_per_edge)
-  p viewing_field.heads_on_camera
   p viewing_field.heads_on_triangles
   p viewing_field.serialize
 end

@@ -91,10 +91,10 @@
 			int iV3 = iV4 + 1;
 			
 			GLfloat vertices[] = {
-				vf.headsOnTriangles[iV1].x, vf.headsOnTriangles[iV1].y, vf.headsOnTriangles[iV1].z,
-				vf.headsOnTriangles[iV2].x, vf.headsOnTriangles[iV2].y, vf.headsOnTriangles[iV2].z,
-				vf.headsOnTriangles[iV4].x, vf.headsOnTriangles[iV4].y, vf.headsOnTriangles[iV4].z,
-				vf.headsOnTriangles[iV3].x, vf.headsOnTriangles[iV3].y, vf.headsOnTriangles[iV3].z
+				vf.heads[iV1].x, vf.heads[iV1].y, vf.heads[iV1].z,
+				vf.heads[iV2].x, vf.heads[iV2].y, vf.heads[iV2].z,
+				vf.heads[iV4].x, vf.heads[iV4].y, vf.heads[iV4].z,
+				vf.heads[iV3].x, vf.heads[iV3].y, vf.heads[iV3].z
 			};
 			
 			glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -112,7 +112,7 @@
 	for (int j = 0; j < vf.segmentsPerEdge + 1; j++) {
 		for (int i = 0; i < vf.segmentsPerEdge + 1; i++) {
 			int index = j*(vf.segmentsPerEdge + 1) + i;
-			Point3D root = vf.headsOnTriangles[index];
+			Point3D root = vf.heads[index];
 
 			Point3D head;
 			head.x = root.x + (vf.position.x - root.x)*0.1;
@@ -150,13 +150,12 @@
 		for (int i = 0; i < vf.segmentsPerEdge + 1; i++) {
 			int index = j*(vf.segmentsPerEdge + 1) + i;
 
-			Point3D root = vf.headsOnTriangles[index];
-			Point3D headLimit = vf.headsOnCamera[index];
+			Point3D root = vf.heads[index];
 
 			Point3D head;
-			head.x = root.x + (headLimit.x - root.x)*ratio;
-			head.y = root.y + (headLimit.y - root.y)*ratio;
-			head.z = root.z + (headLimit.z - root.z)*ratio;
+			head.x = root.x + (vf.position.x - root.x)*ratio;
+			head.y = root.y + (vf.position.y - root.y)*ratio;
+			head.z = root.z + (vf.position.z - root.z)*ratio;
 
 			movedHeads[index] = head;
 		}
@@ -193,16 +192,16 @@
 	
 	GLfloat vertices[] = {
 		vf.position.x, vf.position.y, vf.position.z,
-		vf.headsOnTriangles[iV1].x, vf.headsOnTriangles[iV1].y, vf.headsOnTriangles[iV1].z,
+		vf.heads[iV1].x, vf.heads[iV1].y, vf.heads[iV1].z,
 		
 		vf.position.x, vf.position.y, vf.position.z,
-		vf.headsOnTriangles[iV2].x, vf.headsOnTriangles[iV2].y, vf.headsOnTriangles[iV2].z,
+		vf.heads[iV2].x, vf.heads[iV2].y, vf.heads[iV2].z,
 		
 		vf.position.x, vf.position.y, vf.position.z,
-		vf.headsOnTriangles[iV3].x, vf.headsOnTriangles[iV3].y, vf.headsOnTriangles[iV3].z,
+		vf.heads[iV3].x, vf.heads[iV3].y, vf.heads[iV3].z,
 		
 		vf.position.x, vf.position.y, vf.position.z,
-		vf.headsOnTriangles[iV4].x, vf.headsOnTriangles[iV4].y, vf.headsOnTriangles[iV4].z
+		vf.heads[iV4].x, vf.heads[iV4].y, vf.heads[iV4].z
 	};
 
 	glColor4ub(255, 0, 0, 127);
@@ -221,23 +220,23 @@
 	Point3D *ret = malloc(vf.segmentsPerEdge*4*sizeof(Point3D));
 
 	// Top (not including the right-most element)
-	memcpy(ret, vf.headsOnTriangles, vf.segmentsPerEdge*sizeof(Point3D));
+	memcpy(ret, vf.heads, vf.segmentsPerEdge*sizeof(Point3D));
 
 	int nextIndex = vf.segmentsPerEdge;
 
 	// Right (not including the bottom element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		ret[nextIndex] = vf.headsOnTriangles[(i + 1)*(vf.segmentsPerEdge + 1) - 1];
+		ret[nextIndex] = vf.heads[(i + 1)*(vf.segmentsPerEdge + 1) - 1];
 	}
 	
 	// Bottom (not including the left-most element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		ret[nextIndex] = vf.headsOnTriangles[(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1) - 1 - i];
+		ret[nextIndex] = vf.heads[(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1) - 1 - i];
 	}
 
 	// Left (not including the top element)
 	for (int i = 0; i < vf.segmentsPerEdge; i++, nextIndex++) {
-		ret[nextIndex] = vf.headsOnTriangles[(vf.segmentsPerEdge - i)*(vf.segmentsPerEdge + 1)];
+		ret[nextIndex] = vf.heads[(vf.segmentsPerEdge - i)*(vf.segmentsPerEdge + 1)];
 	}
 	
 	return ret;
