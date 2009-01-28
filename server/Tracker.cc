@@ -196,11 +196,12 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 
 int get_num_controlled_images()
 {
+	return 50;
 	int ret = 0;
 	char file_name[99];
 
 	while (true) {
-		sprintf(file_name, "data/%d.raw", ret);
+		sprintf(file_name, "data/%03d.raw", ret);
 		FILE* fp = fopen(file_name, "r");
 		if (fp) {
 			ret++;
@@ -233,7 +234,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 
 		if (mnInitialStage != TRAIL_TRACKING_COMPLETE) {
 			char file_name[99];
-			sprintf(file_name, "data/%d.raw", iimage);
+			sprintf(file_name, "data/%03d.raw", iimage);
 
 			ifstream in(file_name, ios::binary);
 			char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory

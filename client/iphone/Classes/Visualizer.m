@@ -30,6 +30,27 @@
 - (void)visualize:(int)imethod {
 	for (ViewingField *vf in viewingFields) {
 		[self enableBlend];
+/*		
+		// Draw 0xyz
+		float a[6] = {
+			vf.position.x, vf.position.y, vf.position.z,
+			vf.position.x + 1, vf.position.y, vf.position.z
+		};
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(255, 0, 0, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+
+		a[3] = vf.position.x; a[4] = vf.position.y + 1;
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(0, 255, 0, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+
+		a[4] = vf.position.y; a[5] = vf.position.z;
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(0, 0, 255, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+*/		
 		switch (imethod) {
 			case 0:
 				[self visualizeContour:vf];
@@ -127,6 +148,12 @@
 	glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDrawArrays(GL_LINES, 0, 2*(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1));
+
+	// Draw one end so that the user know the directions of the vectors
+	glPointSize(2);
+	glColor4ub(0, 0, 255, 127);
+	glVertexPointer(3, GL_FLOAT, 0, vf.heads);
+	glDrawArrays(GL_POINTS, 0, (vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1));	
 }
 
 //------------------------------------------------------------------------------
