@@ -21,6 +21,7 @@ Running:
 
 h2. Utilities
 
-* intersection: Caculate intersections of surveillance cameras and a model,
-which is a collection of triangles. The result is serialized to a file in "data"
-directory.
+* raw: Displays and captures video images from a remote camera.
+* tr: Serializes triangles of a model to a .tr file.
+* vf: Caculates intersections of surveillance cameras and a model,
+which is a collection of triangles. The result is serialized to a .vf file.
