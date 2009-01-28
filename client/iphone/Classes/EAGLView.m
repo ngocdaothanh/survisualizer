@@ -171,9 +171,9 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 			
 			// Send Green channel to remote machines -----------------------------------
-			if ([net isConnected]) {
+			if ([net isConnected] && !mapMode) {
 				NSOutputStream *ostream = [net ostream];
-				
+
 				static BOOL sentInfo = FALSE;
 				if (!sentInfo) {
 					[ostream sendInt:frameWidth];
