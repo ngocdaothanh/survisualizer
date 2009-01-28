@@ -66,12 +66,14 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 @synthesize bMethod5;
 @synthesize bMapMode;
 
+@synthesize caView;
+
 + (Class)layerClass {
 	return [CAEAGLLayer class];
 }
 
 - (id)initWithCoder:(NSCoder*)coder {
-	if ((self = [super initWithCoder:coder])) {
+	if (self = [super initWithCoder:coder]) {
 		// Get the layer
 		CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
 
@@ -204,6 +206,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
+	glTranslatef(caView.position.x, caView.position.y, caView.position.z);
+	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 	glColor4ub(0, 0, 0, 15);
@@ -218,9 +222,15 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 	// Current position
 	if ([pose isValid]) {
+		// Adjust camera position
 		Point3D translation = pose.translation;
+		Point3D position = caView.position;
+		translation.x += position.x;
+		translation.y += position.y;
+		translation.z += position.z;
+
 		glPointSize(5);
-		glColor4ub(0, 255, 0, 255);
+		glColor4ub(0, 255, 0, 127);
 		glVertexPointer(3, GL_FLOAT, 0, &translation);
 		glDrawArrays(GL_POINTS, 0, 1);
 	}
@@ -255,7 +265,23 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glDisable(GL_TEXTURE_2D);
 
 	if ([pose isValid] && visualizer) {
+		glMatrixMode(GL_PROJECTION);  
+		glLoadIdentity();
 		[pose apply];
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		// Adjust model rotation
+		Point3D rotation = caView.rotation;
+		glRotatef(-rotation.x, 1, 0, 0);
+		glRotatef(-rotation.y, 0, 1, 0);
+		glRotatef(-rotation.z, 0, 0, 1);
+		
+		// Adjust model position
+		Point3D position = caView.position;
+		glTranslatef(-position.x, -position.y, -position.z);
+		
 		[visualizer visualize:iVisualizationMethod];
 	}
 }
@@ -328,6 +354,10 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 	mapLastPoint = [[touches anyObject] locationInView:self];
 	mapLastDistance = -1;  // Mark that this distance is invalid
+	
+	NSSet *allTouches = [event allTouches];	
+	int count = [allTouches count];
+	NSLog(@"%d", count);
 }
 
 - (void)touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event {
@@ -355,8 +385,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		float d = sqrt(dx*dx + dy*dy);
 		if (mapLastDistance > 0) {
 			mapY -= d - mapLastDistance;
-			if (mapY < 10) {  // Too low
-				mapY = 10;
+			if (mapY < 2) {  // Too low
+				mapY = 2;
 			}
 		}
 		mapLastDistance = d;
@@ -450,6 +480,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 	[visualizer release];
 
+	[caView autorelease];
+	 
 	[super dealloc];
 }
 
