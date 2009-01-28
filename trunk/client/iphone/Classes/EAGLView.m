@@ -215,6 +215,15 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	if (visualizer) {
 		[visualizer visualize:iVisualizationMethod];
 	}
+
+	// Current position
+	if ([pose isValid]) {
+		Point3D translation = pose.translation;
+		glPointSize(5);
+		glColor4ub(0, 255, 0, 255);
+		glVertexPointer(3, GL_FLOAT, 0, &translation);
+		glDrawArrays(GL_POINTS, 0, 1);
+	}
 }
 
 - (void)drawRealMode {

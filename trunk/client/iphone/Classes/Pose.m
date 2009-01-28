@@ -5,6 +5,8 @@
 
 @implementation Pose
 
+@synthesize translation;
+
 - (id)init {
 	if (self = [super init]) {
 		valid = NO;
@@ -22,7 +24,7 @@
 
 - (void)validate:(float *)numbers {
 	memcpy(frustum, numbers, 16*sizeof(float));
-	memcpy(translation, numbers + 16, 3*sizeof(float));
+	memcpy(&translation, numbers + 16, sizeof(Point3D));
 
 	// Col 0
 	memcpy(rotation, numbers + (16 + 3), 3*sizeof(float));
@@ -49,7 +51,7 @@
 	glMatrixMode(GL_PROJECTION);  
 	glLoadIdentity();
 	glMultMatrixf(frustum);
-	glTranslatef(translation[0], translation[1], translation[2]);
+	glTranslatef(translation.x, translation.y, translation.z);
 	glMultMatrixf(rotation);
 }
 

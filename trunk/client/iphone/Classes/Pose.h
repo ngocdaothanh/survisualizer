@@ -1,9 +1,13 @@
+#import "Point3D.h"
+
 @interface Pose : NSObject {
 	float frustum[16];
-	float translation[3];
+	Point3D translation;
 	float rotation[16];
 	BOOL valid;
 }
+
+@property (readonly) Point3D translation;
 
 - (void)invalidate;
 - (BOOL)isValid;
