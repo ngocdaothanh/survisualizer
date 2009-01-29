@@ -126,7 +126,7 @@ class Main
 
           puts
           puts "FPS: #{fps}"
-          puts 'To convert the images to movie using ImageMagick and ffmpeg:'
+          puts 'To convert the images to movie using ffmpeg:'
           puts "ffmpeg -r #{fps.round} -i %03d.pgm movie.avi"
         end
 
