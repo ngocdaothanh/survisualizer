@@ -119,14 +119,16 @@ class Main
       when "\e"  # ESC
         glutDestroyWindow(@window) if @window
 
-        # Calculate FPS
-        dt = Time.now - @begin_time
-        fps = @iframe/dt
+        if @begin_time  # [Enter] has been pressed
+          # Calculate FPS
+          dt = Time.now - @begin_time
+          fps = @iframe/dt
 
-        puts
-        puts "FPS: #{fps}"
-        puts 'To convert the images to movie using ImageMagick and ffmpeg:'
-        puts "ffmpeg -r #{fps.round} -i %03d.pgm movie.avi"
+          puts
+          puts "FPS: #{fps}"
+          puts 'To convert the images to movie using ImageMagick and ffmpeg:'
+          puts "ffmpeg -r #{fps.round} -i %03d.pgm movie.avi"
+        end
 
         exit(0)
     end
