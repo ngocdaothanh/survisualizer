@@ -96,8 +96,8 @@ class Main
 
   def save_image
     base = sprintf('%03d', @iframe)
-    File.open("#{base}.raw", 'wb') { |f| f.write(@image) }
-    File.open("#{base}.pgm", 'wb') { |f| f.write("P5\n#{@width} #{@height}\n255\n"); f.write(@image) }
+    File.open("./out/#{base}.raw", 'wb') { |f| f.write(@image) }
+    File.open("./out/#{base}.pgm", 'wb') { |f| f.write("P5\n#{@width} #{@height}\n255\n"); f.write(@image) }
     print "#{@iframe} "
     @iframe += 1
   end
@@ -110,7 +110,7 @@ class Main
     case key
       when "\r"  # Enter
         unless @begin_save_image
-          FileUtils.rm(Dir.glob('./*.{raw,pgm}'))
+          FileUtils.rm(Dir.glob('./out/*.{raw,pgm}'))
           @begin_save_image = true
           @iframe = 0
           @begin_time = Time.now
