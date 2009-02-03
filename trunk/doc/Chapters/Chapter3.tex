@@ -7,9 +7,9 @@ In this chapter, we implement a prototype system based on the reference implemen
 
 \section{System Architecture}
 
-The prototype can use either a Sony VAIO (appendix \ref{AppendixVAIO}) or an Apple iPhone (appendix \ref{AppendixiPhone}) as the mobile device. We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the camera attached to the mobile device. However, this implementation cannot run on neither mobile devices because it requires a dualcore CPU to be able to run smoothly. In order to add computation power to the prototype system, we connect a MacBook Pro (appendix \ref{AppendixMacBook}) as a PTAM server to the mobile device via wireless network, and the PTAM part of the program is set aside on the PTAM server (figure \ref{fig:PrototypeArchitecture}).
+The prototype can use either a Sony VAIO (appendix \ref{AppendixVAIO}) or an Apple iPhone (appendix \ref{AppendixiPhone}) as the mobile device. We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the camera attached to the mobile device. However, this implementation can run on neither mobile devices because it requires a dualcore CPU to be able to run smoothly. In order to add computation power to the prototype system, we connect a MacBook Pro (appendix \ref{AppendixMacBook}) as a PTAM server to the mobile device via wireless network. The PTAM part of the program is set aside on the PTAM server (figure \ref{fig:PrototypeArchitecture}).
 
-For the sake of quick setup time, the mobile device and the PTAM server are connected directly using ad hoc mode, which means that an additional wireless hub is not needed. This setup also has another advantage that the data transmission is very quick: the ``ping'' time is only about 1 ms. If a hub is used, the ``ping'' time may sometimes go up to 100 ms.
+For the sake of quick setup time, the mobile device and the PTAM server are connected directly using ad hoc mode, which means an additional wireless hub is not needed. This setup has another advantage that the data transmission is very quick: the ``ping'' time is only about 1 ms. If a hub is used, the ``ping'' time may sometimes go up to 100 ms.
 
 \begin{table}[tb]
 	\begin{center}
@@ -35,11 +35,11 @@ On theory the network interfaces on both VAIO and MacBook Pro are able to work a
 We modify the original PTAM source code so that the ``video source'' is remotely located on the mobile device, not on the server where the PTAM process actually runs. We learn a little from Erlang language \cite{Reference17} of how to write concurrent, high-performance systems. Right after the Transmission Control Protocol (TCP) connection between the mobile device and the PTAM server is established:
 
 \begin{itemize}
-	\item The mobile device continuously feeds frames captured from its camera to the PTAM server.
+	\item The mobile device continuously feeds video frames captured from its camera to the PTAM server.
 	\item The PTAM server continuously feeds position and orientation of the mobile camera to the mobile device.
 \end{itemize}
 
-As the above explanation suggests, we use ``push'' style data passing instead of ``pull'', one side actively sends data to the other side without having to wait for the request for the data from the other side. In other words we use the mailbox design pattern instead of the RPC (Remote Procedure Call) design pattern, which is slower and requires synchronizing the call and the result (figure \ref{fig:RPCMailbox}).
+As the above explanation suggests, we use ``push'' style data passing instead of ``pull'', one side actively sends data to the other side without having to wait for the request for the data from the other side. In other words we use the mailbox design pattern instead of the Remote Procedure Call (RPC) one, which is slower and requires synchronizing the call and the result (figure \ref{fig:RPCMailbox}).
 
 \begin{figure}[htbp]
 	\centering
@@ -49,10 +49,10 @@ As the above explanation suggests, we use ``push'' style data passing instead of
 	\label{fig:RPCMailbox}
 \end{figure}
 
-There are two essential threads in the PTAM process: tracking and mapping threads. The tracking thread tracks feature points in the frames received from the mobile camera, and the mapping thread builds 3D maps of these points. Because the tracking thread only need grayscale frames, instead of sending all the three RGB color channels of each frame, the mobile device only needs to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. There are several optimizations to further improve the frame rate sent to the PTAM server:
+There are two essential threads in the PTAM process: tracking and mapping threads. The tracking thread tracks feature points in the frames received from the mobile camera, and the mapping thread builds a 3D map of these points. Because the tracking thread only need grayscale frames, instead of sending all the three RGB color channels of each frame, the mobile device only needs to send the brightness Y = 0.3*R + 0.59*G + 0.11*B. There are several optimizations to further improve the frame rate sent to the PTAM server:
 
 \begin{itemize}
-	\item Send G color channel instead of Y, because G affects Y the most as in the above common equation. This does not affect PTAM. This optimization enormously improves the frame rate because we can omit the pixel-wise calculation of the brightness estimation.
+	\item Send G color channel instead of Y, because G affects Y the most as in the above equation. This does not affect PTAM. This optimization enormously improves the frame rate because we can omit the pixel-wise calculation of the brightness estimation.
 	\item Losslessly compress G color channel using the standard library ``zlib''. The compression rate is about 50\%. But we should use compression with care because it may take more time to compress and uncompress than to send uncompressed images.
 \end{itemize}
 
@@ -77,18 +77,18 @@ There are two essential threads in the PTAM process: tracking and mapping thread
 	\end{center}
 \end{table}
 
-However, as table \ref{tb:FrameRates} suggests, we should use 320 x 240 frame size with uncompressed G color channel for the VAIO--Macbook Pro configuration. Bigger frame size allows PTAM to find more feature points, but the following drawbacks pop up:
+However, as table \ref{tb:FrameRates} suggests, we should use 320 x 240 frame size with uncompressed G color channel for the VAIO--Macbook Pro configuration. Bigger frame size allows the PTAM server to find more feature points, but the following drawbacks pop up:
 
 \begin{itemize}
 	\item Data for each frame gets bigger. This increases data transmission time for each frame.
 	\item The PTAM server must consume computation power on the bigger frame. This decreases the result frame rate.
 \end{itemize}
 
-When the image size is enlarged from 320 x 240 to 640 x 480, the frame rate drops about 4 times, and the prototype no longer works smoothly as required in \ref{VisualizationRequirements}.
+When the image size is enlarged from 320 x 240 to 640 x 480, the frame rate drops about 4 times, and the prototype no longer works smoothly as required in section \ref{VisualizationRequirements}.
 
-Color channels of the camera frames are not saved separately, but in the format BGR for each pixel. Hence to extract the G color channel from each frame we cannot do it in one pass by calling ``memcpy'' the whole channel, we must do a pixel-wise loop through all the pixels of each frame. This processing does consume some computation power of the mobile device. Consequently, it may be faster to send all the BGR values to the PTAM server in one pass, rather than extracting the G color channel. Because the computation power of the mobile device is far weaker than that of the server, we should make the right decision: which frame size should we take and when should we extract the G color channel and/or compress the data?
+Color channels of the camera frames are not saved separately, but in the format BGR for each pixel. Hence to extract the G color channel from each frame we cannot do it in one pass by ``memcpy''ing the whole channel. We must do a pixel-wise loop through all the pixels of each frame. This processing does consume computation power of the mobile device. Consequently, it may be faster to send all the BGR values to the PTAM server in one pass, rather than extracting the G color channel. Because the computation power of the mobile device is far weaker than that of the server, in order to improve the result frame rate we should make the following decisions: (1) which frame size should we take and (2) when should we extract the G color channel and/or compress the data?
 
-The answer is that we should not make any optimization as long as the wireless network is not saturated the data for each frame. The tracking thread of the PTAM server can work well with about 7 FPS, hence for example in case of 11 Mbps network, the data size threshold for each frame is 11 x 1024 x 1024 / 8 / 7 = 205970 Bytes. We should not apply any optimization if the data for each frame is less than this threshold:
+The answer is that we should not make any optimization as long as the wireless network is not saturated by the data for each frame. The tracking thread of the PTAM server can work well with about 7 frame-per-second rate, hence for example in case of 11 Mbps network, the data size threshold for each frame is 11 x 1024 x 1024 / 8 / 7 = 205970 Bytes. We should not apply any optimization if the data for each frame is less than this threshold:
 
 \begin{itemize}
 	\item 320 x 240 x 1 color channel = 76800 ($<$ 205970)
@@ -96,7 +96,7 @@ The answer is that we should not make any optimization as long as the wireless n
 	\item 640 x 480 x 1 color channel = 307200 ($>$ 205970)
 \end{itemize}
 
-Color channel extraction is lighter than data compression, hence we can conclude that for the VAIO the frame rate is the best if we use 320 x 240 and G color channel extraction for 11 Mbps network. For the iPhone (see table \ref{tb:SystemConfiguration}), we can do similar calculation. However, due to its hardware limitation the frame is fixed at 304 x 400 x BGRA (4 channels). The similar calculation suggests that we should not apply any optimization.
+Color channel extraction is lighter than data compression, hence we can conclude that for the VAIO (11 Mbps network) the frame rate is the best if we use 320 x 240 and G color channel extraction. For the iPhone (54 Mbps network), we can do similar calculation. However, due to its hardware limitation the frame is fixed at 304 x 400 x BGRA (4 channels). The calculation suggests that we should not apply any optimization.
 
 On the mobile device, there are pre-registered positions and orientations of surveillance cameras as described in section \ref{SceneModel}. Having the position and orientation of itself tracked and fed by the PTAM server, the mobile device can overlay the visual aids on the screen precisely.
 
@@ -105,33 +105,33 @@ On the mobile device, there are pre-registered positions and orientations of sur
 \section{PTAM Map Initializing and Scene Model Pre-registering}
 \label{MapInitializing}
 
-PTAM continuously builds and maintains a 3D map by adding stable feature points and removing unstable ones taken from the frames (figure \ref{fig:Map}).
+PTAM continuously builds and maintains a 3D map by adding stable feature points taken from the frames and removing unstable ones (figure \ref{fig:Map}).
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics{./Primitives/map.png}
 	\rule{35em}{0.5pt}
-	\caption[A PTAM map]{A PTAM map. Color of the feature points indicates stability levels: red $>$ yellow $>$ green $>$ blue $>$ light yellow.}
+	\caption[A PTAM map]{A PTAM map. Color of the feature points indicates their stability levels: red $>$ yellow $>$ green $>$ blue $>$ light yellow.}
 	\label{fig:Map}
 \end{figure}
 
 The problem is the 3D scene model (section \ref{SceneModel}) must be in match with this map. We assume that the scene is unchanged. Thus we have the following workflow:
 
 \begin{enumerate}
-	\item Initialization and registration phase: Let PTAM build the map. Manually translate and rotate the scene model to match the map (or vice versa), then save the translation and rotation parameters.
-	\item Usage phase: On the next program startup, as long as we can make sure that the map is not different from the map used to save the parameters, we can use the parameters to translate and rotate the scene model to match the map.
+	\item Initialization and registration phase: Let the PTAM server build the map. After that manually translate and rotate the scene model to match the map (or vice versa), then save the translation and rotation parameters.
+	\item Usage phase: On the next program startup, as long as we can make sure that the map is not different from the one used to save the parameters, we can use the parameters to translate and rotate the scene model to match the map.
 \end{enumerate}
 
 The reference implementation of PTAM initializes the map on every startup by taking two keyframes which form a stereo pair. As a result, there are two considerable approaches to initiate the map-model matching:
 
 \begin{itemize}
 	\item Control the two keyframes. This approach is easy because we simply take two images before-hand, then feed them to the PTAM server on every startup. We prepare two images of the scene as we can have reliable feature points in the map. The PTAM process allows the user at startup to stand at a slightly different position from the ones where we took the two images (figure \ref{fig:2KeyFrames}).
-	\item In the initialization and registration phase, serialize the map to string and save the string to disk, then on booting up the PTAM process just skip the map initialization, load the map from disk, deserialize and feed it directly to the PTAM process. We can prebuild a large fine-grained map beforehand, thus the system becomes very robust. With this approch, a user can stand at many different positions and orientations at start up, as long as the position is inside the prebuilt map.
+	\item In the initialization and registration phase, serialize the map to string and save the string to disk. After that on booting up the PTAM process just skip the map initialization, load the map from disk, deserialize and feed it directly to the PTAM process. We can prebuild a large fine-grained map beforehand, thus the system may become very robust. With this approch, a user can stand at many totally different positions and orientations at start up, as long as the positions are inside the prebuilt map.
 \end{itemize}
 
-The second approach is in general more powerful than the first one, but if the scene changes too much then it may be less powerful because parts of the prebuilt map will become invalid and cause noise or heavy load to PTAM. The first approach always works given a small static scene where the two images were taken, because the map can be updated dynamically by PTAM.
+The second approach is in general more powerful than the first one, but if the scene changes too much then it may be less powerful because parts of the prebuilt map will become invalid and cause noise or heavy load to the PTAM server. The first approach always works given a small static scene where the two images were taken, because the map can be updated dynamically by the PTAM process.
 
-With the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to PTAM, with the first and the last one act as the two keyframe (figure \ref{fig:2KeyFrames}). The video retrieving part and feature point processing part of PTAM run in two separate threads, as a result slightly different maps may be initialized each time the PTAM process starts. Because the tracking and mapping parts run in two separate threads, to make sure that the PTAM process always initialize the same map, we must feed each frame for an enough amount time, so that the two threads have enough time to process and communicate with each other to build the same initial map on every startup. This amount of time is about one second for the MacBook Pro we are using.
+With the first approach, because of the reference implementation of PTAM requirement to make the map initialization stable, actually we must take about 5-10 images and feed them to the PTAM process, with the first and the last one act as the two keyframe (figure \ref{fig:2KeyFrames}). The tracking and mapping parts of the PTAM process run in two separate threads, as a result slightly different maps may be initialized each time the PTAM process starts. To make sure that the PTAM process always initialize the same map, we must wait for some time after feeding each frame, so that the two threads have enough time to process and communicate with each other. This amount of time is about one second for the MacBook Pro we are using.
 
 \begin{figure}[htbp]
 	\centering
@@ -155,8 +155,7 @@ The PTAM based camera registration as described in the previous section is quite
 	\label{fig:VAIOGPSGyro}
 \end{figure}
 
-The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt 3D scene model, we can render the visual aids to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 5--10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \cite{Reference13} may be used.
-
+The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt 3D scene model, we can render the visual aids to visualize viewing fields of surveillance cameras. the orientation information is quite good since the update rate of the gyrocompass is high at 180 Hz. However, the GPS device error is about 5--10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \cite{Reference13} may be used.
 
 \begin{figure}[htbp]
 	\centering
@@ -169,7 +168,7 @@ The GSP and gyrocompass devices provide position and orientation information of 
 Although the more auxiliary devices we add the bulkier and more complicated in programming the mobile device becomes, GPS and gyrocompass devices can be used together with PTAM in the multi-sensor fusion \cite{Reference14} style, which may greatly improves the robustness of the system:
 
 \begin{itemize}
-	\item Initialization problem: the GPS and gyrocompass devices may provide initial position and orientation of the mobile device. Although the error of the GPS device is not small, in a large map it may help PTAM to reduce the search space.
+	\item Initialization problem: The GPS and gyrocompass devices may provide initial position and orientation of the mobile device. Although the error of the GPS device is not small, in a large map it may help the PTAM process to reduce the search space.
 	\item Quick movement: PTAM is image-based, thus it does not work well when the user quickly moves the mobile device. At this time, the gyrocompass may provide PTAM the orientation information because its update rate is high. Although the gyrocompass suffers from drifting error and needs to be continuously adjusted by the other sensors in the fusion, quick mobile device movement usually lasts only in a short time, thus gyrocompass may provide precious temporary information during this time.
 \end{itemize}
 
@@ -177,9 +176,9 @@ Although the more auxiliary devices we add the bulkier and more complicated in p
 
 \section{Software Development Environment}
 
-Visualization methods are expected to be found experimentally and visually. Thus, trial and error methodology is applied here. To shorten the trial and error cycle, we need a good development environment which allows quick compiling, running and modifying.
+Visualization methods are expected to be found experimentally and visually. Thus, trial and error methodology can be applied here. To shorten the trial and error cycle, we need a good development environment which allows quick compiling, running and modifying the programs.
 
-At first we used C/C++ language and OpenGL API \cite{Reference10}. Because both the language and the API are in too low level, the development speed was slow. Later, C/C++ language was fully replaced by Ruby language. Ruby is an object oriented strongly-typed dynamic language that attracts attention of developers world-wide in recent years. From the perspective of software engineering, the above features provide the following benefits:
+At first we used C/C++ language and direct OpenGL API \cite{Reference10}. Because the language and the API are both in too low level, the development speed was slow. Later, C/C++ language was fully replaced by Ruby language. Ruby is an object oriented strongly-typed dynamic language that attracts attention of developers world-wide in recent years. From the perspective of software engineering, the above features provide the following benefits:
 
 \begin{itemize}
 	\item Object oriented feature: Easy to structure the program and later maintain the source code over time.

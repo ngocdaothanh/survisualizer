@@ -23,34 +23,26 @@ GPS and accelerometer devices are not sufficient for achieving highly precise MR
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics{./Primitives/vaio_front.png}
+	\includegraphics[width=14cm]{./Primitives/vaio.png}
 	\rule{35em}{0.5pt}
-	\caption[Sony VAIO VGN-UX90PS with a camera at the front]{Sony VAIO VGN-UX90PS 　with a camera at the front}
+	\caption[Sony VAIO VGN-UX90PS]{Sony VAIO VGN-UX90PS with a camera at the front and at the back}
 	\label{fig:VAIO}
 \end{figure}
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/vaio_back.png}
-	\rule{35em}{0.5pt}
-	\caption[Sony VAIO VGN-UX90PS with a camera at the back]{Sony VAIO VGN-UX90PS with a camera at the back}
-	\label{fig:VAIOBack}
-\end{figure}
-
-This research aims to visualize the viewing fields of outdoor surveillance cameras on the screen of mobile devices like UMPCs. In this research, we propose:
+This research aims to visualize the viewing fields of outdoor surveillance cameras on the screen of mobile devices. In this research, we propose:
 
 \begin{itemize}
 	\item Five methods to visualize viewing fields of surveillance cameras for outdoor MR.
-	\item A new architecture of online camera calibration: server-side Parallel Tracking and Mapping (PTAM) \cite{Reference12} system. Our prototype system uses a mobile device which can be either a Sony VAIO VGN-UX90PS (appendix \ref{AppendixVAIO}) or an Apple iPhone (appendix \ref{AppendixiPhone}) and can provide realtime video. Because the mobile devices do not have sufficient computation facility to execute the heavy PTAM processing, we connect it wirelessly to a PTAM server which is an Apple MacBook Pro (appendix \ref{AppendixMacBook}). This results in a system providing realtime MR video with no requirement for any GPS or gyrocompass devices.
+	\item A new architecture of online camera calibration: server-side Parallel Tracking and Mapping (PTAM) \cite{Reference12} system. Our prototype system uses a mobile device which can be either a Sony VAIO VGN-UX90PS or an Apple iPhone and can provide realtime video. Because the mobile devices do not have sufficient computation facility to execute the heavy PTAM processing, we connect it wirelessly to a PTAM server which is an Apple MacBook Pro. This results in a system providing realtime MR video with no requirement for any GPS or gyrocompass devices.
 \end{itemize}
 
 Structure of this thesis:
 
 \begin{itemize}
-	\item Rest of chapter \ref{Chapter1} introduces the requirement on visualizing viewing fields of surveillance cameras, and some backgrounds of related technologies and researches.
-	\item Chapter \ref{Chapter2} poses basic elements of visualization methods, then studies five visualization methods and algorithms to show viewing fields of surveillance cameras.
-	\item Chapter \ref{Chapter3} propose online camera registration method based on server-side PTAM which implements and is integrated to the visualization methods in chapter \ref{Chapter2}.
-	\item Chapter \ref{Chapter4} describes the prototype to conduct an experiment to evaluate the five methods in the context of the prototype, then discusses the result.
+	\item Rest of chapter \ref{Chapter1} introduces the requirement on visualizing viewing fields of surveillance cameras, and some related technologies and researches.
+	\item Chapter \ref{Chapter2} poses basic elements of visualization methods, then studies five visualization methods to show viewing fields of surveillance cameras.
+	\item Chapter \ref{Chapter3} proposes online camera registration method based on server-side PTAM which implements and is integrated to the visualization methods in chapter \ref{Chapter2}.
+	\item Chapter \ref{Chapter4} conducts an experiment to evaluate the five methods using the prototype, then discusses the result.
 	\item Chapter \ref{Chapter5} summarizes this research and proposes future directions.
 \end{itemize}
 
@@ -65,20 +57,20 @@ When a user wants to see the visualized viewing fields of surrounding surveillan
 	\item The user points the mobile camera in a certain direction.
 	\item Through wireless network, the mobile device continuously sends video frames captured by the camera of the scene to a PTAM server.
 	\item The PTAM server estimates the position and orientation of the mobile camera by analyzing the received video frames, and send them to the mobile device.
-	\item Based on the position and orientation data, the mobile device will correctly render virtual computer graphics (CG) objects that are instances of viewing fields of the surrounding surveillance cameras, and shows the MR video images on its screen.
+	\item Based on the position and orientation, the mobile device will correctly render visual aids that are instances of viewing fields of the surveillance cameras, and shows the MR video images on its screen.
 \end{enumerate}
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=14cm]{./Figures/prototype_architecture.png}
 	\rule{35em}{0.5pt}
-	\caption[Prototype architecture]{Prototype architecture. The mobile device can be either a VAIO or an iPhone. At the back of each mobile device there is a camera.}
+	\caption[Prototype architecture]{Prototype architecture. The mobile device can be either a VAIO (appendix \ref{AppendixVAIO}) or an iPhone (appendix \ref{AppendixiPhone}).}
 	\label{fig:PrototypeArchitecture}
 \end{figure}
 
 When the user changes the position or orientation of the mobile camera, the MR video displayed on the screen will simultaneously change accordingly to the camera movement.
 
-The purpose of the above use case is to give an example of the application of visualizing viewing fields of surveillance cameras and to give a rough idea of how the prototype works. There may be other applications. For example, we can build a system which visualizes ``safe paths'' or ``safe areas'' for children (figure \ref{fig:HomeSchool}). Pupils can use their cell phones to see if their current location is being well observed when they walk to school or go home from school.
+The above use case gives an example of the application of visualizing viewing fields of surveillance cameras and a rough idea of how the prototype works. There may be other applications. For example, we can build a system which visualizes ``safe paths'' or ``safe areas'' for children (figure \ref{fig:HomeSchool}). Children can use their cell phones to see if their current location is being well observed when they walk to school or back home.
 
 \begin{figure}[htbp]
 	\centering
@@ -92,10 +84,10 @@ The purpose of the above use case is to give an example of the application of vi
 
 \section{Related Works}
 
-For outdoor MR, bulky devices that reduce the mobility of users are not preferable. For example: big computers, devices wired to a fixed position, devices with big auxiliaries, big HMDs, HMDs that prevent users from seeing the outdoor environment while walking etc. As a result, devices for outdoor MR should be small, lightweight, should connect wirelessly to other devices if they need to.
+For outdoor MR, bulky devices that reduce the mobility of users are not preferable. For example: heavy computers, devices wired to a fixed location, devices with big auxiliaries, big HMDs, HMDs that prevent users from seeing the outdoor environment while walking etc. Devices for outdoor MR should be small, lightweight, and can connect wirelessly to other devices if they need to.
 
-MR systems usually need to know the position and orientation of the devices in order to merge images of the virtual world and the images of the real world at high accuracy. For indoor environment, marker-based solutions are known to work very well \cite{Reference20}. However, outdoor environment is usually large thus it is impossible to put markers everywhere. There have been many researches that use UMPCs equipped with GPS and/or gyrocompass devices to realize markless camera registration \cite{Reference2} \cite{Reference4} \cite{Reference13}. Hardware devices have been becoming smaller and more powerful according to Moore's law. Today's high-end cell phones, like Apple iPhone and Google T-Mobile G1, usually have built-in GPS and accelerometer devices. Because of their small size, high specifications, and competitive prices, such devices have found their use in outdoor MR applications and researches, like Sekai camera \cite{Reference18} and Enkin \cite{Reference19}.
+MR systems usually need to know the position and orientation of the devices in order to merge images of the virtual world and the images of the real world at high accuracy. For indoor environment, marker-based solutions are known to work very well \cite{Reference20}. However, outdoor environment is usually large and it is impossible to put markers everywhere. There have been many researches that use UMPCs equipped with GPS and/or gyrocompass devices to realize markless camera registration \cite{Reference2} \cite{Reference4} \cite{Reference13}. Hardware devices have been becoming smaller and more powerful according to Moore's law. Today's high-end cell phones, like Apple iPhone and Google T-Mobile G1, usually have built-in GPS and accelerometer devices. Because of their small size, high specifications, and competitive prices, such devices have found their use in outdoor MR applications and researches, like Sekai camera \cite{Reference18} and Enkin \cite{Reference19}.
 
-However, normal GPS devices have error of about 5--10 m, and gyrocompass devices suffer from drift error. There have been many researches that are based on the images taken by the camera on the mobile device to deal with this problem. We can follow the approach that uses (1) gravity accelerometer to help eliminating the drift error, (2) model-based tracking on edges and (3) texture tracker to help produce accurate localization result \cite{Reference13}. There is also an extreme approach that completely does not require GPS or gyrocompass devices, but uses the images taken by the camera and a landmark database of natural feature points built before-hand \cite{Reference21}.
+However, normal GPS devices have error of about 5--10 m, and gyrocompass devices suffer from drift error. There have been many researches that are based on the images taken by the camera on the mobile device to deal with this problem. We can follow the approach that uses (1) gravity accelerometer to help eliminating the drift error, (2) model-based tracking on edges and (3) texture tracker to help produce accurate localization result \cite{Reference13}. There is also an approach that completely does not require GPS or gyrocompass devices, but uses the images taken by the camera and a landmark database of natural feature points built before-hand \cite{Reference21}.
 
-When MR programs need more memory or CPU power than what the mobile devices can provide, we will have a backup solution in which the mobile devices connect wirelessly to remote non-mobile computers to ask for help. It is possible to send realtime video images wirelessly to remote computers for further processing because today wireless network speed can normally reach 54 Mbps. This may be a good approach because Moore's law has slowed down in recent years, thus we cannot expect the computation power of mobile devices to go much higher anytime soon while at the same time keeping their mobility.
+When MR programs need more memory or CPU power than what the mobile devices can provide, we have a backup solution in which the mobile devices connect wirelessly to remote non-mobile computers to ask for help. It is possible to send realtime video images wirelessly to remote computers for further processing because 54 Mbps wireless network has become popular today. This may be a good approach because Moore's law has slowed down in recent years, thus we cannot expect the computation power of mobile devices to go much higher anytime soon while at the same time keeping their small size and mobility.
