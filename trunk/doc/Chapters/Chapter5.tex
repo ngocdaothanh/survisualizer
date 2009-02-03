@@ -1,25 +1,19 @@
-\chapter{Conclusion and Future Directions}
+\chapter{Conclusion}
 \label{Chapter5}
-
-\section{Conclusion}
 
 This research aims to visualize the viewing fields of outdoor surveillance cameras on the screen of mobile devices like UMPCs. In this research, we have proposed:
 
 \begin{itemize}
-	\item Volume, shadow, contour, vector and animation methods to visualize viewing fields of surveillance cameras for outdoor MR.
-	\item A new architecture of online camera calibration: server-side PTAM \cite{Reference12} system. Our prototype system can provide realtime MR video with no requirement for any GPS or gyrocompass devices.
+	\item The Volume, shadow, contour, arrow and animation methods to visualize viewing fields of surveillance cameras for outdoor MR.
+	\item A new architecture of online camera registration: server-side PTAM \cite{Reference12} system. Our prototype system can provide realtime MR video with no requirement for any GPS or gyrocompass devices, although we can also take these sensors to make the system more reliable.
 \end{itemize}
 
-We have also conducted a evaluation experiment on the visualization methods, using the prototype system. Although the experiment is still simple with few evaluators, they all agree that of the five methods, animation method gives the best understandable visualization. This method is preferable because it does not occlude the scene and gives the users the visualization of both positions and viewing fields of the surveillance cameras.
-
-The experiment also shows that the prototype system is usable and the server-side PTAM architecture is practical for outdoor MR. Thanks to the advances in wireless networking, server-side processing is a great help to mobile devices, because their computation power are currently limited.
-
-\section{Future Directions}
+We have also conducted the evaluation experiment on the visualization methods, using the prototype system. The experiment shows that the prototype system is usable even with a device with limited capability like the iPhone, and the server-side PTAM architecture is practical for outdoor MR.
 
 Moore's Law is the observation that the amount you can do on a single chip doubles every two years. But it may have gradually come to an end: devices can hardly get smaller and faster. We cannot only sit and hope that mobile devices will constantly become much faster without changing their physical sizes. We should find other options. A new trend in computer processor technology is multicore. Rather than producing faster and faster CPUs, companies such as Intel and AMD are producing multicore ones: single chips containing two, four, or more cores. Within several years there may be hundreds of cores in a CPU. Each PTAM session requires two cores. The server in our prototype system is a dualcore and can only process one PTAM session at a time. A server with more cores can simultaneously process more PTAM sessions.
 
-Multicore hardware requires parallel processing software. The frequency of a CPU does not go higher (about 3--4GHz as of current time), but its computation potential goes higher because there are many cores integrated into it. If a programs is not parallel, it will only run on a single core at a time and users will think that the program is slow. However, parallel programming is hard and must be further studied \cite{Reference17}.
+Multicore hardware requires parallel processing software. The frequency of a CPU does not go higher (about 3--4GHz as of current time), but its computation potential goes higher because there are many cores integrated into it. If a program is not parallel, it will only run on a single core at a time and users will think that the program is slow. However, parallel programming is hard and must be further studied \cite{Reference17}.
 
 After pushing heavy work to the server side, the client side has less work left: sending video images and displaying 3D CG. We can tweak our system to use mobile devices of lower power like Apple iPhone and Google T-Mobile G1, rather than UMPCs like the VAIO. Many existing games on these devices have proved that they are able to display 3D CG perfectly. Because cell phone is a big market, if we can push outdoor MR to cell phones, the market will push back and become a great force for the advance of outdoor MR. Moreover, today's cell phones are usually equipped with GPS and accelerometer devices. We can use them together with the camera to create a multisensor fusion \cite{Reference14} to improve the accuracy of the system.
 
-Wireless network is required to connect the client side and server side. The accuracy and stability of the system can be improved by using high speed network. Our prototype system gives the frame rate as in table \ref{tb:FrameRates} when 11 Mbps wireless network is used. Our latest experiment with 54 Mbps wireless network gives about 10 FPS with frame size of 304 x 400 on the Apple iPhone 3G in appendix \ref{AppendixE}. 54 Mbps wireless LAN has become common today and our future work may give better result with this network speed.
+With these technological advances, we believe that in the future more powerful viewing field visualization systems can be built and put in wide use, and they can help realize more safe society.

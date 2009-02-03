@@ -1,13 +1,13 @@
-\chapter{Server-side PTAM}
+\chapter{Server-side PTAM Architecture}
 \label{Chapter3}
 
-In this chapter, we implement a prototype based on the reference implementation of PTAM \cite{Reference12}. The prototype integrates the five methods in section \ref{VisualizationMethods}. It provides realtime video with no requirement for any GPS or gyrocompass devices. A use case is in section \ref{UseCases}.
+In this chapter, we implement a prototype based on the reference implementation of PTAM \cite{Reference12}. The prototype integrates the five visualization methods in section \ref{VisualizationMethods}. It provides realtime MR video with no requirement for any GPS or gyrocompass devices.
 
 %------------------------------------------------------------------------------
 
 \section{System Architecture}
 
-The mobile device used in the prototype is a Sony VAIO VGN-UX90PS (see appendix \ref{AppendixA}). We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dualcore CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixB}) to the VAIO and the PTAM part of the program will run on the MacBook (figure \ref{fig:VAIOMacBookPro}).
+The mobile device used in the prototype is a Sony VAIO VGN-UX90PS (see appendix \ref{AppendixVAIO}). We base our program on the PTAM reference implementation source code \cite{Reference16} to get the position and orientation of the VAIO. However, this implementation cannot run on the VAIO because it requires a dualcore CPU computer to be able to run smoothly. As a result, we connect a MacBook Pro (appendix \ref{AppendixMacBook}) to the VAIO and the PTAM part of the program will run on the MacBook (figure \ref{fig:VAIOMacBookPro}).
 
 The programs on both VAIO and MacBook Pro run on Microsoft Windows XP SP2 operating system. For the sake of quick setup time, the VAIO and the MacBook are connected directly using ad hoc mode, which means that an additional wireless hub is not needed. The VAIO and the MacBook are connected by a 11 Mbps wireless network. The network interfaces on both VAIO and MacBook Pro are able to work at 54 Mbps, but for some reason of Windows they can only work at 11 Mbps. This is an unexpected problem which lowers the speed, and consequently the accuracy and stability of the prototype system. We can also use LAN cable for even faster 100 Mbps speed, but the VAIO will be wired to another bulky device, which is not desirable because the mobility of the VAIO is totally lost.
 
@@ -76,7 +76,7 @@ When increasing from 320 x 240 to 640 x 480, the frame rate drop about 4 times, 
 
 On the VAIO, there is pre-registered positions and orientations of surveillance cameras. Having the position and orientation of itself tracked and fed by the MacBook, the VAIO can create CG objects and correctly overlay them on the screen to visualize the viewing fields.
 
-To make the CG objects look more ``real'', we may also use a rough 3D model of the surrounding buildings. For example, in animation visualization method, we can stop the grid when it touch the surface of the building walls. The 3D model only contains planes, texture is not necessary.
+To make the CG objects look more ``real'', we may also use a rough 3D model of the surrounding buildings. For example, in animation visualization method, we can stop the grid when it touch the surface of the building walls.
 
 %------------------------------------------------------------------------------
 
@@ -133,7 +133,7 @@ The prototype described in the above sections is not the only decision choice we
 
 \subsection{Hardware -- Prototype with GPS and Gyrocompass Devices}
 
-We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixD}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 5-10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \cite{Reference13} method may be used.
+We have implemented a prototype with the architecture in figure \ref{fig:VAIOGPSGyro}. The GPS device specifications is in appendix \ref{AppendixCube3}. The GSP and gyrocompass devices provide position and orientation information of the mobile device. Together with the prebuilt CG information, we can overlay CG objects to visualize viewing fields of surveillance cameras. The update rate of the gyrocompass is 180Hz, which is high thus the orientation information is quite good. However, the GPS device error is about 5-10 m (figure \ref{fig:GPSError}), which affects badly the accuracy of the visualization. To improve the GPS device error, model-based tracking method as described in \cite{Reference13} method may be used.
 
 \begin{figure}[htbp]
 	\centering
@@ -175,51 +175,3 @@ The development speed was better but still slow, partly because of the slow. It 
 However, OGRE is generally used for creating 3D games thus contain too many features that we do not need. The framework forced us to write too much bloated code for the purpose of this research. As a result, we finally migrated to a combination of Ruby and C language with pure OpenGL API. At this time Ruby has grown to version 1.9. In this version the interpreter is replaced by a virtual machine, which boosts our Ruby program's speed to about 10x. Moreover importantly it is ridiculously easy to write C extension for Ruby \cite{Reference15}. For program parts that need speed like networking and image processing, we use the Ruby standard library which is written in C, or write them as C extension for Ruby. For program parts that need trial-error or does not need speed like the user interface part, we write them in pure Ruby.
 
 In short, our experience suggests that keeping a balance between dynamic language and static language is a good choice.
-
-%------------------------------------------------------------------------------
-
-\section{Viewing Modes}
-
-It is easier to understand a thing when we put it in a context. In real scene, users see the big picture of the area around them. Consequently, if we let the users see the map of the area where they are standing, the map will help them understand the visualized view fields of the surrounding surveillance cameras easier.
-
-Because there is the 3D model on the VAIO as described in section \ref{3DModel}, we propose three viewing modes:
-
-\begin{itemize}
-	\item Camera mode: This is the mode mentioned in earlier chapters and sections. In this mode the frames taken by the VAIO's camera are overlaid with CG objects.
-	\item Map mode: Map of the area of the current position is displayed on screen (figure \ref{fig:MapMode}).
-	\item FPS (first-person shooter) mode: The users can navigate the 3D world as in FPS games. Using this mode, the users can virtually walk to other positions of the area to see viewing fields of surveillance camera at those positions.
-\end{itemize}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/map_mode.png}
-	\rule{35em}{0.5pt}
-	\caption[Map viewing mode]{Map viewing mode}
-	\label{fig:MapMode}
-\end{figure}
-
-Keypads on mobile devices are usually hard to use, especially when the users use only one hand to both hold the device and press the keys. When a mobile device is equipped with a accelerometer (most cell phones today have one built-in) or gyrocompass, these auxiliary devices can be used for navigating around easier, existing applications of joysticks and iPhone have proved this. For example, in map mode the three degree-of-freedom variables of the gyrocompass can be used as in table \ref{tb:GyrocompassNavigation}):
-
-\begin{table}[tb]
-	\begin{center}
-		\caption{Using gyrocompass for navigation}
-		\label{tb:GyrocompassNavigation}
-		\begin{tabular}{|c|l|l|}
-			\hline
-			Degree-of-freedom variable & Usage                     \\
-			\hline
-			Yaw                        & 360$^\circ$　rotation      \\
-			Pitch                      & Forward-backward movement \\
-			Roll                       & In/out zooming            \\
-			\hline
-		\end{tabular}
-	\end{center}
-\end{table}
-
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/yaw_pitch_roll.png}
-	\rule{35em}{0.5pt}
-	\caption[The three degree-of-freedom variables of a gyrocompass]{The three degree-of-freedom variables of a gyrocompass}
-	\label{fig:YawPitchRoll}
-\end{figure}
