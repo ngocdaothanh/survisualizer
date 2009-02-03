@@ -1,14 +1,14 @@
 \chapter{Visualization Methods}
 \label{Chapter2}
 
-We take up ordinary perspective cameras for surveillance cameras in this research.
+The purpose of our research is to visualize the subspace of the real world in which any objects could be inserted by surveillance cameras. We take up ordinary perspective cameras for surveillance cameras in this research. We propose to insert ``visual aids'' in real images captured by the mobile camera. We take up five kinds of visual aids in this paper. First we discuss the elements of visualization of viewing fields in \ref{VisualizationRequirements}, then the detailed definition of the visual aids are given in \ref{VisualizationMethods}.
 
 %------------------------------------------------------------------------------
 
 \section{Visualization Elements}
 \label{VisualizationRequirements}
 
-Viewing volume of a projective camera is defined by an infinite half cone, apex of which corresponds to the focal point of the camera. Because real computers cannot have unlimited resources, in practical computer 3D technology we usually limit the bottom of the cone by a far clip plane or by a boundary surface which may cut the viewing volume, then limit the top of the cone even more by a near clip plane. It may result in a frustum (figure \ref{fig:ViewingVolume}). Thus in this research we abstract the viewing volume for visualization by the term ``viewing field''.
+Viewing volume of a projective camera is defined by an infinite half cone, one apex of which corresponds to the focal point of the camera. Because real computers cannot have unlimited resources, in practical computer 3D technology we usually limit the bottom of the cone by a far clip plane or by boundary surfaces which may cut the viewing volume, then limit the top of the cone even more by a near clip plane. It may result in a frustum (figure \ref{fig:ViewingVolume}). Thus in this research we abstract the viewing volume for visualization by the term ``viewing field''.
 
 \begin{figure}[htbp]
 	\centering
@@ -22,23 +22,23 @@ There may be many methods for visualizing the viewing fields, not limited to the
 
 \begin{itemize}
 	\item It should be easy to understand when users see the visualized viewing fields of surrounding surveillance cameras.
-	\item It should work in realtime. When the user changes the position or orientation of the mobile device, the MR video displayed on the screen of the mobile device should simultaneously change accordingly to the movement with no or little delay.
-	\item It should have good accuracy. In order to correctly overlay CG objects onto the original video taken at the user side, the position and orientation of the mobile camera must be estimated within a small error.
-	\item It should be robust to disturbance in outdoor environment. Some of the disturbance that may arise in real situations are passers in front of the camera and GPS signal noise/weakness. For example, in outdoor environment, there may be bicycle riders passing by and they may temporary occlude the camera. Another example is that if the system use GPS device, the GPS signal strength may change a lot when the user walk from an open space to a space shadowed by trees or buildings.
+	\item It should work in realtime. When the user changes the position or orientation of the mobile device, the MR video displayed on the screen of the mobile device should simultaneously change accordingly to the movement of the camera with no or little delay.
+	\item It should have good accuracy. In order to correctly overlay CG objects onto the original video taken at the user side, the position and orientation of the mobile camera must be estimated within a small registration error.
+	\item It should be robust to disturbance in outdoor environment. Some of the disturbance that may arise in real situations are passers in front of the camera and GPS signal noise/weakness. For example, in outdoor environment, there may be bicycle riders passing by and they may temporary occlude the camera. Another example is that if the system uses GPS device, the GPS signal strength may change a lot when a user walks from an open space to a space shadowed by trees or buildings.
 \end{itemize}
 
-We must take the above requirements into account when implementing the prototype in chapter \ref{Chapter3} and conducting experiment to evaluate the visualization methods.
+We must take the above requirements into account on implementing the prototype in chapter \ref{Chapter3}.
 
 %------------------------------------------------------------------------------
 
 \section{Visualization Methods}
 \label{VisualizationMethods}
 
-This section discusses the idea of five visualization methods. Chapter \ref{Chapter3} will implement and integrate them into a working prototype. Chapter \ref{Chapter4} will conduct an experiment to evaluate them.
+This section discusses the idea of five visualization methods. In all the methods, in order to emphasize the boundary of the viewing fields of the surveillance camera, we draw four straight lines to visualize the edges of the cone in figure \ref{fig:ViewingVolume}. This has a good side effect that the position of the camera can be inferred because it is the only intersection point of the lines.
 
 \subsection{Volume Method}
 
-As discussed above, the natural method to visualize the viewing field is simply visualizing the viewing volume (figure \ref{fig:VolumeMethod}). However, the volume usually occludes parts of the mobile device's screen, especially if the user is inside the viewing volume, hence may be hard to understand.
+The most direct method to visualize the viewing field is simply visualizing the viewing volume (figure \ref{fig:VolumeMethod}) in (see-through) alpha blending fashion. However, the volume usually occupies parts of the mobile device's screen, especially if the user is inside the viewing volume, hence it may be hard to be understood.
 
 \begin{figure}[htbp]
 	\centering
@@ -49,8 +49,9 @@ As discussed above, the natural method to visualize the viewing field is simply 
 \end{figure}
 
 \subsection{Shadow Method}
+\label{ShadowMethod}
 
-The fact that the frame captured by the camera is perspective projection of the volume into the near plane of the frustum gives us another method. This method visualizes the virtual shadow created by the light positioned at the eye-point of the camera and the near plane of the frustum (figure \ref{fig:ShadowMethod}). This method may give more understandable visualization. There are various ways to render the shadow, the two popular ones are shadow mapping \cite{Reference7} \cite{Reference8} and volume shadow \cite{Reference9}.
+The fact that the frame captured by a surveillance camera can be thought to be a perspective projection of the volume into the near plane of the frustum gives us another method, shadow method. The shadow casts the virtual shadow created by the light positioned at the focal-point of the camera and the near plane of the frustum (figure \ref{fig:ShadowMethod}). This method may give more understandable visualization. There are various ways to render the shadow, the two popular ones are shadow mapping \cite{Reference7} \cite{Reference8} and volume shadow \cite{Reference9}.
 
 \begin{figure}[htbp]
 	\centering
@@ -62,7 +63,7 @@ The fact that the frame captured by the camera is perspective projection of the 
 
 \subsection{Contour Method}
 
-An alternative method is to only visualize the contours of the shadow (figure \ref{fig:ContourMethod}) to reduce the occlusion of the CG object. Rendering only the contour is much lighter than rendering the whole shadow, thus this method is supposed to be much faster.
+An alternative method is to only visualize the contours of the shadow (figure \ref{fig:ContourMethod}) to reduce the occlusion of the scene by the CG object. Rendering only the contour is much lighter than rendering the whole shadow, thus this method is supposed to be much faster than the shadow method (see \ref{ShadowMethod}).
 
 \begin{figure}[htbp]
 	\centering
@@ -72,9 +73,9 @@ An alternative method is to only visualize the contours of the shadow (figure \r
 	\label{fig:ContourMethod}
 \end{figure}
 
-\subsection{Vector Method}
+\subsection{Arrow Method}
 
-For most of the time, a person may want to know not only the viewing field, but also the position and distance to the surveillance camera, To visualize this information, we propose a method using vectors (figure \ref{fig:VectorMethod}). In the figure, all the vectors are pointing the camera, and the length of the vectors are reverse proportional to the distance from the root of the vectors to the camera.
+In some cases, a person may want to know the relative distances from points inside the shadow (see \ref{ShadowMethod}) to the camera, in addition to its viewing field itself. To visualize this information, we propose vector method that puts arrows on the shadow area (figure \ref{fig:VectorMethod}). In the figure, all arrows are pointing the camera, and their lengths are reverse proportional to the distance from the root of the vectors to the camera.
 
 \begin{figure}[htbp]
 	\centering
@@ -86,12 +87,12 @@ For most of the time, a person may want to know not only the viewing field, but 
 
 \subsection{Animation Method}
 
-This method uses moving CG objects (figure \ref{fig:AnimationMethod}) coming from the surveillance cameras to the ground (or vice versa from the ground to the cameras) to to visualize the viewing fields. This method has  many advantages:
+This method uses a moving mesh (figure \ref{fig:AnimationMethod}) coming from the surveillance camera to the clipped end of the viewing field (or in the reverse direction) to visualize the viewing fields. This method has  many advantages:
 
 \begin{itemize}
-	\item The moving CG objects start from the surveillance camera positions (or move towards the cameras). As a result the user easily knows the camera positions.
-	\item Even when the mobile device is fixed at a certain position and orientation, the visualization effect is still achieved because of the moving CG objects.
-	\item The moving CG objects do not occlude the scene. As a result the user can easily see the scene and the visualized camera viewing fields at the same time.
+	\item The moving mesh starts from the surveillance camera position (or moves towards the camera). As a result the user can easily know the camera position.
+	\item Even when the mobile device is fixed at a certain position and pose, the visualization effect is still helpful to understand the viewing field because of its animation.
+	\item The moving mesh does not occlude the scene. As a result the user can easily see both the scene and the visualized viewing field at the same time.
 \end{itemize}
 
 \begin{figure}[htbp]
@@ -100,4 +101,58 @@ This method uses moving CG objects (figure \ref{fig:AnimationMethod}) coming fro
 	\rule{35em}{0.5pt}
 	\caption[Animation method]{Animation method}
 	\label{fig:AnimationMethod}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Scene Model}
+\label{SceneModel}
+
+The 3D model only contains planes, texture is not necessary.
+
+%------------------------------------------------------------------------------
+
+\section{Viewing Modes}
+
+In general it is easier to understand a thing when we put it in a context. In our case in real scene, when users see our visual aids that visualizes the viewing fields of the cameras, they also see the big picture of the area around them. Consequently, if we let the users see the map of the area where they are standing, the map will help them understand the visualized viewing fields of the surrounding surveillance cameras better.
+
+Because we have the 3D scene model as described in section \ref{SceneModel}, we propose three viewing modes:
+
+\begin{itemize}
+	\item Real mode: In this mode the frames taken by the mobile camera are overlaid with any of the visual aids described in \ref{VisualizationMethods}.
+	\item Map mode: Map of the area of the current position is displayed on screen to let the viewer overview the scene.
+	\item First-person shooter (FPS) mode: The users can navigate the 3D world as in FPS games. Using this mode, the users can virtually walk to other positions of the area to see other viewing fields of surveillance cameras there.
+\end{itemize}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/map_mode.png}
+	\rule{35em}{0.5pt}
+	\caption[Map viewing mode]{Map viewing mode}
+	\label{fig:MapMode}
+\end{figure}
+
+Keypads on mobile devices are usually hard to use, especially when the users use only one hand to both hold the device and press the keys. When a mobile device is not equipped with a touch screen, however if it is equipped with a accelerometer (most cell phones today have one built-in) or gyrocompass, these auxiliary devices can be used for navigating around easier, which has been proved by existing applications of some game gadgets and iPhone that have those sensors. For example, in map mode the three degree-of-freedom parameters of the gyrocompass can be used as in table \ref{tb:GyrocompassNavigation}):
+
+\begin{table}[tb]
+	\begin{center}
+		\caption{Using gyrocompass for navigation}
+		\label{tb:GyrocompassNavigation}
+		\begin{tabular}{|c|l|l|}
+			\hline
+			Degree-of-freedom variable & Usage                     \\
+			\hline
+			Yaw                        & 360$^\circ$　rotation      \\
+			Pitch                      & Forward-backward movement \\
+			Roll                       & In/out zooming            \\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics{./Primitives/yaw_pitch_roll.png}
+	\rule{35em}{0.5pt}
+	\caption[The three degree-of-freedom variables of a gyrocompass]{The three degree-of-freedom variables of a gyrocompass}
+	\label{fig:YawPitchRoll}
 \end{figure}
