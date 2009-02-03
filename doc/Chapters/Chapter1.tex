@@ -7,9 +7,9 @@
 
 Surveillance cameras have become popular and placed almost everywhere, e.g. train stations, airports, banks, shops, streets. The balance between security and privacy is an active subject for political/social debates. It is hard to keep a balance between security and privacy. A person may feel protected when he knows himself and his surroundings are being observed, but at the same time he may feel uncomfortable.
 
-The information that a person probably wants to know most about surveillance cameras is probably their viewing fields, e.g. where the cameras are, whether he is inside the observed area. On the other hand, for indoor environment, because the space is usually small, people may easily locate the position and estimate the viewing fields of the cameras. For outdoor environment, it is rather impossible to find surveillance camera systems hence they need special support to visually know the viewing fields in real scene. Fortunately, there is a technology which can be applied for this demand: Mixed Reality (MR). MR is encompassing both Augmented Reality and Augmented Virtuality, merging the real world in which we are living and the virtual world created by computers. MR can produce new environments where real and virtual entities can co-exist and interact in realtime \cite{Reference3}.
+The information that people probably wants to know most about surveillance cameras is probably their viewing fields, e.g. where the cameras are, whether he is inside the area being observed. On the other hand, for indoor environment, because the space is usually small, people may easily locate the position and estimate the viewing fields of the cameras. For outdoor environment, it is rather hard to find surveillance camera systems hence they need special support to visually know the viewing fields in real scene. Fortunately, there is a technology which can be applied for this demand: Mixed Reality (MR). MR is encompassing both Augmented Reality and Augmented Virtuality, merging the real world in which we are living and the virtual world created by computers. MR can produce new environments where real and virtual entities can co-exist and interact in realtime \cite{Reference3}.
 
-MR applications are traditionally equipped with Head Mounted Displays (HMD) as shown in figure \ref{fig:HMD}. However, HMDs are usually bulky and inconvenient for outdoor applications, where high-level mobility is crucial. In recent years, mobile devices have become popular, devices like cell phones, Personal Digital Assistants (PDA) can be seen everywhere. Their prices have come down and they could reach the hands of ordinary people even in developing countries like Viet Nam. High-end mobile devices, such as Apple iPhone and Google T-Mobile G1, usually have high specifications. As for their inportant advantages for outdoor MR applications, they are almost always equipped with built-in cameras, Global Positioning System (GPS), and accelerometer devices. These auxiliary devices usually meet the requirements on building up outdoor MR applications because they can provide video and information to help estimating position and orientation of the mobile devices \cite{Reference2} \cite{Reference4}.
+MR applications are traditionally equipped with Head Mounted Displays (HMD) as shown in figure \ref{fig:HMD}. However, HMDs are usually bulky and inconvenient for outdoor applications, where high-level mobility is crucial. In recent years, mobile devices have become popular, devices like cell phones, Personal Digital Assistants (PDA) can be seen everywhere. Their prices have come down and they could reach the hands of ordinary people even in developing countries like Viet Nam. High-end mobile devices, such as Apple iPhone and Google T-Mobile G1, usually have high specifications. As for their important advantages for outdoor MR applications, they are almost always equipped with built-in cameras, Global Positioning System (GPS), and accelerometer devices. These auxiliary devices usually meet the requirements on building up outdoor MR applications because they can provide video and information to help estimating position and orientation of the mobile devices \cite{Reference2} \cite{Reference4}.
 
 \begin{figure}[htbp]
 	\centering
@@ -59,7 +59,7 @@ Structure of this thesis:
 \section{Use Cases}
 \label{UseCases}
 
-When a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is (figure \ref{fig:VAIOMacBookPro}):
+When a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is (figure \ref{fig:PrototypeArchitecture}):
 
 \begin{enumerate}
 	\item The user points the mobile camera in a certain direction.
@@ -70,10 +70,10 @@ When a user wants to see the visualized viewing fields of surrounding surveillan
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=14cm]{./Figures/vaio_macbookpro.png}
+	\includegraphics[width=14cm]{./Figures/prototype_architecture.png}
 	\rule{35em}{0.5pt}
-	\caption[Prototype architecture]{Prototype architecture}
-	\label{fig:VAIOMacBookPro}
+	\caption[Prototype architecture]{Prototype architecture. The mobile device can be either a VAIO or an iPhone. At the back of each mobile device there is a camera.}
+	\label{fig:PrototypeArchitecture}
 \end{figure}
 
 When the user changes the position or orientation of the mobile camera, the MR video displayed on the screen will simultaneously change accordingly to the camera movement.
