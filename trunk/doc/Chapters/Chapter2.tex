@@ -34,7 +34,7 @@ We must take the above requirements into account on implementing the prototype i
 \section{Visualization Methods}
 \label{VisualizationMethods}
 
-This section discusses the idea of five visualization methods. In all the methods, in order to emphasize the boundary of the viewing fields of the surveillance camera, we draw four straight lines to visualize the edges of the cone in figure \ref{fig:ViewingVolume}. This has a good side effect that the position of the camera can be inferred because it is the only intersection point of the lines.
+In all the five visualization methods, in order to emphasize the boundary of the viewing fields of the surveillance camera, we draw four straight lines to visualize the edges of the cone in figure \ref{fig:ViewingVolume}. The way we draw the five sides and the inside space gives us various visualization methods. A good side effect when drawing the four straight lines is that the position of the camera can be inferred because it is the only intersection point of the lines.
 
 \subsection{Volume Method}
 
@@ -75,14 +75,14 @@ An alternative method is to only visualize the contours of the shadow (figure \r
 
 \subsection{Arrow Method}
 
-In some cases, a person may want to know the relative distances from points inside the shadow (see \ref{ShadowMethod}) to the camera, in addition to its viewing field itself. To visualize this information, we propose vector method that puts arrows on the shadow area (figure \ref{fig:VectorMethod}). In the figure, all arrows are pointing the camera, and their lengths are reverse proportional to the distance from the root of the vectors to the camera.
+In some cases, a person may want to know the relative distances from points inside the shadow (see \ref{ShadowMethod}) to the camera, in addition to its viewing field itself. To visualize this information, we propose vector method that puts arrows on the shadow area (figure \ref{fig:ArrowMethod}). In the figure, all arrows are pointing the camera, and their lengths are reverse proportional to the distance from the root of the vectors to the camera.
 
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[width=14cm]{./Primitives/theory_arrow.png}
 	\rule{35em}{0.5pt}
-	\caption[Vector method]{The viewing field of a surveillance camera on a building is being visualized using the arrow method. The arrows' ends are indicated by blue dots, the arrows' heads are not drawn for clarity. The user's position is indicated by the green dot.}
-	\label{fig:VectorMethod}
+	\caption[Arrow method]{The viewing field of a surveillance camera on a building is being visualized using the arrow method. The arrows' ends are indicated by blue dots, the arrows' heads are not drawn for clarity. The user's position is indicated by the green dot.}
+	\label{fig:ArrowMethod}
 \end{figure}
 
 \subsection{Animation Method}
@@ -103,6 +103,8 @@ This method uses a moving mesh (figure \ref{fig:AnimationMethod}) coming from th
 	\label{fig:AnimationMethod}
 \end{figure}
 
+To make the visual aids look more ``real'', the moving mesh stops when it touch the surface of the building walls. In order to do this, we need the model of the scene as described in the next section.
+
 %------------------------------------------------------------------------------
 \section{Scene Model}
 \label{SceneModel}
@@ -117,7 +119,7 @@ In order to define the viewing field for the visualization methods in section \r
 	\label{fig:SceneModel}
 \end{figure}
 
-Using the scene model, we can render visual aids in various modes as described in the next section.
+Using the scene model, we can also render visual aids in various modes as described in the next section.
 
 %------------------------------------------------------------------------------
 
@@ -144,11 +146,11 @@ In order to navigate the scene in map and FPS mode, we can use the keypads on th
 		\label{tb:GyrocompassNavigation}
 		\begin{tabular}{|c|l|l|}
 			\hline
-			Degree-of-freedom variable & Usage                     \\
+			Degree-of-freedom parameter & Usage                     \\
 			\hline
-			Yaw                        & 360$^\circ$　rotation      \\
-			Pitch                      & Forward-backward movement \\
-			Roll                       & In/out zooming            \\
+			Yaw                         & 360$^\circ$　rotation      \\
+			Pitch                       & Forward-backward movement \\
+			Roll                        & In/out zooming            \\
 			\hline
 		\end{tabular}
 	\end{center}
@@ -158,7 +160,7 @@ In order to navigate the scene in map and FPS mode, we can use the keypads on th
 	\centering
 	\includegraphics{./Primitives/yaw_pitch_roll.png}
 	\rule{35em}{0.5pt}
-	\caption[The three degree-of-freedom variables of a gyrocompass]{The three degree-of-freedom variables of a gyrocompass}
+	\caption[The three degree-of-freedom parameters of a gyrocompass]{The three degree-of-freedom parameters of a gyrocompass}
 	\label{fig:YawPitchRoll}
 \end{figure}
 

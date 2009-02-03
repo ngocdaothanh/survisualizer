@@ -1,28 +1,33 @@
 \chapter{Evaluation of Visualization Methods}
 \label{Chapter4}
 
-In this chapter, we use the prototype implemented in chapter \ref{Chapter3} to conduct an experiment to evaluate the five visualization methods in section \ref{VisualizationMethods}. Another purpose is to verify the requirements in section \ref{VisualizationRequirements}.
+In this chapter, we use the prototype implemented in chapter \ref{Chapter3} to conduct an experiment to evaluate the five visualization methods proposed in section \ref{VisualizationMethods}.
 
 %------------------------------------------------------------------------------
 
 \section{Evaluation Condition}
 
-Students of about 20--30 years old are invited to use the system with the five visualization methods. After that, each user are asked to rank each visualization method in the following categories in five levels of ranking points (1: worst, 5: best):
+The experiment only focuses on the understandability evaluation. Other things like realtimeness, accuracy, and robustness as described in section \ref{VisualizationRequirements} are not considered.
+
+Students of about 20--30 years old are invited to use the system with the five visualization methods. After that, each user is asked to rank the understandability of each visualization method in five levels of ranking points (1: worst, 5: best). Each user is forced to give unique ranking points across all five methods.
+
+We have conducted the experiment outside the building of the College of Engineering Systems, at the area as in figure \ref{fig:VolumeMethod} and \ref{fig:SceneModel}:
 
 \begin{itemize}
-	\item Understandability (for this category, a user must give unique ranking points across all methods)
-	\item Realtimeness
-	\item Accuracy
-	\item Robustness to the disturbance of passers-by and handshaking movement of the mobile device
+	\item Use the ``two keyframes'' method in section \ref{MapInitializing} to initialize the PTAM map.
+	\item Each user points the mobile camera at the wall and see the visualized viewing field of a virtual camera. The user can change the position and/or orientation of the mobile. They can also walk around the area.
+	\item The iPhone is used. The video frame size is 304 x 400, and is enlarged to 320 x 421 to fit the width of the screen. It operates at about 7 frame-per-second.
 \end{itemize}
 
-We wanted conduct the experiment around the area of College of International Studies and a gymnasium nearby, their 3D model is in figure \ref{fig:VAIOGPSGyro}. However because of time limit, we could only invite three users and conduct at a wall within a small area of about 2 x 2 m of the above area:
+Figure \ref{fig:ExperimentScreenshot} shows a screenshot of the arrow visualization method. The users can use button 1--5 to switch among visualization methods, and button M to toggle between real and map viewing mode. The A button is for administration task, not used by the users.
 
-\begin{itemize}
-	\item Use the ``control the two keyframes'' method \ref{MapInitializing} to initialize the PTAM map.
-	\item Each user points the VAIO's camera at the wall and see the visualized viewing field of a virtual camera. The user can change the position and/or orientation of the VAIO. They can also walk around the area.
-	\item For the robustness category, when each user is using the VAIO, a person will walk by to partly temporarily occlude the camera.
-\end{itemize}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=14cm]{./Primitives/experiment_screenshot.png}
+	\rule{35em}{0.5pt}
+	\caption[Evaluation experiment screenshot]{Evaluation experiment screenshot of the arrow visualization method in real viewing mode (left) and map viewing mode (right)}
+	\label{fig:ExperimentScreenshot}
+\end{figure}
 
 %------------------------------------------------------------------------------
 
@@ -36,13 +41,13 @@ The result is shown in table \ref{tb:ExperimentResult}. The numbers inside paren
 		\label{tb:ExperimentResult}
 		\begin{tabular}{|c|c|c|c|c|}
 			\hline
-			Method    & Understandability & Realtimeness & Accuracy & Robustness \\
+			Method    & Understandability \\
 			\hline
-			Volume    & 1.0 (1 1 1) & 3.7 (3 4 4) & 4.7 (4 5 4) & 5.0 (5 5 5) \\
-			Shadow    & 3.0 (3 4 2) & 4.0 (3 5 4) & 4.0 (4 4 4) & 5.0 (5 5 5) \\
-			Contour   & 2.7 (2 2 4) & 4.0 (3 5 4) & 5.0 (5 5 5) & 5.0 (5 5 5) \\
-			Vector    & 3.3 (4 3 3) & 3.7 (3 4 4) & 4.7 (5 4 5) & 5.0 (5 5 5) \\
-			Animation & 5.0 (5 5 5) & 4.0 (3 5 4) & 4.7 (5 5 4) & 5.0 (5 5 5) \\
+			Volume    & 1.0 (1 1 1) \\
+			Shadow    & 3.0 (3 4 2) \\
+			Contour   & 2.7 (2 2 4) \\
+			Arrow     & 3.3 (4 3 3) \\
+			Animation & 5.0 (5 5 5) \\
 			\hline
 		\end{tabular}
 	\end{center}
@@ -56,9 +61,12 @@ A good gene is usually a mixture of pure gene or other mixed gene. Likewise a go
 
 Although the experiment is still simple with few evaluators, they all agree that of the five methods, animation method gives the best understandable visualization. This method is preferable because it does not occlude the scene and gives the users the visualization of both positions and viewing fields of the surveillance cameras.
 
-result may be affected by
+The result is largely affected by the way we draw the visual aids. In previous experiments, we did not draw the four straight lines as described at the begin of section \ref{VisualizationMethods}, and 
 
+The result may also affected by the color of the visual aids.
 Color of
+Mau sac anh huong qua
+=> future: cho phep user customize interactively
 
-multiple viewing fields
-
+0.5*source color + 0.5*destination color
+	
