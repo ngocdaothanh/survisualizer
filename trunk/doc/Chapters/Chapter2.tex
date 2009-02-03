@@ -42,9 +42,9 @@ The most direct method to visualize the viewing field is simply visualizing the 
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics{./Primitives/theory_volume.png}
+	\includegraphics[width=14cm]{./Primitives/theory_volume.png}
 	\rule{35em}{0.5pt}
-	\caption[Volume method]{Volume method}
+	\caption[Volume method]{The viewing field of a surveillance camera on the building is being visualized using the volume method. The user's position is indicated by the green dot.}
 	\label{fig:VolumeMethod}
 \end{figure}
 
@@ -55,9 +55,9 @@ The fact that the frame captured by a surveillance camera can be thought to be a
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics{./Primitives/theory_shadow.png}
+	\includegraphics[width=14cm]{./Primitives/theory_shadow.png}
 	\rule{35em}{0.5pt}
-	\caption[Shadow method]{Shadow method}
+	\caption[Shadow method]{The viewing field of a surveillance camera on the building is being visualized using the shadow method. The user's position is indicated by the green dot.}
 	\label{fig:ShadowMethod}
 \end{figure}
 
@@ -67,9 +67,9 @@ An alternative method is to only visualize the contours of the shadow (figure \r
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics{./Primitives/theory_contour.png}
+	\includegraphics[width=14cm]{./Primitives/theory_contour.png}
 	\rule{35em}{0.5pt}
-	\caption[Contour method]{Contour method}
+	\caption[Contour method]{The viewing field of a surveillance camera on the building is being visualized using the contour method. The user's position is indicated by the green dot.}
 	\label{fig:ContourMethod}
 \end{figure}
 
@@ -79,9 +79,9 @@ In some cases, a person may want to know the relative distances from points insi
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics{./Primitives/theory_vector.png}
+	\includegraphics[width=14cm]{./Primitives/theory_arrow.png}
 	\rule{35em}{0.5pt}
-	\caption[Vector method]{Vector method}
+	\caption[Vector method]{The viewing field of a surveillance camera on a building is being visualized using the arrow method. The arrows' ends are indicated by blue dots, the arrows' heads are not drawn for clarity. The user's position is indicated by the green dot.}
 	\label{fig:VectorMethod}
 \end{figure}
 
@@ -97,9 +97,9 @@ This method uses a moving mesh (figure \ref{fig:AnimationMethod}) coming from th
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=10cm]{./Primitives/theory_animation.png}
+	\includegraphics[width=14cm]{./Primitives/theory_animation.png}
 	\rule{35em}{0.5pt}
-	\caption[Animation method]{Animation method}
+	\caption[Animation method]{The viewing field of a surveillance camera on the building is being visualized using the animation method. The mesh is moving from the ground up to the camera. The user's position is indicated by the green dot.}
 	\label{fig:AnimationMethod}
 \end{figure}
 
@@ -107,31 +107,36 @@ This method uses a moving mesh (figure \ref{fig:AnimationMethod}) coming from th
 \section{Scene Model}
 \label{SceneModel}
 
-The 3D model only contains planes, texture is not necessary.
+In order to define the viewing field for the visualization methods in section \ref{VisualizationMethods}, we need the model of the scene. The model contains the 3D structure of the buildings (figure \ref{fig:SceneModel}) and the positions and orientations of the surveillance camera. The model is rather simple and only contains flat planes. We do not need to have complexed ones, such as those that contain texture, because we only need a coarse-grained approximation of the viewing field. Moreover, because surveillance cameras are usually stationary, their positions and orientations are usually static.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=14cm]{./Primitives/scene_model.png}
+	\rule{35em}{0.5pt}
+	\caption[Scene model]{3D structure of the buildings of the scene model}
+	\label{fig:SceneModel}
+\end{figure}
+
+Using the scene model, we can render visual aids in various modes as described in the next section.
 
 %------------------------------------------------------------------------------
 
 \section{Viewing Modes}
+\label{ViewingModes}
 
 In general it is easier to understand a thing when we put it in a context. In our case in real scene, when users see our visual aids that visualizes the viewing fields of the cameras, they also see the big picture of the area around them. Consequently, if we let the users see the map of the area where they are standing, the map will help them understand the visualized viewing fields of the surrounding surveillance cameras better.
 
-Because we have the 3D scene model as described in section \ref{SceneModel}, we propose three viewing modes:
+Because we have the 3D scene model as described in the previous section, we propose three viewing modes:
 
 \begin{itemize}
-	\item Real mode: In this mode the frames taken by the mobile camera are overlaid with any of the visual aids described in \ref{VisualizationMethods}.
-	\item Map mode: Map of the area of the current position is displayed on screen to let the viewer overview the scene.
-	\item First-person shooter (FPS) mode: The users can navigate the 3D world as in FPS games. Using this mode, the users can virtually walk to other positions of the area to see other viewing fields of surveillance cameras there.
+	\item Real mode: In this mode frames taken by the mobile camera are overlaid with any of the visual aids.
+	\item Map mode: Map of the area around the current position is displayed to let users overview the scene.
+	\item First-person shooter (FPS) mode: Users can navigate the 3D world as in FPS games. Using this mode, users can virtually walk to other positions of the area to see other viewing fields of surveillance cameras there. In this mode the scene model is rendered, frames taken by the mobile camera are not used.
 \end{itemize}
 
-\begin{figure}[htbp]
-	\centering
-	\includegraphics{./Primitives/map_mode.png}
-	\rule{35em}{0.5pt}
-	\caption[Map viewing mode]{Map viewing mode}
-	\label{fig:MapMode}
-\end{figure}
+In section \ref{VisualizationMethods}, figures on the left and on the right show the screen in real mode and map mode respectively.
 
-Keypads on mobile devices are usually hard to use, especially when the users use only one hand to both hold the device and press the keys. When a mobile device is not equipped with a touch screen, however if it is equipped with a accelerometer (most cell phones today have one built-in) or gyrocompass, these auxiliary devices can be used for navigating around easier, which has been proved by existing applications of some game gadgets and iPhone that have those sensors. For example, in map mode the three degree-of-freedom parameters of the gyrocompass can be used as in table \ref{tb:GyrocompassNavigation}):
+In order to navigate the scene in map and FPS mode, we can use the keypads on the mobile devices. However, keypads on mobile devices are usually hard to use, especially when the users use only one hand to both hold the device and press the keys. When a mobile device is not equipped with a touch screen, however if it is equipped with a accelerometer (most cell phones today have one built-in) or gyrocompass, these auxiliary devices can be used for navigating around easier, which has been proved by existing applications of some game gadgets and iPhone that have those sensors. For example, in map mode the three degree-of-freedom parameters of the gyrocompass can be used as in table \ref{tb:GyrocompassNavigation}):
 
 \begin{table}[tb]
 	\begin{center}
@@ -156,3 +161,5 @@ Keypads on mobile devices are usually hard to use, especially when the users use
 	\caption[The three degree-of-freedom variables of a gyrocompass]{The three degree-of-freedom variables of a gyrocompass}
 	\label{fig:YawPitchRoll}
 \end{figure}
+
+For devices that have multi-touch screen like the iPhone, the touch screen can be used to move, rotate, zoom in and out the map in map mode very easily.
