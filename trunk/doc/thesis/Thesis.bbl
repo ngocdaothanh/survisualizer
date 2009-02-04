@@ -1,0 +1,96 @@
+\begin{thebibliography}{10}
+
+\bibitem{Reference3}
+Yuichi Ohta and Hideyuki Tamura.
+\newblock {\em Mixed Reality - Merging Real and Virtual Worlds}.
+\newblock Ohmsha, 1999.
+
+\bibitem{Reference2}
+Yoshinari~Kameda Takahiro~Tsuda, Itaru~Kitahara and Yuichi Ohta.
+\newblock Smooth video hopping for surveillance cameras.
+\newblock {\em The 33rd International Conference on the Computer Graphics and
+  Interactive Techniques (SIGGRAPH2006)}, 2006.
+
+\bibitem{Reference4}
+Taisuke~Takemasa Yoshinari~Kameda and Yuichi Ohta.
+\newblock Outdoor see-through vision utilizing surveillance cameras.
+\newblock {\em IEEE and ACM International Symposium on Mixed and Augmented
+  Reality}, ISMAR04:151--160, 2004.
+
+\bibitem{Reference13}
+Gerhard Reitmayr and Tom~W. Drummond.
+\newblock Going out: Robust tracking for outdoor augmented reality.
+\newblock In {\em Proc. {ISMAR} 2006}, pages 109--118, Santa Barbara, CA, USA,
+  October 22--25 2006. IEEE and ACM, {IEEE CS}.
+
+\bibitem{Reference12}
+Georg Klein and David Murray.
+\newblock Parallel tracking and mapping for small ar workspaces.
+\newblock In {\em Mixed and Augmented Reality, 2007. ISMAR 2007. 6th IEEE and
+  ACM International Symposium on}, pages 225--234, 2007.
+
+\bibitem{Reference20}
+Hirokazu Kato and Mark Billinghurst.
+\newblock Marker tracking and hmd calibration for a video-based augmented
+  reality conferenencing system.
+\newblock In {\em Proc. {IWAR} 99}, pages 85--94. IEEE, {IEEE CS}, October
+  21--22 1999.
+
+\bibitem{Reference18}
+Sekai camera, http://sekaicamera.com/.
+
+\bibitem{Reference19}
+Enkin, http://www.enkin.net/.
+
+\bibitem{Reference21}
+Tomokazu~Sato Motoko~Oe and Naokazu Yokoya.
+\newblock Estimating camera position and posture by using feature landmark
+  database.
+\newblock {\em Lecture Notes in Computer Science}, pages 171--181, 2005.
+
+\bibitem{Reference7}
+L.~Williams.
+\newblock Casting curved shadows on curved surfaces.
+\newblock {\em SIGGRAPH}, pages 270--274, 1978.
+
+\bibitem{Reference8}
+William R.~Mark Gregory S.~Johnson and Christopher~A. Burns.
+\newblock The irregular z-buffer and its application to shadow mapping.
+\newblock Technical report, University of Texas Department of Computer Sciences
+  Technical Report, March 2004.
+
+\bibitem{Reference9}
+Frank Crow.
+\newblock Shadow algorithms for computer graphics.
+\newblock {\em SIGGRAPH}, pages 242--248, 1977.
+
+\bibitem{Reference16}
+Ptam reference implementation source code.
+
+\bibitem{Reference17}
+Joe Armstrong.
+\newblock {\em Programming Erlang: Software for a Concurrent World}.
+\newblock Pragmatic Bookshelf, July 2007.
+
+\bibitem{Reference14}
+David~L. Hall and James Llinas.
+\newblock {\em Handbook of Multisensor Data Fusion}.
+\newblock CRC Press, June 2001.
+
+\bibitem{Reference10}
+Mason Woo Jackie~Neider OpenGl Architecture Review~Board, Dave~Shreiner and Tom
+  Davis.
+\newblock {\em OpenGL Programming Guide: The Official Guide to Learning OpenGL,
+  Version 2}.
+\newblock Addison-Wesley, 5 edition, 2005.
+
+\bibitem{Reference11}
+Gregory Junker.
+\newblock {\em Pro OGRE 3D Programming}.
+\newblock Apress, 2006.
+
+\bibitem{Reference15}
+Ruby language repository.
+\newblock How to make extension libraries for ruby.
+
+\end{thebibliography}
