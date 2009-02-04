@@ -17,9 +17,7 @@ NUM_FRAMES = 200 # Number of frames to benchmark FPS
 class Main
   def initialize(host, port)
     @socket = TCPSocket.new(host, port)
-    @width = recv_bytes(4).unpack('I!')[0]
-    @height = recv_bytes(4).unpack('I!')[0]
-    @compress = recv_bytes(4).unpack('I!')[0] == 1
+    recv_header
 
     glutInit
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
@@ -75,20 +73,38 @@ class Main
     ret
   end
 
+  def recv_int
+    recv_bytes(4).unpack('I!')[0]
+  end
+
+  def recv_header
+    @width    = recv_int
+    @height   = recv_int
+    @format   = recv_int
+    @compress = recv_int == 1
+  end
+
   def visualize
-    # Clear the screen and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     if @compress
-      size = recv_bytes(4).unpack('I!')[0]
+      size = recv_int
       compressed_image = recv_bytes(size)
       @image = Zlib::Inflate.inflate(compressed_image)
     else
-      @image = recv_bytes(@width*@height)
-      save_image if @begin_save_image
+      case @format
+        when GL_LUMINANCE
+          @image = recv_bytes(@width*@height)
+        when GL_RGB, GL_BGR
+          @image = recv_bytes(@width*@height*3)
+        when GL_RGBA, GL_BGRA
+          @image = recv_bytes(@width*@height*4)
+      end
     end
 
-    glDrawPixels(@width, @height, GL_LUMINANCE, GL_UNSIGNED_BYTE, @image)
+    save_image if @begin_time
+
+    glDrawPixels(@width, @height, @format, GL_UNSIGNED_BYTE, @image)
 
     # Swap buffers for display
     glutSwapBuffers
@@ -96,8 +112,7 @@ class Main
 
   def save_image
     base = sprintf('%03d', @iframe)
-    File.open("./out/#{base}.raw", 'wb') { |f| f.write(@image) }
-    File.open("./out/#{base}.pgm", 'wb') { |f| f.write("P5\n#{@width} #{@height}\n255\n"); f.write(@image) }
+    File.open("#{@out_dir}/#{base}.raw", 'wb') { |f| f.write(@image) }
     print "#{@iframe} "
     @iframe += 1
   end
@@ -109,9 +124,12 @@ class Main
   def keyboard(key, x, y)
     case key
       when "\r"  # Enter
-        unless @begin_save_image
-          FileUtils.rm(Dir.glob('./out/*.{raw,pgm}'))
-          @begin_save_image = true
+        unless @begin_time
+          @out_dir = "out/#{@width}.#{@height}.#{@format}"
+          FileUtils.rm_rf(@out_dir)
+          FileUtils.mkdir(@out_dir)
+          puts "Files will be written to #{@out_dir}"
+
           @iframe = 0
           @begin_time = Time.now
         end
