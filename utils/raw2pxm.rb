@@ -1,33 +1,44 @@
-# Convert all RGBA xxx.width.height.format.raw files in the current directory to grayscale xxx.pgm or RGB xxx.ppm files
+# Convert all RGBA xxx.raw files in the current directory to grayscale xxx.pgm or RGB xxx.ppm files.
 
-GL_BGRA = 32993
+require 'fileutils'
 
-def upside_down(frame)
-  ret = ''
-  length = width*3
-  (0...height).each do |j|
-    line = rgb_frame[j*length...(j + 1)*length]
-    ret = rgb_frame2.insert(0, line)
-  end
-  ret
-end
+GL_LUMINANCE = 6409
+GL_BGRA      = 32993
 
-def rgba2rgb(rgba_frame)
+def bgra2rgb(bgra_frame)
   ret = ''
   i = 1
-  rgba_frame.each_byte do |b|
-    ret << b if i%4 != 0
+  a3 = Array.new(4)
+  bgra_frame.each_byte do |b|
+    r = i%4
+
+    if r != 0
+      a3[r - 1] = b
+    else
+      ret << a3[2]
+      ret << a3[1]
+      ret << a3[0]
+    end
+
     i += 1
   end
   ret
 end
 
-def convert(raw_filename)
-  raw_filename =~ /(.+)\.(.+)\.(.+)\.(.+)\.raw/
-  base   = $1
-  width  = $2.to_i
-  height = $3.to_i
-  format = $4.to_i
+# Infer image header from directory name.
+def infer_header
+  dir = FileUtils.pwd
+  dir = dir.split(File::SEPARATOR).last
+  dir =~ /(.+)\.(.+)\.(.+)/
+  width  = $1.to_i
+  height = $2.to_i
+  format = $3.to_i
+  [width, height, format]
+end
+
+def convert(raw_filename, width, height, format)
+  raw_filename =~ /(.+)\.raw/
+  base = $1
 
   if format == GL_BGRA
     out_filename = base + '.ppm'
@@ -37,18 +48,24 @@ def convert(raw_filename)
 
   frame = File.read(raw_filename)
   if format == GL_BGRA
-    frame = rgba2rgb(frame)
+    frame = bgra2rgb(frame)
   end
 
-  frame = upside_down(frame)
+  File.open(out_filename, 'wb') do |f|
+    if format == GL_BGRA
+      f.write("P6\n#{width} #{height}\n255\n")
+    else
+      f.write("P5\n#{width} #{height}\n255\n")
+    end
 
-  if format == GL_BGRA
-    File.open(out_filename, 'wb') { |f| f.write("P6\n#{width} #{height}\n255\n"); f.write(frame) }
+    f.write(frame)
   end
 end
 
+puts 'The current directory name should be in the form width.height.format'
+width, height, format = infer_header
 files = Dir.glob('./*.raw')
 files.each do |raw_filename|
-  puts "Conver #{raw_filename}..."
-  convert(raw_filename)
+  puts "Convert #{raw_filename}..."
+  convert(raw_filename, width, height, format)
 end

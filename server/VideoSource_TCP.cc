@@ -11,6 +11,7 @@ VideoSource::VideoSource()
 {
 	mirSize.x = Net::get_instance()->recv_int();
 	mirSize.y = Net::get_instance()->recv_int();
+	mformat   = Net::get_instance()->recv_int();
 	mcompress = Net::get_instance()->recv_int();
 
 	mimage = new unsigned char[mirSize.area()];

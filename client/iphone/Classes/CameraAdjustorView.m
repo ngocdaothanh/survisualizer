@@ -19,14 +19,14 @@
 @synthesize sRY;
 @synthesize sRZ;
 
-#define dPX -30
-#define dPY -14
-#define dPZ  90
-#define dPD  10
+#define dPX -23
+#define dPY -13
+#define dPZ  95
+#define dPD  20
 
-#define dRX -10
-#define dRY -20
-#define dRZ -5 
+#define dRX 85.517242
+#define dRY -22.068970
+#define dRZ -19.310349
 
 - (void)layoutSubviews {
 	position.x = dPX;

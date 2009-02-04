@@ -23,6 +23,7 @@ protected:
 
 private:
 	CVD::ImageRef mirSize;
+	int mformat;
 	bool mcompress;
 	unsigned char *mimage;
 };

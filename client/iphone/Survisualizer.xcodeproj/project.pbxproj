@@ -50,6 +50,7 @@
 		E2A25EEA0F2C2DF500E82E09 /* ViewingField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewingField.m; sourceTree = "<group>"; };
 		E2A25EEC0F2C339100E82E09 /* Visualizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Visualizer.h; sourceTree = "<group>"; };
 		E2A25EED0F2C339100E82E09 /* Visualizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Visualizer.m; sourceTree = "<group>"; };
+		E2C1C3A80F39633100B5E21B /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		E2CA3E4B0F2611E90063CBC7 /* Surface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Surface.h; sourceTree = "<group>"; };
 		E2CA3E4C0F2611E90063CBC7 /* Surface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Surface.m; sourceTree = "<group>"; };
 		E2CA3E4D0F2611E90063CBC7 /* SurfaceAccelerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SurfaceAccelerator.h; sourceTree = "<group>"; };
@@ -100,6 +101,7 @@
 				E2411D290F302BDA00492C5D /* Point3D.h */,
 				E2411E3C0F3040E000492C5D /* CameraAdjustorView.h */,
 				E2411E3D0F3040E000492C5D /* CameraAdjustorView.m */,
+				E2C1C3A80F39633100B5E21B /* Config.h */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
