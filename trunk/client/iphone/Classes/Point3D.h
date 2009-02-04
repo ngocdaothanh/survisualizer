@@ -1,4 +1,4 @@
-#define LAST_STORED_VIDEO 449
+#import "Config.h"
 
 typedef struct {
 	float x, y, z;

@@ -19,6 +19,8 @@
 
 - (void)drawMapMode;
 - (void)drawRealMode;
+
+- (void)shootScreen;
 @end
 
 //------------------------------------------------------------------------------
@@ -42,13 +44,11 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			frameBGRA = malloc(frameWidth*frameHeight*4);
 			frameG    = malloc(frameWidth*frameHeight);
 		}
-#ifndef LAST_STORED_VIDEO
-		if (!mapMode) {
-			memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
-			for (unsigned int j = 0; j < frameHeight; j++) {
-				for (int i = 0; i < frameWidth; i++) {
-					frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
-				}
+#ifndef LAST_STORED_FRAME
+		memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
+		for (unsigned int j = 0; j < frameHeight; j++) {
+			for (int i = 0; i < frameWidth; i++) {
+				frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
 			}
 		}
 #endif
@@ -95,7 +95,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		// Setup net
 		net = [[Net alloc] initWithView:self];
 		[net setPort:1225];
-		NSError * startError = nil;
+		NSError *startError = nil;
 		[net setType:@"_survisualizer._tcp."];
 		if (![net start:&startError] ) {
 			NSLog(@"Error starting server: %@", startError);
@@ -160,29 +160,28 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 
 		if (frameBGRA) {
-#ifdef LAST_STORED_VIDEO
+#ifdef LAST_STORED_FRAME
 			static int storedVideo = 0;
 			static BOOL increasingDirection = YES;
 
-			NSString *fileName = [[NSString alloc] initWithFormat:@"/private/var/mobile/Surveillance/%03d.raw", storedVideo];
+			NSString *fileName = [[NSString alloc] initWithFormat:@"/private/var/mobile/Surveillance/in/%03d.raw", storedVideo];
 			NSData *data = [NSData dataWithContentsOfFile:fileName];
-			memcpy(frameG, [data bytes], [data length]);
+			memcpy(frameBGRA, [data bytes], [data length]);
 			//[data autorelease];
 			[fileName release];
-			
-			// TODO: use BGRA for stored video
-			for (int j = 0; j < frameHeight; j++) {
+
+			for (unsigned int j = 0; j < frameHeight; j++) {
 				for (int i = 0; i < frameWidth; i++) {
-					memset(&(frameBGRA[(j*frameWidth + i)*4]), frameG[j*frameWidth + i], 4);
+					frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
 				}
 			}
-			
+
 			if (increasingDirection) {
 				// Only use the first frame then wait until the map has been created on the PTAM side
 				if (storedVideo != 0 || [pose isValid]) {
 					storedVideo++;
-					if (storedVideo > LAST_STORED_VIDEO) {
-						storedVideo = LAST_STORED_VIDEO;
+					if (storedVideo > LAST_STORED_FRAME) {
+						storedVideo = LAST_STORED_FRAME;
 						increasingDirection = NO;
 					}
 				}
@@ -204,26 +203,36 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			} else {
 				[self drawRealMode];
 			}
+
+			[self shootScreen];
 			glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 			
 			// Send Green channel to remote machines -----------------------------------
 			if ([net isConnected]
-#ifndef LAST_STORED_VIDEO
+#ifndef LAST_STORED_FRAME
 					&& !mapMode
 #endif
 					) {
 				NSOutputStream *ostream = [net ostream];
 
-				static BOOL sentInfo = FALSE;
-				if (!sentInfo) {
+				static BOOL headerSent = FALSE;
+				if (!headerSent) {
 					[ostream sendInt:frameWidth];
 					[ostream sendInt:frameHeight];
+#ifdef SEND_LUMINANCE
+					[ostream sendInt:GL_LUMINANCE];
+#else
+					[ostream sendInt:GL_BGRA];
+#endif
 					[ostream sendInt:0];  // Uncompressed
-					sentInfo = TRUE;
+					headerSent = TRUE;
 				}
-				
+#ifdef SEND_LUMINANCE
 				[ostream sendBytes:frameG length:frameWidth*frameHeight];
+#else
+				[ostream sendBytes:frameBGRA length:frameWidth*frameHeight*4];
+#endif
 			}
 		}
 
@@ -261,7 +270,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		[visualizer visualize:iVisualizationMethod];
 	}
 
-	// Current position
+	// Draw current position
 	if ([pose isValid]) {
 		// Adjust camera position
 		Point3D translation = pose.translation;
@@ -312,19 +321,78 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-
+		
+		// Draw 0xyz
+/*		float a[6] = {
+			0, 0, 0,
+			1, 0, 0
+		};
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(255, 0, 0, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+		
+		a[3] = 0; a[4] = 1;
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(0, 255, 0, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+		
+		a[4] = 0; a[5] = 1;
+		glVertexPointer(3, GL_FLOAT, 0, a);
+		glColor4ub(0, 0, 255, 255);
+		glDrawArrays(GL_LINES, 0, 2);
+*/		
 		// Adjust model rotation
 		Point3D rotation = caView.rotation;
 		glRotatef(-rotation.x, 1, 0, 0);
 		glRotatef(-rotation.y, 0, 1, 0);
 		glRotatef(-rotation.z, 0, 0, 1);
-		
-		// Adjust model position
+
+		// Adjust model position-----------------------
+
 		Point3D position = caView.position;
 		glTranslatef(-position.x, -position.y, -position.z);
+
 		
+		//glTranslatef(20, -position.y, -76.2);
+		
+		//----------------------------
+/*	
+		// Draw model
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glColor4ub(0, 255, 255, 32);
+		glVertexPointer(3, GL_FLOAT, 0, triangles);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
+*/		
 		[visualizer visualize:iVisualizationMethod];
 	}
+}
+
+/**
+ * glReadPixels(0, 0, backingWidth, backingHeight, GL_RGB, GL_UNSIGNED_BYTE, bytes)
+ * gives black screenshot, thus we need to
+ * glReadPixels(0, 0, backingWidth, backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, bytes)
+ */
+- (void)shootScreen {
+#ifdef SHOOT_SCREEN
+	static int iFrame = 0;
+	NSString *fileName = [NSString stringWithFormat:@"%@/Documents/%03d.%d.%d.rgba.raw", NSHomeDirectory(), iFrame, backingWidth, backingHeight];
+	iFrame++;
+	NSLog(fileName);
+
+	int length = 4*backingWidth*backingHeight;
+	char *bytes = malloc(length);
+	glReadPixels(0, 0, backingWidth, backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+
+	NSData *data = [NSData dataWithBytes:bytes length:length];
+	[data writeToFile:fileName atomically:NO];
+
+	//[data autorelease];
+	//[fileName release];
+	free(bytes);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -505,9 +573,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		[EAGLContext setCurrentContext:nil];
 	}
 	[context release];
-	context = nil;
-	free(texturePixels);
 
+	free(texturePixels);
 	free(triangles);
 
 	for (ViewingField *vf in viewingFields) {
@@ -516,9 +583,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[viewingFields release];
 
 	[visualizer release];
-
 	[caView autorelease];
-	 
 	[super dealloc];
 }
 

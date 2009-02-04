@@ -30,23 +30,23 @@
 - (void)visualize:(int)imethod {
 	for (ViewingField *vf in viewingFields) {
 		[self enableBlend];
-/*		
+
 		// Draw 0xyz
-		float a[6] = {
+/*		float a[6] = {
 			vf.position.x, vf.position.y, vf.position.z,
-			vf.position.x + 1, vf.position.y, vf.position.z
+			vf.position.x + 10, vf.position.y, vf.position.z
 		};
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, a);
 		glColor4ub(255, 0, 0, 255);
 		glDrawArrays(GL_LINES, 0, 2);
 
-		a[3] = vf.position.x; a[4] = vf.position.y + 1;
+		a[3] = vf.position.x; a[4] = vf.position.y + 10;
 		glVertexPointer(3, GL_FLOAT, 0, a);
 		glColor4ub(0, 255, 0, 255);
 		glDrawArrays(GL_LINES, 0, 2);
 
-		a[4] = vf.position.y; a[5] = vf.position.z;
+		a[4] = vf.position.y; a[5] = vf.position.z + 10;
 		glVertexPointer(3, GL_FLOAT, 0, a);
 		glColor4ub(0, 0, 255, 255);
 		glDrawArrays(GL_LINES, 0, 2);

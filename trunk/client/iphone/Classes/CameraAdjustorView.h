@@ -5,6 +5,21 @@
 @interface CameraAdjustorView : UIView <UIAccelerometerDelegate> {
 	Point3D position;
 	Point3D rotation;
+
+	UILabel *lPX;
+	UILabel *lPY;
+	UILabel *lPZ;
+	UISlider *sPX;
+	UISlider *sPY;
+	UISlider *sPZ;
+	
+	
+	UILabel *lRX;
+	UILabel *lRY;
+	UILabel *lRZ;
+	UISlider *sRX;
+	UISlider *sRY;
+	UISlider *sRZ;
 }
 
 @property (readonly) Point3D position;

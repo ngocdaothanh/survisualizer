@@ -33,7 +33,6 @@ class Main
 
     init_window
 
-    puts "Image: #{@width} x #{@height}"
     puts 'Press [Enter] to begin capture to files, [Esc] to exit'
 
     glutMainLoop
@@ -84,6 +83,16 @@ class Main
     @compress = recv_int == 1
   end
 
+  def upside_down
+    ret = ''
+    length = @width*(@format == GL_LUMINANCE ? 1 : 4)
+    (0...@height).each do |j|
+      line = @image[j*length...(j + 1)*length]
+      ret = ret.insert(0, line)
+    end
+    ret
+  end
+
   def visualize
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -104,7 +113,8 @@ class Main
 
     save_image if @begin_time
 
-    glDrawPixels(@width, @height, @format, GL_UNSIGNED_BYTE, @image)
+    uimage = upside_down
+    glDrawPixels(@width, @height, @format, GL_UNSIGNED_BYTE, uimage)
 
     # Swap buffers for display
     glutSwapBuffers

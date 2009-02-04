@@ -49,6 +49,13 @@
 	Visualizer *visualizer;
 
     CameraAdjustorView *caView;
+
+	UIButton *bMethod1;
+	UIButton *bMethod2;
+	UIButton *bMethod3;
+	UIButton *bMethod4;
+	UIButton *bMethod5;
+	UIButton *bMapMode;
 }
 
 - (void)installCameraCallbackHook;

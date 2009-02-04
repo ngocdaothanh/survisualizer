@@ -196,12 +196,12 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 
 int get_num_controlled_images()
 {
-	return 50;
+	return 10;
 	int ret = 0;
 	char file_name[99];
 
 	while (true) {
-		sprintf(file_name, "data/%03d.raw", ret);
+		sprintf(file_name, "%s/%03d.raw", CONTROLLED_IMAGE_DIR, ret);
 		FILE* fp = fopen(file_name, "r");
 		if (fp) {
 			ret++;
@@ -234,19 +234,28 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 
 		if (mnInitialStage != TRAIL_TRACKING_COMPLETE) {
 			char file_name[99];
-			sprintf(file_name, "data/%03d.raw", iimage);
+			sprintf(file_name, "%s/%03d.raw", CONTROLLED_IMAGE_DIR, iimage);
 
+			// The image is in BGRA, extract only G
 			ifstream in(file_name, ios::binary);
+			char *bgra = new char[imFrame.size().area()*4];
 			char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
-			in.read(buffer, imFrame.size().area());
+			in.read(bgra, imFrame.size().area()*4);
+			for (int j = 0; j < imFrame.size().y; j++) {
+				for (int i = 0; i < imFrame.size().x; i++) {
+					buffer[j*imFrame.size().x + i] = bgra[(j*imFrame.size().x + i)*4 + 1];
+				}
+			}
+			delete[] bgra;
+
 			BasicImage<byte> image((byte *) buffer, imFrame.size());
 			imFrame.copy_from(image);
 
 			wait++;
-			if ((iimage == 0 || iimage == num_controlled_images - 1) && wait == SHOW_IMAGE_DURATION/2) {
+			if ((iimage == 0 || iimage == num_controlled_images - 1) && wait == CONTROLLED_IMAGE_SHOW_DURATION/2) {
 				mbUserPressedSpacebar = true;
 			}
-			if (wait > SHOW_IMAGE_DURATION) {
+			if (wait > CONTROLLED_IMAGE_SHOW_DURATION) {
 				iimage++;
 				if (iimage == num_controlled_images) {
 					iimage = num_controlled_images - 1;
