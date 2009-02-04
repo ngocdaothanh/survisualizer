@@ -1,0 +1,64 @@
+This is BibTeX, Version 0.99c (Web2C 7.5.4)
+The top-level auxiliary file: Thesis.aux
+The style file: unsrt.bst
+Database file #1: Bibliography.bib
+Warning--entry type for "Reference19" isn't style-file defined
+--line 27 of file Bibliography.bib
+Warning--entry type for "Reference18" isn't style-file defined
+--line 31 of file Bibliography.bib
+Warning--entry type for "Reference16" isn't style-file defined
+--line 42 of file Bibliography.bib
+Warning--entry type for "Reference15" isn't style-file defined
+--line 46 of file Bibliography.bib
+Name 1 in "Takahiro Tsuda, Itaru Kitahara, Yoshinari Kameda, and Yuichi Ohta" has a comma at the end for entry Reference2
+while executing---line 944 of file unsrt.bst
+Name 1 in "Yoshinari Kameda, Taisuke Takemasa, and Yuichi Ohta" has a comma at the end for entry Reference4
+while executing---line 944 of file unsrt.bst
+Name 1 in "Gregory S. Johnson, William R. Mark, and Christopher A. Burns" has a comma at the end for entry Reference8
+while executing---line 944 of file unsrt.bst
+Name 1 in "OpenGl Architecture Review Board, Dave Shreiner, Mason Woo, Jackie Neider, and Tom Davis" has a comma at the end for entry Reference10
+while executing---line 944 of file unsrt.bst
+Too many commas in name 1 of "OpenGl Architecture Review Board, Dave Shreiner, Mason Woo, Jackie Neider, and Tom Davis" for entry Reference10
+while executing---line 944 of file unsrt.bst
+You've used 18 entries,
+            1791 wiz_defined-function locations,
+            552 strings with 5985 characters,
+and the built_in function-call counts, 3752 in all, are:
+= -- 358
+> -- 103
+< -- 6
++ -- 43
+- -- 25
+* -- 156
+:= -- 520
+add.period$ -- 49
+call.type$ -- 18
+change.case$ -- 15
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 208
+empty$ -- 413
+format.name$ -- 25
+if$ -- 908
+int.to.chr$ -- 0
+int.to.str$ -- 18
+missing$ -- 18
+newline$ -- 86
+num.names$ -- 15
+pop$ -- 87
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 143
+stack$ -- 0
+substring$ -- 209
+swap$ -- 71
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 35
+width$ -- 20
+write$ -- 178
+(There were 5 error messages)
