@@ -25,6 +25,7 @@
 	GLuint viewRenderbuffer, viewFramebuffer;
 	GLuint depthRenderbuffer;
 
+	// Texture dimensions must be a power of 2
 	GLuint texture;
 	int textureWidth, textureHeight;
 	GLshort textureVertices[8];
@@ -58,7 +59,9 @@
 	UIButton *bMapMode;
 }
 
+/* Must be called AFTER the camera has been loaded by the Image Picker Controller in MainWindow.xib, typically in applicationDidFinishLaunching */
 - (void)installCameraCallbackHook;
+
 - (void)onReceive:(NSInputStream *)istream;
 
 @property (nonatomic, retain) CameraAdjustorView *caView;

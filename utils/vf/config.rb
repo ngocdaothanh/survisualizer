@@ -16,7 +16,7 @@ CONFIG = {
 
     # L building, towards the parking
     {
-      :position => [-20, GROUND_HEIGHT + 6, 76.2],
+      :position => [-20, GROUND_HEIGHT + 9, 76.2],
       :focus    => [-0.15, -0.3, 0.4],
       :width    => 0.64,
       :height   => 0.48

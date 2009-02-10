@@ -36,6 +36,16 @@ def infer_header
   [width, height, format]
 end
 
+def upside_down(frame, width, height, format)
+  ret = ''
+  length = width*(format == GL_LUMINANCE ? 1 : 4)
+  (0...height).each do |j|
+    line = frame[j*length...(j + 1)*length]
+    ret = ret.insert(0, line)
+  end
+  ret
+end
+
 def convert(raw_filename, width, height, format)
   raw_filename =~ /(.+)\.raw/
   base = $1
@@ -47,6 +57,9 @@ def convert(raw_filename, width, height, format)
   end
 
   frame = File.read(raw_filename)
+
+  frame = upside_down(frame, width, height, format)
+
   if format == GL_BGRA
     frame = bgra2rgb(frame)
   end

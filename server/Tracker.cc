@@ -194,6 +194,7 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 }
 */
 
+#ifdef USE_CONTROLLED_IMAGES
 int get_num_controlled_images()
 {
 	return 10;
@@ -214,6 +215,7 @@ int get_num_controlled_images()
 	printf("There are %d controlled images\n", ret);
 	return ret;
 }
+#endif
 
 // TrackFrame is called by System.cc with each incoming video frame.
 // It figures out what state the tracker is in, and calls appropriate internal tracking
