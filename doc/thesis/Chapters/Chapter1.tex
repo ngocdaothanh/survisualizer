@@ -15,7 +15,7 @@ MR applications are traditionally equipped with Head Mounted Displays (HMD) as s
 	\centering
 	\includegraphics{./Primitives/hmd.jpg}
 	\rule{35em}{0.5pt}
-	\caption[A Head Mounted Dislay]{A Head Mounted Dislay}
+	\caption[Head Mounted Dislay]{A Head Mounted Dislay}
 	\label{fig:HMD}
 \end{figure}
 
@@ -48,17 +48,26 @@ Structure of this thesis:
 
 %------------------------------------------------------------------------------
 
-\section{Use Cases}
-\label{UseCases}
+\section{Use Case}
+\label{UseCase}
 
-When a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is (figure \ref{fig:PrototypeArchitecture}):
+When a user wants to see the visualized viewing fields of surrounding surveillance cameras on his own mobile device screen, the typical usage scenario is (see figure \ref{fig:UseCase} and \ref{fig:PrototypeArchitecture}):
 
 \begin{enumerate}
 	\item The user points the mobile camera in a certain direction.
 	\item Through wireless network, the mobile device continuously sends video frames captured by the camera of the scene to a PTAM server.
 	\item The PTAM server estimates the position and orientation of the mobile camera by analyzing the received video frames, and send them to the mobile device.
 	\item Based on the position and orientation, the mobile device will correctly render visual aids that are instances of viewing fields of the surveillance cameras, and shows the MR video images on its screen.
+	\item When the user changes the position or orientation of the mobile camera, the MR video displayed on the screen will simultaneously change accordingly to the camera movement.
 \end{enumerate}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=14cm]{./Primitives/usecase.png}
+	\rule{35em}{0.5pt}
+	\caption[Usage scenario]{A usage scenario}
+	\label{fig:UseCase}
+\end{figure}
 
 \begin{figure}[htbp]
 	\centering
@@ -67,8 +76,6 @@ When a user wants to see the visualized viewing fields of surrounding surveillan
 	\caption[Prototype architecture]{Prototype architecture. The mobile device can be either a VAIO (appendix \ref{AppendixVAIO}) or an iPhone (appendix \ref{AppendixiPhone}).}
 	\label{fig:PrototypeArchitecture}
 \end{figure}
-
-When the user changes the position or orientation of the mobile camera, the MR video displayed on the screen will simultaneously change accordingly to the camera movement.
 
 The above use case gives an example of the application of visualizing viewing fields of surveillance cameras and a rough idea of how the prototype works. There may be other applications. For example, we can build a system which visualizes ``safe paths'' or ``safe areas'' for children (figure \ref{fig:HomeSchool}). Children can use their cell phones to see if their current location is being well observed when they walk to school or back home.
 
@@ -86,7 +93,7 @@ The above use case gives an example of the application of visualizing viewing fi
 
 For outdoor MR, bulky devices that reduce the mobility of users are not preferable. For example: heavy computers, devices wired to a fixed location, devices with big auxiliaries, big HMDs, HMDs that prevent users from seeing the outdoor environment while walking etc. Devices for outdoor MR should be small, lightweight, and can connect wirelessly to other devices if they need to.
 
-MR systems usually need to know the position and orientation of the devices in order to merge images of the virtual world and the images of the real world at high accuracy. For indoor environment, marker-based solutions are known to work very well \cite{Reference20}. However, outdoor environment is usually large and it is impossible to put markers everywhere. There have been many researches that use UMPCs equipped with GPS and/or gyrocompass devices to realize markless camera registration \cite{Reference2} \cite{Reference4} \cite{Reference13}. Hardware devices have been becoming smaller and more powerful according to Moore's law. Today's high-end cell phones, like Apple iPhone and Google T-Mobile G1, usually have built-in GPS and accelerometer devices. Because of their small size, high specifications, and competitive prices, such devices have found their use in outdoor MR applications and researches, like Sekai camera \cite{Reference18} and Enkin \cite{Reference19}.
+MR systems usually need to know the position and orientation of the devices in order to merge images of the virtual world and the images of the real world at high accuracy. For indoor environment, marker-based solutions are known to work very well \cite{Reference20}. However, outdoor environment is usually large and it is impossible to put markers everywhere. There have been many researches that use UMPCs equipped with GPS and/or gyrocompass devices to realize markerless camera registration \cite{Reference2} \cite{Reference4} \cite{Reference13}. Hardware devices have been becoming smaller and more powerful according to Moore's law. Today's high-end cell phones, like Apple iPhone and Google T-Mobile G1, usually have built-in GPS and accelerometer devices. Because of their small size, high specifications, and competitive prices, such devices have found their use in outdoor MR applications and researches, like Sekai camera \cite{Reference18} and Enkin \cite{Reference19}.
 
 However, normal GPS devices have error of about 5--10 m, and gyrocompass devices suffer from drift error. There have been many researches that are based on the images taken by the camera on the mobile device to deal with this problem. We can follow the approach that uses (1) gravity accelerometer to help eliminating the drift error, (2) model-based tracking on edges and (3) texture tracker to help produce accurate localization result \cite{Reference13}. There is also an approach that completely does not require GPS or gyrocompass devices, but uses the images taken by the camera and a landmark database of natural feature points built before-hand \cite{Reference21}.
 
