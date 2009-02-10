@@ -4,7 +4,7 @@
 - (void)visualizeContour:(ViewingField *)vf;
 - (void)visualizeVolume:(ViewingField *)vf;
 - (void)visualizeShadow:(ViewingField *)vf;
-- (void)visualizeVector:(ViewingField *)vf;
+- (void)visualizeArrow:(ViewingField *)vf;
 - (void)visualizeAnimation:(ViewingField *)vf numViewingFields:(int)numViewingFields;
 
 // Helpers
@@ -62,7 +62,7 @@
 				[self visualizeShadow:vf];
 				break;
 			case 3:
-				[self visualizeVector:vf];
+				[self visualizeArrow:vf];
 				break;
 			case 4:
 				[self visualizeAnimation:vf numViewingFields:[viewingFields count]];
@@ -127,7 +127,7 @@
 
 //------------------------------------------------------------------------------
 
-- (void)visualizeVector:(ViewingField *)vf {
+- (void)visualizeArrow:(ViewingField *)vf {
 	Point3D vertices[2*(vf.segmentsPerEdge + 1)*(vf.segmentsPerEdge + 1)];
 
 	for (int j = 0; j < vf.segmentsPerEdge + 1; j++) {

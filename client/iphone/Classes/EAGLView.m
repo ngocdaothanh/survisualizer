@@ -145,6 +145,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	while (TRUE) {
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
 
+		// The background texture is scaled to fit the OpenGL surface (backingWidth x backingHeight)
 		if (!textureInitialized && backingWidth != 0 && backingHeight != 0 && frameWidth != 0 && frameHeight != 0) {
 			glGenTextures(1, &texture);
 			glBindTexture(GL_TEXTURE_2D, texture);
@@ -157,7 +158,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			textureVertices[2] = backingWidth;  textureVertices[3] = 0;
 			textureVertices[4] = 0;             textureVertices[5] = backingHeight;
 			textureVertices[6] = backingWidth;  textureVertices[7] = backingHeight;
-			
+
 			textureCoords[0] = 0;                                  textureCoords[1] = 0;
 			textureCoords[2] = (GLfloat) frameWidth/textureWidth;  textureCoords[3] = 0;
 			textureCoords[4] = 0;                                  textureCoords[5] = (GLfloat) frameHeight/textureHeight;
@@ -215,7 +216,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 			
-			// Send Green channel to remote machines -----------------------------------
+			// Send the image to remote machines -------------------------------
 			if ([net isConnected]
 #ifndef LAST_STORED_FRAME
 					&& !mapMode
@@ -262,6 +263,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glLoadIdentity();
 	glOrthof(0, mapY, 0, mapY*backingHeight/backingWidth, -1000, 1000);
 
+	// Look from the sky to the ground
 	glRotatef(90, 1, 0, 0);
 	glTranslatef(mapX, 0, mapZ);
 	
@@ -269,6 +271,10 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glLoadIdentity();
 	
 	glTranslatef(caView.position.x, caView.position.y, caView.position.z);
+
+#ifdef ROTATE
+	glRotatef(90, 0, 1, 0);
+#endif
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -334,7 +340,10 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		
+#ifdef ROTATE
+		glRotatef(90, 0, 0, 1);
+#endif
+
 		// Draw 0xyz
 /*		float a[6] = {
 			0, 0, 0,
@@ -355,21 +364,15 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glColor4ub(0, 0, 255, 255);
 		glDrawArrays(GL_LINES, 0, 2);
 */		
-		// Adjust model rotation
+		// Adjust model
 		Point3D rotation = caView.rotation;
 		glRotatef(-rotation.x, 1, 0, 0);
 		glRotatef(-rotation.y, 0, 1, 0);
 		glRotatef(-rotation.z, 0, 0, 1);
 
-		// Adjust model position-----------------------
-
 		Point3D position = caView.position;
 		glTranslatef(-position.x, -position.y, -position.z);
-
 		
-		//glTranslatef(20, -position.y, -76.2);
-		
-		//----------------------------
 /*	
 		// Draw model
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -483,7 +486,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		return;
 	}
 
-	NSLog(@"%d  %d", mapX, mapZ);
 	NSSet *allTouches = [event allTouches];	
 	int count = [allTouches count];
 	if (count == 1) {         // Move
