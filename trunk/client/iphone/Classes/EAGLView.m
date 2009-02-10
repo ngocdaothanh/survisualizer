@@ -45,12 +45,23 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			frameG    = malloc(frameWidth*frameHeight);
 		}
 #ifndef LAST_STORED_FRAME
+#ifndef ROTATE
 		memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
-		for (unsigned int j = 0; j < frameHeight; j++) {
+		for (int j = 0; j < frameHeight; j++) {
 			for (int i = 0; i < frameWidth; i++) {
 				frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
 			}
 		}
+#else
+		// FIXME: rotate
+		memcpy(frameBGRA, surface.baseAddress, frameWidth*frameHeight*4);
+
+		for (int j = 0; j < frameHeight; j++) {
+			for (int i = 0; i < frameWidth; i++) {
+				frameG[i*frameHeight + (frameHeight - (j + 1))] = frameBGRA[(j*frameWidth + i)*4 + 1];
+			}
+		}
+#endif
 #endif
 		[surface unlock];
 		[surface release];
@@ -106,13 +117,11 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	return self;
 }
 
-/**
- * Called by SurvisualizerAppDelegate's applicationDidFinishLaunching because
- * PLCameraController is only available after UIImagePickerController has been
- * loaded.
- */
 - (void)installCameraCallbackHook {
 	id cameraController = [objc_getClass("PLCameraController") sharedInstance];
+	[cameraController startPreview];
+	[Surface dynamicLoad];
+
 	char *p = NULL;
 	object_getInstanceVariable(cameraController, "_camera", (void**) &p);
 	if (!p) return;
@@ -140,11 +149,9 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 			glGenTextures(1, &texture);
 			glBindTexture(GL_TEXTURE_2D, texture);
 
-			// Texture dimensions must be a power of 2
 			textureWidth  = 512;
 			textureHeight = 512;
 			texturePixels = malloc(textureWidth*textureHeight*4);
-			textureInitialized = YES;
 
 			textureVertices[0] = 0;             textureVertices[1] = 0;
 			textureVertices[2] = backingWidth;  textureVertices[3] = 0;
@@ -218,9 +225,14 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 
 				static BOOL headerSent = FALSE;
 				if (!headerSent) {
+#ifndef ROTATE
 					[ostream sendInt:frameWidth];
 					[ostream sendInt:frameHeight];
-#ifdef SEND_LUMINANCE
+#else
+					[ostream sendInt:frameHeight];
+					[ostream sendInt:frameWidth];
+#endif
+#ifdef SEND_G
 					[ostream sendInt:GL_LUMINANCE];
 #else
 					[ostream sendInt:GL_BGRA];
@@ -228,7 +240,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 					[ostream sendInt:0];  // Uncompressed
 					headerSent = TRUE;
 				}
-#ifdef SEND_LUMINANCE
+#ifdef SEND_G
 				[ostream sendBytes:frameG length:frameWidth*frameHeight];
 #else
 				[ostream sendBytes:frameBGRA length:frameWidth*frameHeight*4];
@@ -294,15 +306,16 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-	glEnable(GL_TEXTURE_2D);										   // Enable use of the texture
-	glDisable(GL_BLEND);                                               // Background doesn't need blending
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_BLEND);  // Background doesn't need blending
 	
 	glTexCoordPointer(2, GL_FLOAT, 0, textureCoords);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	for (int j = 0; j < frameHeight; j++) {
 		memcpy(texturePixels + j*textureWidth*4, frameBGRA + ((frameHeight - 1) - j)*frameWidth*4, frameWidth*4);
 	}
+	// The internal format must be GL_RGBA
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_BGRA, GL_UNSIGNED_BYTE, texturePixels);
 
 	glColor4ub(255, 255, 255, 255);  // Must be put before glDisableClientState or error will occur
@@ -378,13 +391,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 - (void)shootScreen {
 #ifdef SHOOT_SCREEN
 	static int iFrame = 0;
-	NSString *fileName = [NSString stringWithFormat:@"%@/Documents/%03d.%d.%d.rgba.raw", NSHomeDirectory(), iFrame, backingWidth, backingHeight];
+	NSString *fileName = [NSString stringWithFormat:@"%@/Documents/%03d.%d.%d.%d.raw", NSHomeDirectory(), iFrame, backingWidth, backingHeight, GL_BGRA];
 	iFrame++;
 	NSLog(fileName);
 
 	int length = 4*backingWidth*backingHeight;
 	char *bytes = malloc(length);
-	glReadPixels(0, 0, backingWidth, backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+	glReadPixels(0, 0, backingWidth, backingHeight, GL_BGRA, GL_UNSIGNED_BYTE, bytes);  // Must be GL_BGRA
 
 	NSData *data = [NSData dataWithBytes:bytes length:length];
 	[data writeToFile:fileName atomically:NO];
@@ -470,6 +483,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		return;
 	}
 
+	NSLog(@"%d  %d", mapX, mapZ);
 	NSSet *allTouches = [event allTouches];	
 	int count = [allTouches count];
 	if (count == 1) {         // Move
