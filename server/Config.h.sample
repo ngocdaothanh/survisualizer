@@ -8,17 +8,21 @@
 #ifdef USE_LOCAL_CAMERA
 #define HOST "localhost"
 #else
-#define HOST "169.254.179.110"
+#define HOST "169.254.221.202"
 #endif
 #define PORT 1225
 
 // Tracker config -------------------------------------------------------------
 
 // Hack: Feed the tracker with controlled data
-//     0.dat      1.dat      2.dat
+//     0.raw      1.raw      2.raw
 // |-----+-----|-----------|-----------|---   ---|-----+-----|
 //    spacebar                                      spacebar
 //#define USE_CONTROLLED_IMAGES
-#define SHOW_IMAGE_DURATION 10*2  // [loops], should be an even number
+
+#ifdef USE_CONTROLLED_IMAGES
+#define CONTROLLED_IMAGE_SHOW_DURATION 30*2  // [loops], should be an even number
+#define CONTROLLED_IMAGE_DIR "/Users/ngocdt/eclipse_workspace/survisualizer/utils/raw/out/son"
+#endif
 
 #endif
