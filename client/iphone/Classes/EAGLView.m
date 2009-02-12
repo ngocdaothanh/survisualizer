@@ -20,7 +20,9 @@
 - (void)drawMapMode;
 - (void)drawRealMode;
 
+#ifdef SHOOT_SCREEN
 - (void)shootScreen;
+#endif
 @end
 
 //------------------------------------------------------------------------------
@@ -28,7 +30,7 @@
 static FUNC_camera_callback original_camera_callback = NULL;
 
 static uint8_t *frameBGRA = NULL;
-static uint8_t *frameG    = NULL;
+static uint8_t *frameG    = NULL;  // Using NSLock on frameG seriously decreases frame rate sending to remote machines
 static int frameWidth  = 0;
 static int frameHeight = 0;
 
@@ -138,10 +140,53 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	textureInitialized = NO;
 	backingWidth  = 0;
 	backingHeight = 0;
-	[NSThread detachNewThreadSelector:@selector(drawViewAndSendVideoLoop:) toTarget:self withObject:nil];
+
+	[NSThread detachNewThreadSelector:@selector(sendFrameLoop:) toTarget:self withObject:nil];
+	[NSThread detachNewThreadSelector:@selector(drawOpenGLLoop:) toTarget:self withObject:nil];
 }
 
-- (void)drawViewAndSendVideoLoop:(id)object {
+// Send the image to remote machines.
+- (void)sendFrameLoop:(id)object {
+	while (TRUE) {
+		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
+
+		if ([net isConnected]
+#ifndef LAST_STORED_FRAME
+			&& !mapMode
+#endif
+			) {
+			NSOutputStream *ostream = [net ostream];
+			
+			static BOOL headerSent = FALSE;
+			if (!headerSent) {
+#ifndef ROTATE
+				[ostream sendInt:frameWidth];
+				[ostream sendInt:frameHeight];
+#else
+				[ostream sendInt:frameHeight];
+				[ostream sendInt:frameWidth];
+#endif
+#ifdef SEND_G
+				[ostream sendInt:GL_LUMINANCE];
+#else
+				[ostream sendInt:GL_BGRA];
+#endif
+				[ostream sendInt:0];  // Uncompressed
+				headerSent = TRUE;
+			}
+#ifdef SEND_G
+			[ostream sendBytes:frameG length:frameWidth*frameHeight];
+#else
+			[ostream sendBytes:frameBGRA length:frameWidth*frameHeight*4];
+#endif
+		}
+
+		[pool release];
+	}
+	[NSThread exit];
+}
+
+- (void)drawOpenGLLoop:(id)object {
 	while (TRUE) {
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
 
@@ -212,41 +257,12 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 				[self drawRealMode];
 			}
 
+#ifdef SHOOT_SCREEN
 			[self shootScreen];
-			glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-			[context presentRenderbuffer:GL_RENDERBUFFER_OES];
+#endif
 			
-			// Send the image to remote machines -------------------------------
-			if ([net isConnected]
-#ifndef LAST_STORED_FRAME
-					&& !mapMode
-#endif
-					) {
-				NSOutputStream *ostream = [net ostream];
-
-				static BOOL headerSent = FALSE;
-				if (!headerSent) {
-#ifndef ROTATE
-					[ostream sendInt:frameWidth];
-					[ostream sendInt:frameHeight];
-#else
-					[ostream sendInt:frameHeight];
-					[ostream sendInt:frameWidth];
-#endif
-#ifdef SEND_G
-					[ostream sendInt:GL_LUMINANCE];
-#else
-					[ostream sendInt:GL_BGRA];
-#endif
-					[ostream sendInt:0];  // Uncompressed
-					headerSent = TRUE;
-				}
-#ifdef SEND_G
-				[ostream sendBytes:frameG length:frameWidth*frameHeight];
-#else
-				[ostream sendBytes:frameBGRA length:frameWidth*frameHeight*4];
-#endif
-			}
+			glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+			[context presentRenderbuffer:GL_RENDERBUFFER_OES];			
 		}
 
 		[pool release];
@@ -386,13 +402,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	}
 }
 
+#ifdef SHOOT_SCREEN
 /**
  * glReadPixels(0, 0, backingWidth, backingHeight, GL_RGB, GL_UNSIGNED_BYTE, bytes)
  * gives black screenshot, thus we need to
  * glReadPixels(0, 0, backingWidth, backingHeight, GL_RGBA, GL_UNSIGNED_BYTE, bytes)
  */
 - (void)shootScreen {
-#ifdef SHOOT_SCREEN
 	static int iFrame = 0;
 	NSString *fileName = [NSString stringWithFormat:@"%@/Documents/%03d.%d.%d.%d.raw", NSHomeDirectory(), iFrame, backingWidth, backingHeight, GL_BGRA];
 	iFrame++;
@@ -408,8 +424,8 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	//[data autorelease];
 	//[fileName release];
 	free(bytes);
-#endif
 }
+#endif
 
 //------------------------------------------------------------------------------
 
