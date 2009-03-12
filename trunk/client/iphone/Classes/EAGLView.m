@@ -328,16 +328,16 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	if ([pose isValid] && visualizer) {
 		glMatrixMode(GL_PROJECTION);  
 		glLoadIdentity();
+#ifdef ROTATE
+		glRotatef(90, 0, 0, 1);
+#endif
 		[pose apply];
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-#ifdef ROTATE
-		glRotatef(90, 0, 0, 1);
-#endif
 
-		// Draw 0xyz
-/*		float a[6] = {
+		// Draw 0xyz to debug
+		float a[6] = {
 			0, 0, 0,
 			1, 0, 0
 		};
@@ -355,7 +355,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glVertexPointer(3, GL_FLOAT, 0, a);
 		glColor4ub(0, 0, 255, 255);
 		glDrawArrays(GL_LINES, 0, 2);
-*/
+
 		
 /*	
 		// Draw model
