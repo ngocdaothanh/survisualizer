@@ -84,7 +84,7 @@ void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 	glColor3f(0, 0, 1); glVertex3f(0, 0, 0); glVertex3f(0, 0, 1);
 	glEnd();
 
-	//mGame.DrawStuff(se3CfromW.inverse().get_translation());
+	mGame.DrawStuff(se3CfromW.inverse().get_translation());
 
 	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
