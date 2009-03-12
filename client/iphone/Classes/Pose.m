@@ -63,7 +63,7 @@
 	glMultMatrixf(frustum);
 	glTranslatef(translation.x, translation.y, translation.z);
 	glMultMatrixf(rotation);
-	
+
 	// Adjust rotation
 	glRotatef(dR.x, 1, 0, 0);
 	glRotatef(dR.y, 0, 1, 0);
