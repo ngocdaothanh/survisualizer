@@ -15,11 +15,15 @@ using namespace CVD;
 using namespace std;
 using namespace GVars3;
 
+extern float dRX, dRY, dRZ;
+extern float dPX, dPY, dPZ;
+
 System::System()
 : mGLWindow(mVideoSource.Size(), "PTAM")
 {
 	GUI.RegisterCommand("exit", GUICommandCallBack, this);
 	GUI.RegisterCommand("quit", GUICommandCallBack, this);
+	GUI.RegisterCommand("KeyPress", GUICommandCallBack, this);
 
 	mimFrameBW.resize(mVideoSource.Size());
 
@@ -133,7 +137,7 @@ void System::Run()
 		// Send pose to remote camera, see ARDriver::Render
 		char valid;
 		if (mpMap->IsGood() && !mpTracker->isFrameLost()) {
-			float numbers[28];
+			float numbers[28 + 3 + 3];
 			int i, j;
 
 			// Frustom
@@ -160,9 +164,17 @@ void System::Run()
 				}
 			}
 
+			// Adjust
+			numbers[28] = dRX;
+			numbers[29] = dRY;
+			numbers[30] = dRZ;
+			numbers[31] = dPX;
+			numbers[32] = dPY;
+			numbers[33] = dPZ;
+
 			valid = 1;
 			Net::get_instance()->send_bytes(&valid, 1);
-			Net::get_instance()->send_bytes((char *) numbers, 28*sizeof(float));
+			Net::get_instance()->send_bytes((char *) numbers, (28 + 3 + 3)*sizeof(float));
 		} else {
 			// Notify that the pose is not valid any more
 			valid = 0;
@@ -184,6 +196,41 @@ void System::Run()
 
 void System::GUICommandCallBack(void *ptr, string sCommand, string sParams)
 {
-	if(sCommand == "quit" || sCommand == "exit")
+	if (sCommand == "quit" || sCommand == "exit")
 		static_cast<System*>(ptr)->mbDone = true;
+
+	// Let the user manually adjust the ratation
+	if (sCommand == "KeyPress") {
+		if (sParams == "x") {
+			dRX -= 1;
+		} else if (sParams == "c") {
+			dRX += 1;
+		} else if (sParams == "y") {
+			dRY -= 1;
+		} else if (sParams == "u") {
+			dRY += 1;
+		} else if (sParams == "s") {
+			dRZ -= 1;
+		} else if (sParams == "d") {
+			dRZ += 1;
+		}
+
+		if (sParams == "i") {
+			dPX -= 1;
+		} else if (sParams == "o") {
+			dPX += 1;
+		} else if (sParams == "j") {
+			dPY -= 1;
+		} else if (sParams == "k") {
+			dPY += 1;
+		} else if (sParams == "n") {
+			dPZ -= 1;
+		} else if (sParams == "m") {
+			dPZ += 1;
+		}
+
+		cout << "dRX = " << dRX << ", dRY = " << dRY << ", dRZ = " << dRZ << "\n" << "\n";
+		cout << "dPX = " << dPX << ", dPY = " << dPY << ", dPZ = " << dPZ << "\n";
+		cout.flush();
+	}
 }

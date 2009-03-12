@@ -35,6 +35,8 @@ void ARDriver::Reset()
 	mnCounter = 0;
 }
 
+extern float dRX, dRY, dRZ;
+extern float dPX, dPY, dPZ;
 void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 {
 	if(!mbInitialised)
@@ -65,8 +67,13 @@ void ARDriver::Render(Image<CVD::byte> &imFrame, SE3 se3CfromW)
 	// Set up 3D projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	glMultMatrix(mCamera.MakeUFBLinearFrustumMatrix(0.005, 100));
 	glMultMatrix(se3CfromW);
+
+	glRotatef(dRX, 1, 0, 0);
+	glRotatef(dRY, 0, 1, 0);
+	glRotatef(dRZ, 0, 0, 1);
 
 	DrawFadingGrid();
 	
@@ -245,11 +252,16 @@ void ARDriver::DrawDistortedFB()
 void ARDriver::DrawFadingGrid()
 {
 	double dStrength;
+	
+	// Do not fade, please
+	dStrength = 1.0;
+/*
 	if(mnCounter >= 60)
 		return;
 	if(mnCounter < 30)
 		dStrength = 1.0;
 	dStrength = (60 - mnCounter) / 30.0;
+*/
 
 	glColor4f(1,1,1,dStrength);
 	int nHalfCells = 5;

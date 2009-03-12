@@ -3,13 +3,7 @@
 
 // Video config ---------------------------------------------------------------
 
-//#define USE_LOCAL_CAMERA
-
-#ifdef USE_LOCAL_CAMERA
-#define HOST "localhost"
-#else
 #define HOST "169.254.221.202"
-#endif
 #define PORT 1225
 
 // Tracker config -------------------------------------------------------------
@@ -18,11 +12,13 @@
 //     0.raw      1.raw      2.raw
 // |-----+-----|-----------|-----------|---   ---|-----+-----|
 //    spacebar                                      spacebar
+
 //#define USE_CONTROLLED_IMAGES
 
 #ifdef USE_CONTROLLED_IMAGES
-#define CONTROLLED_IMAGE_SHOW_DURATION 30*2  // [loops], should be an even number
-#define CONTROLLED_IMAGE_DIR "/Users/ngocdt/eclipse_workspace/survisualizer/utils/raw/out/son"
+#define PREFERRED_NUM_CONTROLLED_IMAGES 10
+#define CONTROLLED_IMAGE_SHOW_DURATION  15*2  // [loops], should be an even number
+#define CONTROLLED_IMAGE_DIR            "/Users/ngocdt/eclipse_workspace/survisualizer/utils/raw/out/son"
 #endif
 
 #endif

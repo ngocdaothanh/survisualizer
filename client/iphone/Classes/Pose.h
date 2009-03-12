@@ -4,18 +4,22 @@
 	float frustum[16];
 	Point3D translation;
 	float rotation[16];
+
+	// Adjustment
+	Point3D dR;
+	Point3D dP;
+
 	BOOL valid;
-	
-	Point3D deltaRotation;
 }
 
 @property (readonly) Point3D translation;
+@property (readonly) Point3D dP;
 
 - (void)invalidate;
 - (BOOL)isValid;
 
 /**
- * numbers: array of 28 float numbers sent by PTAM.
+ * numbers: array of float numbers sent by PTAM.
  */
 - (void)validate:(float *)numbers;
 

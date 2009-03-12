@@ -15,7 +15,6 @@
 		28FD14FE0DC6FC130079059D /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 28FD14FD0DC6FC130079059D /* EAGLView.m */; };
 		28FD15000DC6FC520079059D /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD14FF0DC6FC520079059D /* OpenGLES.framework */; };
 		28FD15080DC6FC5B0079059D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28FD15070DC6FC5B0079059D /* QuartzCore.framework */; };
-		E2411E3E0F3040E000492C5D /* CameraAdjustorView.m in Sources */ = {isa = PBXBuildFile; fileRef = E2411E3D0F3040E000492C5D /* CameraAdjustorView.m */; };
 		E25B822D0F29F5080016023E /* Pose.m in Sources */ = {isa = PBXBuildFile; fileRef = E25B822C0F29F5080016023E /* Pose.m */; };
 		E25E28E10F29789A009CEDD0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E25E28E00F29789A009CEDD0 /* CoreGraphics.framework */; };
 		E2A25EEB0F2C2DF500E82E09 /* ViewingField.m in Sources */ = {isa = PBXBuildFile; fileRef = E2A25EEA0F2C2DF500E82E09 /* ViewingField.m */; };
@@ -41,8 +40,6 @@
 		32CA4F630368D1EE00C91783 /* Survisualizer_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Survisualizer_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E2411D290F302BDA00492C5D /* Point3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Point3D.h; sourceTree = "<group>"; };
-		E2411E3C0F3040E000492C5D /* CameraAdjustorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraAdjustorView.h; sourceTree = "<group>"; };
-		E2411E3D0F3040E000492C5D /* CameraAdjustorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraAdjustorView.m; sourceTree = "<group>"; };
 		E25B822B0F29F5080016023E /* Pose.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pose.h; sourceTree = "<group>"; };
 		E25B822C0F29F5080016023E /* Pose.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pose.m; sourceTree = "<group>"; };
 		E25E28E00F29789A009CEDD0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -99,8 +96,6 @@
 				E2A25EEC0F2C339100E82E09 /* Visualizer.h */,
 				E2A25EED0F2C339100E82E09 /* Visualizer.m */,
 				E2411D290F302BDA00492C5D /* Point3D.h */,
-				E2411E3C0F3040E000492C5D /* CameraAdjustorView.h */,
-				E2411E3D0F3040E000492C5D /* CameraAdjustorView.m */,
 				E2C1C3A80F39633100B5E21B /* Config.h */,
 			);
 			path = Classes;
@@ -219,7 +214,6 @@
 				E25B822D0F29F5080016023E /* Pose.m in Sources */,
 				E2A25EEB0F2C2DF500E82E09 /* ViewingField.m in Sources */,
 				E2A25EEE0F2C339100E82E09 /* Visualizer.m in Sources */,
-				E2411E3E0F3040E000492C5D /* CameraAdjustorView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,13 +250,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ngoc Dao";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos2.2;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4244164A-6C69-4ABD-BD7A-9530554DA8DF";
+				SDKROOT = iphoneos2.2.1;
 			};
 			name = Debug;
 		};
@@ -270,12 +265,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ngoc Dao";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos2.2;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4244164A-6C69-4ABD-BD7A-9530554DA8DF";
+				SDKROOT = iphoneos2.2.1;
 			};
 			name = Release;
 		};

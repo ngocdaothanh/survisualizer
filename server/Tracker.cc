@@ -197,7 +197,6 @@ std::ostream& operator <<(std::ostream& os, const Map& map)
 #ifdef USE_CONTROLLED_IMAGES
 int get_num_controlled_images()
 {
-	return 10;
 	int ret = 0;
 	char file_name[99];
 
@@ -211,8 +210,13 @@ int get_num_controlled_images()
 			break;
 		}
 	}
-
 	printf("There are %d controlled images\n", ret);
+
+	if (ret > PREFERRED_NUM_CONTROLLED_IMAGES) {
+		ret = PREFERRED_NUM_CONTROLLED_IMAGES;
+		printf("But only the first %d images will be used\n", PREFERRED_NUM_CONTROLLED_IMAGES);
+	}
+
 	return ret;
 }
 #endif
@@ -238,10 +242,14 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 			char file_name[99];
 			sprintf(file_name, "%s/%03d.raw", CONTROLLED_IMAGE_DIR, iimage);
 
+			char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
+
+			ifstream in(file_name, ios::binary);
+			in.read(buffer, imFrame.size().area());
+/*
 			// The image is in BGRA, extract only G
 			ifstream in(file_name, ios::binary);
 			char *bgra = new char[imFrame.size().area()*4];
-			char *buffer = new char[imFrame.size().area()];  // The image will take care of this memory
 			in.read(bgra, imFrame.size().area()*4);
 			for (int j = 0; j < imFrame.size().y; j++) {
 				for (int i = 0; i < imFrame.size().x; i++) {
@@ -249,6 +257,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 				}
 			}
 			delete[] bgra;
+*/
 
 			BasicImage<byte> image((byte *) buffer, imFrame.size());
 			imFrame.copy_from(image);
@@ -262,7 +271,7 @@ void Tracker::TrackFrame(Image<byte> &imFrame, bool bDraw)
 				if (iimage == num_controlled_images) {
 					iimage = num_controlled_images - 1;
 				}
-				printf("Using %d.raw\n", iimage);
+				printf("Using %03d.raw\n", iimage);
 
 				wait = 0;
 			}
@@ -434,6 +443,7 @@ void Tracker::RenderGrid()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glLineWidth(2);
+
 		for(int i=0; i<nTot; i++)
 		{
 			glBegin(GL_LINE_STRIP);
