@@ -326,6 +326,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	glDisable(GL_TEXTURE_2D);
 
 	if ([pose isValid] && visualizer) {
+		glDisable(GL_CLIP_PLANE0);
+		glDisable(GL_CLIP_PLANE1);
+		glDisable(GL_CLIP_PLANE2);
+		glDisable(GL_CLIP_PLANE3);
+		glDisable(GL_CLIP_PLANE4);
+		glDisable(GL_CLIP_PLANE5);
+		
 		glMatrixMode(GL_PROJECTION);  
 		glLoadIdentity();
 #ifdef ROTATE
@@ -356,8 +363,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glColor4ub(0, 0, 255, 255);
 		glDrawArrays(GL_LINES, 0, 2);
 
-		
-/*	
+
 		// Draw model
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
@@ -365,7 +371,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glVertexPointer(3, GL_FLOAT, 0, triangles);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
-*/		
+		
 		[visualizer visualize:iVisualizationMethod];
 	}
 }

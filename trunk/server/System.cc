@@ -229,8 +229,8 @@ void System::GUICommandCallBack(void *ptr, string sCommand, string sParams)
 			dPZ += 1;
 		}
 
-		cout << "dRX = " << dRX << ", dRY = " << dRY << ", dRZ = " << dRZ << "\n" << "\n";
-		cout << "dPX = " << dPX << ", dPY = " << dPY << ", dPZ = " << dPZ << "\n";
+		cout << "dRX = " << dRX << ", dRY = " << dRY << ", dRZ = " << dRZ << "\n";
+		cout << "dPX = " << dPX << ", dPY = " << dPY << ", dPZ = " << dPZ << "\n" << "\n";
 		cout.flush();
 	}
 }
