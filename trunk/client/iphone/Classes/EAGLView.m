@@ -82,8 +82,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 @synthesize bMethod5;
 @synthesize bMapMode;
 
-@synthesize caView;
-
 + (Class)layerClass {
 	return [CAEAGLLayer class];
 }
@@ -145,16 +143,71 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[NSThread detachNewThreadSelector:@selector(drawOpenGLLoop:) toTarget:self withObject:nil];
 }
 
+#ifdef LAST_STORED_FRAME
+- (void)loadFromFile {
+	// A in BGRA is unused
+	
+	static int storedVideo = 0;
+	static BOOL increasingDirection = YES;
+	
+	NSString *fileName = [[NSString alloc] initWithFormat:@"/private/var/mobile/Surveillance/in/%03d.raw", storedVideo];
+	NSData *data = [NSData dataWithContentsOfFile:fileName];
+	
+	uint8_t *bytes = (uint8_t *) [data bytes];
+	
+#ifndef ROTATE
+	for (unsigned int i = 0; i < frameWidth; i++) {
+		uint8_t byte = bytes[i];
+		frameBGRA[i*4 + 0] = byte;
+		frameBGRA[i*4 + 1] = byte;
+		frameBGRA[i*4 + 2] = byte;
+	}
+#else
+	for (unsigned int j = 0; j < frameHeight; j++) {
+		for (unsigned int i = 0; i < frameWidth; i++) {
+			uint8_t byte = bytes[i*frameHeight + (frameHeight - (j + 1))];
+			frameBGRA[(j*frameWidth + i)*4 + 0] = byte;
+			frameBGRA[(j*frameWidth + i)*4 + 1] = byte;
+			frameBGRA[(j*frameWidth + i)*4 + 2] = byte;
+		}
+	}
+#endif
+	//memcpy(frameBGRA, [data bytes], [data length]);
+
+	//[data autorelease];
+	[fileName release];
+	
+	// Reset storedVideo if the pose is invalid (note that pose is invalid when the map has not been created on the PTAM side)
+	if ([pose isValid]) {
+		if (increasingDirection) {
+			storedVideo++;
+			if (storedVideo > LAST_STORED_FRAME) {
+				storedVideo = LAST_STORED_FRAME;
+				increasingDirection = NO;
+			}
+		} else {
+			storedVideo--;
+			if (storedVideo < 0) {
+				storedVideo = 0;
+				increasingDirection = YES;
+			}
+		}
+	} else {
+		storedVideo = 0;
+	}	
+}
+#endif
+
 // Send the image to remote machines.
 - (void)sendFrameLoop:(id)object {
 	while (TRUE) {
 		NSAutoreleasePool* pool = [[NSAutoreleasePool alloc]init];
 
-		if ([net isConnected]
-#ifndef LAST_STORED_FRAME
-			&& !mapMode
+#ifdef LAST_STORED_FRAME
+		[self loadFromFile];		
 #endif
-			) {
+		
+		if ([net isConnected]) {
 			NSOutputStream *ostream = [net ostream];
 			
 			static BOOL headerSent = FALSE;
@@ -174,7 +227,13 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 				[ostream sendInt:0];  // Uncompressed
 				headerSent = TRUE;
 			}
-#ifdef SEND_G
+#ifdef SEND_G	
+			for (unsigned int j = 0; j < frameHeight; j++) {
+				for (unsigned int i = 0; i < frameWidth; i++) {
+					frameG[i*frameHeight + (frameHeight - (j + 1))] = frameBGRA[(j*frameWidth + i)*4 + 1];
+				}
+			}
+			 
 			[ostream sendBytes:frameG length:frameWidth*frameHeight];
 #else
 			[ostream sendBytes:frameBGRA length:frameWidth*frameHeight*4];
@@ -213,39 +272,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		}
 
 		if (frameBGRA) {
-#ifdef LAST_STORED_FRAME
-			static int storedVideo = 0;
-			static BOOL increasingDirection = YES;
-
-			NSString *fileName = [[NSString alloc] initWithFormat:@"/private/var/mobile/Surveillance/in/%03d.raw", storedVideo];
-			NSData *data = [NSData dataWithContentsOfFile:fileName];
-			memcpy(frameBGRA, [data bytes], [data length]);
-			//[data autorelease];
-			[fileName release];
-
-			for (unsigned int j = 0; j < frameHeight; j++) {
-				for (int i = 0; i < frameWidth; i++) {
-					frameG[j*frameWidth + i] = frameBGRA[(j*frameWidth + i)*4 + 1];
-				}
-			}
-
-			if (increasingDirection) {
-				// Only use the first frame then wait until the map has been created on the PTAM side
-				if (storedVideo != 0 || [pose isValid]) {
-					storedVideo++;
-					if (storedVideo > LAST_STORED_FRAME) {
-						storedVideo = LAST_STORED_FRAME;
-						increasingDirection = NO;
-					}
-				}
-			} else {
-				storedVideo--;
-				if (storedVideo < 0) {
-					storedVideo = 0;
-					increasingDirection = YES;
-				}
-			}
-#endif
 			[EAGLContext setCurrentContext:context];
 			glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 			glViewport(0, 0, backingWidth, backingHeight);  // Viewport must be called everytime, don't know why
@@ -268,56 +294,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		[pool release];
 	}
 	[NSThread exit];
-}
-
-- (void)drawMapMode {
-	if (!triangles) {
-		return;
-	}
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrthof(0, mapY, 0, mapY*backingHeight/backingWidth, -1000, 1000);
-
-	// Look from the sky to the ground
-	glRotatef(90, 1, 0, 0);
-	glTranslatef(mapX, 0, mapZ);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	glTranslatef(caView.position.x, caView.position.y, caView.position.z);
-
-#ifdef ROTATE
-	glRotatef(90, 0, 1, 0);
-#endif
-	
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-	glColor4ub(0, 0, 0, 15);
-
-	glVertexPointer(3, GL_FLOAT, 0, triangles);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
-
-	if (visualizer) {
-		[visualizer visualize:iVisualizationMethod];
-	}
-
-	// Draw current position
-	if ([pose isValid]) {
-		// Adjust camera position
-		Point3D translation = pose.translation;
-		Point3D position = caView.position;
-		translation.x += position.x;
-		translation.y += position.y;
-		translation.z += position.z;
-
-		glPointSize(7);
-		glColor4ub(0, 255, 0, 127);
-		glVertexPointer(3, GL_FLOAT, 0, &translation);
-		glDrawArrays(GL_POINTS, 0, 1);
-	}
 }
 
 - (void)drawRealMode {
@@ -379,15 +355,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glVertexPointer(3, GL_FLOAT, 0, a);
 		glColor4ub(0, 0, 255, 255);
 		glDrawArrays(GL_LINES, 0, 2);
-*/		
-		// Adjust model
-		Point3D rotation = caView.rotation;
-		glRotatef(-rotation.x, 1, 0, 0);
-		glRotatef(-rotation.y, 0, 1, 0);
-		glRotatef(-rotation.z, 0, 0, 1);
-
-		Point3D position = caView.position;
-		glTranslatef(-position.x, -position.y, -position.z);
+*/
 		
 /*	
 		// Draw model
@@ -399,6 +367,57 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 		glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
 */		
 		[visualizer visualize:iVisualizationMethod];
+	}
+}
+
+- (void)drawMapMode {
+	if (!triangles) {
+		return;
+	}
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrthof(0, mapY, 0, mapY*backingHeight/backingWidth, -1000, 1000);
+	
+	// Look from the sky to the ground
+	glRotatef(90, 1, 0, 0);
+	glTranslatef(mapX, 0, mapZ);
+	
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	
+	glTranslatef(pose.dP.x, pose.dP.y, pose.dP.z);
+	
+#ifdef ROTATE
+	glRotatef(90, 0, 1, 0);
+#endif
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glColor4ub(0, 0, 0, 15);
+	
+	glVertexPointer(3, GL_FLOAT, 0, triangles);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDrawArrays(GL_TRIANGLES, 0, 3*numTriangles);
+	
+	if (visualizer) {
+		[visualizer visualize:iVisualizationMethod];
+	}
+	
+	// Draw current position
+	if ([pose isValid]) {
+		// Adjust camera position
+		Point3D translation = pose.translation;
+		NSLog(@"%f", translation.z);
+		Point3D position = pose.dP;
+		translation.x += position.x;
+		translation.y += position.y;
+		translation.z += position.z;
+		
+		glPointSize(7);
+		glColor4ub(0, 255, 0, 127);
+		glVertexPointer(3, GL_FLOAT, 0, &translation);
+		glDrawArrays(GL_POINTS, 0, 1);
 	}
 }
 
@@ -467,7 +486,7 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 - (void)receivePose:(NSInputStream *)istream {
 	char *valid = [istream receiveBytes:1];
 	if (*valid == 1) {
-		float *numbers = (float *) [istream receiveBytes:28*sizeof(float)];
+		float *numbers = (float *) [istream receiveBytes:(28 + 3 + 3)*sizeof(float)];
 		[pose validate:numbers];
 		free(numbers);
 	} else {
@@ -615,7 +634,6 @@ static int __camera_callbackHook(CameraDeviceRef cameraDevice, int a, CoreSurfac
 	[viewingFields release];
 
 	[visualizer release];
-	[caView autorelease];
 	[super dealloc];
 }
 

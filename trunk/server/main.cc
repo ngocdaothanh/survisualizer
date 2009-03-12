@@ -8,6 +8,10 @@
 using namespace std;
 using namespace GVars3;
 
+// Adjustment
+float dRX, dRY, dRZ;
+float dPX = -23, dPY = -13, dPZ = 95;
+
 int main()
 {
 	cout << "  Welcome to PTAM " << endl;

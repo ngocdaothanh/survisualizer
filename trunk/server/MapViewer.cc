@@ -41,7 +41,6 @@ void MapViewer::DrawMapDots()
 	mv3MassCenter = mv3MassCenter / (0.1 + nForMass);
 }
 
-
 void MapViewer::DrawGrid()
 {
 	SetupFrustum();
